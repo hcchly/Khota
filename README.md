@@ -1,17 +1,11 @@
-# khota_app
+# خُطى | Khota
 
-A new Flutter project.
+A citizen app for reporting damaged sidewalks and curb ramps in Riyadh. AI detects the issue and its severity, and a location score (PIQS) supports maintenance prioritization.
 
-## Getting Started
+IT496 Graduation Project – King Saud University, Fall 2026.
 
-This project is a starting point for a Flutter application.
+**Team:** Hala Alduhayan, Rand Aldahmash, Rahaf Alshalwi, Haifa Alromaih
+**Supervisor:** Prof. Reham Alabduljabbar
 
-A few resources to get you started if this is your first Flutter project:
+**Built with:** Flutter, Firebase, YOLOv8
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
