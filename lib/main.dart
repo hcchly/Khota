@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'screens/shell/main_shell.dart';
+import 'screens/auth/splash_screen.dart';
 import 'settings/app_settings.dart';
 import 'theme/app_theme.dart';
 
@@ -50,10 +50,8 @@ class KhotaApp extends StatelessWidget {
             );
           },
 
-          // TEMPORARY: opens the main app directly.
-          // When login is ready, show the login screen first and
-          // open MainShell after a successful login.
-          home: const MainShell(),
+          // Animated intro, then login (or home if already signed in).
+          home: const SplashScreen(),
         );
       },
     );

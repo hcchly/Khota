@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../models/app_user.dart';
+import '../../services/auth_service.dart';
 import '../../services/profile_service.dart';
 import '../../theme/app_colors.dart';
-import '../../widgets/coming_soon.dart';
 import '../../widgets/gradient_header.dart';
+import '../auth/login_screen.dart';
 import '../info/about_screen.dart';
 import '../info/photo_guide_screen.dart';
 import '../info/privacy_screen.dart';
@@ -47,6 +48,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
     if (updated != null) _reload();
+  }
+
+  /// PBI-06: log out, end the session and return to the login screen.
+  Future<void> _confirmLogout() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.warmWhite,
+        title: const Text('تسجيل الخروج'),
+        content: const Text('هل تريد تسجيل الخروج من حسابك؟'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('إلغاء'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('تسجيل الخروج'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    await MockAuthService.instance.signOut();
+    if (!mounted) return;
+    // Remove every screen so the user cannot go back without logging in.
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (_) => false,
+    );
   }
 
   void _open(Widget screen) {
@@ -101,12 +134,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onTap: () => _open(const AboutScreen()),
                     ),
                     const SizedBox(height: 8),
-                    // Log out belongs to the login/logout task.
                     _MenuTile(
                       icon: Icons.logout,
                       label: 'تسجيل الخروج',
                       color: AppColors.error,
-                      onTap: () => showComingSoon(context),
+                      onTap: _confirmLogout,
                     ),
                   ],
                 ),
