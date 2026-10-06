@@ -21,7 +21,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late final ProfileService _service =
-      widget.service ?? MockProfileService.instance;
+     widget.service ?? FirestoreProfileService.instance;
   late final Future<AppUser> _profile = _service.getProfile();
 
   void _openPhotoGuide() {

@@ -17,7 +17,7 @@ import 'edit_profile_screen.dart';
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key, this.service});
 
-  /// Leave empty to use the temporary fake data.
+  /// Optional override for tests. The app uses Firestore by default.
   final ProfileService? service;
 
   @override
@@ -26,7 +26,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   late final ProfileService _service =
-      widget.service ?? MockProfileService.instance;
+      widget.service ?? FirestoreProfileService.instance;
   late Future<AppUser> _profile;
 
   @override
@@ -73,8 +73,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
     if (confirmed != true || !mounted) return;
 
-    await MockAuthService.instance.signOut();
+    await FirebaseAuthService.instance.signOut();
     if (!mounted) return;
+
     // Remove every screen so the user cannot go back without logging in.
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -235,6 +236,7 @@ class _MenuTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final iconColor = color == AppColors.error ? AppColors.error : AppColors.teal;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Material(
