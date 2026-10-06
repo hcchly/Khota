@@ -18,7 +18,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  late final AuthService _auth = widget.auth ?? MockAuthService.instance;
+  late final AuthService _auth = widget.auth ?? FirebaseAuthService.instance;
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();

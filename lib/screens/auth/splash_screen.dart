@@ -21,7 +21,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-  late final AuthService _auth = widget.auth ?? MockAuthService.instance;
+  late final AuthService _auth = widget.auth ?? FirebaseAuthService.instance;
   late final AnimationController _controller = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 2600),
