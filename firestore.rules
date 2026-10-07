@@ -1,8 +1,16 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
     function isOwner(uid) {
       return request.auth != null && request.auth.uid == uid;
+    }
+
+    function isValidFullName(value) {
+      return value is string
+        && value.size() >= 3
+        && value.size() <= 50
+        && value.matches('.*\\S.*');
     }
 
     match /users/{uid} {
@@ -10,15 +18,29 @@ service cloud.firestore {
       allow list: if false;
 
       allow create: if isOwner(uid)
-        && request.resource.data.keys().hasAll(['fullName', 'email', 'createdAt'])
-        && request.resource.data.keys().hasOnly(['fullName', 'email', 'createdAt'])
+        && request.resource.data.keys().hasAll([
+          'fullName', 'email', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'fullName', 'email', 'createdAt'
+        ])
+        && isValidFullName(request.resource.data.fullName)
+        && request.resource.data.email is string
         && request.resource.data.email == request.auth.token.email
         && request.resource.data.createdAt == request.time;
 
       allow update: if isOwner(uid)
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fullName'])
+        && request.resource.data.keys().hasAll([
+          'fullName', 'email', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'fullName', 'email', 'createdAt'
+        ])
+        && isValidFullName(request.resource.data.fullName)
         && request.resource.data.email == resource.data.email
-        && request.resource.data.createdAt == resource.data.createdAt;
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.diff(resource.data)
+             .affectedKeys().hasOnly(['fullName']);
 
       allow delete: if false;
     }
