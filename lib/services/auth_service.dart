@@ -29,6 +29,9 @@ abstract class AuthService {
   });
 
   Future<void> signOut();
+
+  /// Sends a password reset link to [email].
+  Future<void> sendPasswordReset(String email);
 }
 
 /// Temporary in-memory accounts.
@@ -97,6 +100,11 @@ class MockAuthService implements AuthService {
   Future<void> signOut() async {
     await Future<void>.delayed(const Duration(milliseconds: 300));
     _currentUser = null;
+  }
+
+  @override
+  Future<void> sendPasswordReset(String email) async {
+    await Future<void>.delayed(const Duration(milliseconds: 500));
   }
 
   /// Used by the mock profile service to save a new name.
@@ -186,6 +194,17 @@ class FirebaseAuthService implements AuthService {
   @override
   Future<void> signOut() => _auth.signOut();
 
+  @override
+  Future<void> sendPasswordReset(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email.trim().toLowerCase());
+    } on FirebaseAuthException catch (error) {
+      // Do not reveal whether an account exists for this email.
+      if (error.code == 'user-not-found') return;
+      throw AuthException(_messageFor(error.code));
+    }
+  }
+
   String _messageFor(String code) {
     switch (code) {
       case 'email-already-in-use':
@@ -195,9 +214,13 @@ class FirebaseAuthService implements AuthService {
       case 'user-not-found':
         return 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
       case 'weak-password':
-        return 'كلمة المرور يجب أن تكون ٨ أحرف على الأقل';
+        return 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
       case 'invalid-email':
         return 'صيغة البريد الإلكتروني غير صحيحة';
+      case 'too-many-requests':
+        return 'محاولات كثيرة، حاول مرة أخرى بعد قليل';
+      case 'network-request-failed':
+        return 'تعذّر الاتصال بالإنترنت، تحقّق من الشبكة';
       default:
         return 'تعذّر تسجيل الدخول. حاولي مرة أخرى';
     }
