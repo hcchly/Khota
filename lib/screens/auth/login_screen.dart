@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../services/auth_service.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/input_formatters.dart';
 import '../../utils/validators.dart';
 import '../../widgets/gradient_header.dart';
 import '../../widgets/labeled_field.dart';
@@ -22,9 +23,11 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   late final AuthService _auth = widget.auth ?? FirebaseAuthService.instance;
   final _formKey = GlobalKey<FormState>();
+  final _emailFieldKey = GlobalKey<FormFieldState<String>>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _loading = false;
+  bool _submitted = false;
   String? _error;
 
   @override
@@ -35,7 +38,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _signIn() async {
-    setState(() => _error = null);
+    setState(() {
+      _error = null;
+      _submitted = true;
+    });
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _loading = true);
@@ -48,6 +54,42 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const MainShell()),
         (_) => false,
+      );
+    } on AuthException catch (e) {
+      setState(() {
+        _loading = false;
+        _error = e.message;
+      });
+    } catch (_) {
+      setState(() {
+        _loading = false;
+        _error = 'حدث خطأ غير متوقع، حاول مرة أخرى';
+      });
+    }
+  }
+
+  Future<void> _forgotPassword() async {
+    setState(() => _error = null);
+    if (!_emailFieldKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('اكتب بريدك الإلكتروني أولاً ثم اضغط "نسيت كلمة المرور؟"'),
+        ),
+      );
+      return;
+    }
+
+    setState(() => _loading = true);
+    try {
+      await _auth.sendPasswordReset(_emailController.text);
+      if (!mounted) return;
+      setState(() => _loading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'إذا كان البريد مسجلاً لدينا، فسيصلك رابط لإعادة تعيين كلمة المرور',
+          ),
+        ),
       );
     } on AuthException catch (e) {
       setState(() {
@@ -119,6 +161,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 child: Form(
                   key: _formKey,
+                  autovalidateMode: _submitted
+                      ? AutovalidateMode.onUserInteraction
+                      : AutovalidateMode.disabled,
                   child: AutofillGroup(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -132,16 +177,20 @@ class _LoginScreenState extends State<LoginScreen> {
                         LabeledField(
                           label: 'البريد الإلكتروني',
                           child: TextFormField(
+                            key: _emailFieldKey,
                             controller: _emailController,
                             validator: Validators.email,
                             enabled: !_loading,
                             keyboardType: TextInputType.emailAddress,
+                            autocorrect: false,
+                            enableSuggestions: false,
+                            inputFormatters: const [LatinInputFormatter()],
                             textInputAction: TextInputAction.next,
                             autofillHints: const [AutofillHints.email],
                             textDirection: TextDirection.ltr,
                             textAlign: TextAlign.right,
                             decoration: const InputDecoration(
-                              hintText: 'example@khota.sa',
+                              hintText: 'name@example.com',
                             ),
                           ),
                         ),
@@ -156,6 +205,20 @@ class _LoginScreenState extends State<LoginScreen> {
                             autofillHints: const [AutofillHints.password],
                           ),
                         ),
+                        Align(
+                          alignment: AlignmentDirectional.centerEnd,
+                          child: TextButton(
+                            onPressed: _loading ? null : _forgotPassword,
+                            child: Text(
+                              'نسيت كلمة المرور؟',
+                              style: text.bodyMedium?.copyWith(
+                                color: AppColors.teal,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
                         if (_error != null) ErrorBox(_error!),
                         LoadingButton(
                           label: 'دخول',
@@ -184,25 +247,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                           ],
-                        ),
-                        const SizedBox(height: 12),
-
-                        // TEMPORARY: remove when Firebase is connected.
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: AppColors.tealLight.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: AppColors.tealLight.withValues(alpha: 0.6),
-                            ),
-                          ),
-                          child: Text(
-                            'للتجربة: test@khota.sa / 12345678',
-                            textAlign: TextAlign.center,
-                            style: text.bodyMedium
-                                ?.copyWith(color: AppColors.teal),
-                          ),
                         ),
                       ],
                     ),

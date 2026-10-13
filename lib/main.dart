@@ -9,11 +9,11 @@ import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await AppSettings.instance.load();
   runApp(const KhotaApp());
-  await Firebase.initializeApp(
-  options: DefaultFirebaseOptions.currentPlatform,
-);
 }
 
 class KhotaApp extends StatelessWidget {

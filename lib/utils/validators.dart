@@ -2,6 +2,10 @@
 class Validators {
   Validators._();
 
+  /// True if the text contains only English letters, digits and symbols.
+  static bool _isLatin(String value) =>
+      RegExp(r'^[\x20-\x7E]*$').hasMatch(value);
+
   static String? fullName(String? value) {
     final name = value?.trim() ?? '';
     if (name.isEmpty) return 'الرجاء إدخال الاسم';
@@ -16,6 +20,7 @@ class Validators {
   static String? email(String? value) {
     final email = value?.trim() ?? '';
     if (email.isEmpty) return 'الرجاء إدخال البريد الإلكتروني';
+    if (!_isLatin(email)) return 'استخدم الأحرف الإنجليزية في البريد الإلكتروني';
     if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
       return 'صيغة البريد الإلكتروني غير صحيحة';
     }
@@ -26,7 +31,10 @@ class Validators {
   static String? newPassword(String? value) {
     final password = value ?? '';
     if (password.isEmpty) return 'الرجاء إدخال كلمة المرور';
-    if (password.length < 8) return 'كلمة المرور يجب أن تكون ٨ أحرف على الأقل';
+    if (!_isLatin(password)) {
+      return 'كلمة المرور يجب أن تكون بالأحرف والأرقام الإنجليزية';
+    }
+    if (password.length < 8) return 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
     return null;
   }
 

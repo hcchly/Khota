@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../services/auth_service.dart';
+import '../../utils/input_formatters.dart';
 import '../../utils/validators.dart';
 import '../../widgets/gradient_app_bar.dart';
 import '../../widgets/labeled_field.dart';
@@ -92,9 +93,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   enabled: !_loading,
                   textInputAction: TextInputAction.next,
                   autofillHints: const [AutofillHints.name],
-                  decoration: const InputDecoration(
-                    hintText: 'محمد عبدالله الشمري',
-                  ),
                 ),
               ),
               LabeledField(
@@ -104,12 +102,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   validator: Validators.email,
                   enabled: !_loading,
                   keyboardType: TextInputType.emailAddress,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  inputFormatters: const [LatinInputFormatter()],
                   textInputAction: TextInputAction.next,
                   autofillHints: const [AutofillHints.email],
                   textDirection: TextDirection.ltr,
                   textAlign: TextAlign.right,
                   decoration: const InputDecoration(
-                    hintText: 'example@email.com',
+                    hintText: 'name@example.com',
                   ),
                 ),
               ),
@@ -119,7 +120,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   controller: _passwordController,
                   validator: Validators.newPassword,
                   enabled: !_loading,
-                  hintText: '٨ أحرف على الأقل',
+                  helperText: '8 أحرف على الأقل',
+                  latinOnly: true,
                   autofillHints: const [AutofillHints.newPassword],
                 ),
               ),
@@ -128,6 +130,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: PasswordField(
                   controller: _confirmController,
                   validator: _validateConfirm,
+                  latinOnly: true,
                   enabled: !_loading,
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _register(),
