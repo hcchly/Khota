@@ -28,8 +28,12 @@ class _MainShellState extends State<MainShell> {
     );
     if (!mounted || draft == null) return;
     setState(() => _reportDraft = draft);
+    if (draft.imageUrl != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم حفظ الصورة بنجاح')),
+      );
+    }
   }
-
 
   void _openTab(int index) => setState(() => _index = index);
 
@@ -59,9 +63,7 @@ class _MainShellState extends State<MainShell> {
     return Scaffold(
       body: _buildTab(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: _NewReportButton(
-        onPressed: _openNewReport,
-      ),
+      floatingActionButton: _NewReportButton(onPressed: _openNewReport),
       bottomNavigationBar: BottomAppBar(
         color: AppColors.warmWhite,
         surfaceTintColor: Colors.transparent,
@@ -126,8 +128,9 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color =
-        selected ? AppColors.teal : AppColors.indigo.withValues(alpha: 0.45);
+    final color = selected
+        ? AppColors.teal
+        : AppColors.indigo.withValues(alpha: 0.45);
     return Expanded(
       child: Semantics(
         selected: selected,
