@@ -9,11 +9,12 @@ import '../../widgets/info_card.dart';
 import '../info/photo_guide_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.onOpenTab, this.service});
+  const HomeScreen({super.key, required this.onOpenTab, required this.onNewReport, this.service});
 
   /// Switches the bottom navigation tab (1 = reports, 2 = map).
   final ValueChanged<int> onOpenTab;
   final ProfileService? service;
+  final VoidCallback onNewReport;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -99,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: _ReportCard(
-            onReport: () => showComingSoon(context),
+            onReport: widget.onNewReport,
             onHowTo: _openPhotoGuide,
           ),
         ),
@@ -114,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
               _ServiceTile(
                 icon: Icons.add,
                 label: 'بلاغ جديد',
-                onTap: () => showComingSoon(context),
+                onTap: widget.onNewReport,
               ),
               _ServiceTile(
                 icon: Icons.format_list_bulleted,

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
-import '../../widgets/coming_soon.dart';
+import '../../models/report_draft.dart';
+import '../reports/report_photo_screen.dart';
 import '../home/home_screen.dart';
 import '../profile/profile_screen.dart';
 import 'placeholder_tab.dart';
@@ -17,13 +18,25 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _index = 0;
+  ReportDraft? _reportDraft;
+
+  Future<void> _openNewReport() async {
+    final draft = await Navigator.of(context).push<ReportDraft>(
+      MaterialPageRoute(
+        builder: (_) => ReportPhotoScreen(initialDraft: _reportDraft),
+      ),
+    );
+    if (!mounted || draft == null) return;
+    setState(() => _reportDraft = draft);
+  }
+
 
   void _openTab(int index) => setState(() => _index = index);
 
   Widget _buildTab() {
     switch (_index) {
       case 0:
-        return HomeScreen(onOpenTab: _openTab);
+        return HomeScreen(onOpenTab: _openTab, onNewReport: _openNewReport);
       case 1:
         return const PlaceholderTab(
           title: 'بلاغاتي',
@@ -47,7 +60,7 @@ class _MainShellState extends State<MainShell> {
       body: _buildTab(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: _NewReportButton(
-        onPressed: () => showComingSoon(context),
+        onPressed: _openNewReport,
       ),
       bottomNavigationBar: BottomAppBar(
         color: AppColors.warmWhite,
