@@ -31,9 +31,7 @@ class Validators {
   static String? newPassword(String? value) {
     final password = value ?? '';
     if (password.isEmpty) return 'الرجاء إدخال كلمة المرور';
-    if (!_isLatin(password)) {
-      return 'كلمة المرور يجب أن تكون بالأحرف والأرقام الإنجليزية';
-    }
+    // Arabic and English characters are both allowed.
     if (password.length < 8) return 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
     return null;
   }
