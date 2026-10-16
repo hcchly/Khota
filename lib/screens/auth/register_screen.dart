@@ -121,7 +121,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   validator: Validators.newPassword,
                   enabled: !_loading,
                   helperText: '8 أحرف على الأقل',
-                  latinOnly: true,
                   autofillHints: const [AutofillHints.newPassword],
                 ),
               ),
@@ -130,7 +129,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: PasswordField(
                   controller: _confirmController,
                   validator: _validateConfirm,
-                  latinOnly: true,
                   enabled: !_loading,
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _register(),
