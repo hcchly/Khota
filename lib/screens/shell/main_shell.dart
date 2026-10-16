@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../reports/reports_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../models/report_draft.dart';
 import '../reports/report_photo_screen.dart';
@@ -41,12 +41,8 @@ class _MainShellState extends State<MainShell> {
     switch (_index) {
       case 0:
         return HomeScreen(onOpenTab: _openTab, onNewReport: _openNewReport);
-      case 1:
-        return const PlaceholderTab(
-          title: 'بلاغاتي',
-          icon: Icons.format_list_bulleted,
-          message: 'ستظهر هنا بلاغاتك وحالة كل بلاغ.',
-        );
+     case 1:
+  return const ReportsScreen();
       case 2:
         return const PlaceholderTab(
           title: 'خُطى',
