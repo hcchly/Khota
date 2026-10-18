@@ -44,5 +44,47 @@ service cloud.firestore {
 
       allow delete: if false;
     }
+
+    // Citizen reports. A citizen creates a report as Pending / Processing and
+    // can read only their own reports. Status and analysis results are
+    // written later by the administrator and the analysis pipeline.
+    // (Reading for the shared map is added in the map/security task.)
+    match /reports/{reportId} {
+      function isValidNewReport() {
+        let data = request.resource.data;
+        return data.keys().hasAll([
+            'userId', 'imageUrl', 'description', 'location', 'locationSource',
+            'locationAccuracyMeters', 'reportStatus', 'analysisStatus', 'issueClass', 'severity',
+            'createdAt', 'updatedAt'
+          ])
+          && data.keys().hasOnly([
+            'userId', 'imageUrl', 'description', 'location', 'locationSource',
+            'locationAccuracyMeters', 'reportStatus', 'analysisStatus', 'issueClass', 'severity',
+            'createdAt', 'updatedAt'
+          ])
+          && data.userId == request.auth.uid
+          && data.imageUrl is string
+          && data.imageUrl.size() > 0
+          && data.description is string
+          && data.description.size() <= 500
+          && data.location is latlng
+          // 'temporary' is allowed only until the GPS step is connected.
+          && data.locationSource in ['gps', 'manual', 'temporary']
+          && (data.locationAccuracyMeters == null
+              || (data.locationAccuracyMeters is number
+                  && data.locationAccuracyMeters >= 0))
+          && data.reportStatus == 'pending'
+          && data.analysisStatus == 'processing'
+          && data.issueClass == null
+          && data.severity == null
+          && data.createdAt == request.time
+          && data.updatedAt == request.time;
+      }
+
+      allow create: if request.auth != null && isValidNewReport();
+      allow read: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
+    }
   }
 }
