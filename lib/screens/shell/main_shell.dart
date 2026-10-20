@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-
+import '../reports/reports_screen.dart';
 import '../../theme/app_colors.dart';
-import '../../models/report_draft.dart';
-import '../reports/report_photo_screen.dart';
+import '../reports/new_report_screen.dart';
+import '../reports/report_submitted_screen.dart';
+import '../../models/submitted_report.dart';
 import '../home/home_screen.dart';
 import '../profile/profile_screen.dart';
 import 'placeholder_tab.dart';
@@ -18,21 +19,21 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _index = 0;
-  ReportDraft? _reportDraft;
 
   Future<void> _openNewReport() async {
-    final draft = await Navigator.of(context).push<ReportDraft>(
+    final navigator = Navigator.of(context);
+    final submitted = await navigator.push<SubmittedReport>(
+      MaterialPageRoute(builder: (_) => const NewReportScreen()),
+    );
+    if (!mounted || submitted == null) return;
+    // Confirmation screen: report number, location and next steps.
+    final openReports = await navigator.push<bool>(
       MaterialPageRoute(
-        builder: (_) => ReportPhotoScreen(initialDraft: _reportDraft),
+        builder: (_) => ReportSubmittedScreen(report: submitted),
       ),
     );
-    if (!mounted || draft == null) return;
-    setState(() => _reportDraft = draft);
-    if (draft.imageUrl != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم حفظ الصورة بنجاح')),
-      );
-    }
+    if (!mounted) return;
+    setState(() => _index = openReports == true ? 1 : 0);
   }
 
   void _openTab(int index) => setState(() => _index = index);
@@ -40,13 +41,9 @@ class _MainShellState extends State<MainShell> {
   Widget _buildTab() {
     switch (_index) {
       case 0:
-        return HomeScreen(onOpenTab: _openTab, onNewReport: _openNewReport);
-      case 1:
-        return const PlaceholderTab(
-          title: 'بلاغاتي',
-          icon: Icons.format_list_bulleted,
-          message: 'ستظهر هنا بلاغاتك وحالة كل بلاغ.',
-        );
+        return HomeScreen(onOpenTab: _openTab);
+     case 1:
+  return const ReportsScreen();
       case 2:
         return const PlaceholderTab(
           title: 'خُطى',

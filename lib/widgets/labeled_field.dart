@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
-import '../utils/input_formatters.dart';
 
 /// A bold label above a text field.
 class LabeledField extends StatelessWidget {
@@ -44,7 +43,6 @@ class PasswordField extends StatefulWidget {
     required this.validator,
     this.hintText,
     this.helperText,
-    this.latinOnly = false,
     this.enabled = true,
     this.textInputAction = TextInputAction.next,
     this.onFieldSubmitted,
@@ -55,11 +53,6 @@ class PasswordField extends StatefulWidget {
   final FormFieldValidator<String> validator;
   final String? hintText;
   final String? helperText;
-
-  /// Converts Arabic digits to English ones. Use it only when creating a
-  /// password; the login field accepts the password exactly as typed so
-  /// passwords set elsewhere (e.g. the Firebase reset page) still work.
-  final bool latinOnly;
   final bool enabled;
   final TextInputAction textInputAction;
   final ValueChanged<String>? onFieldSubmitted;
@@ -79,15 +72,12 @@ class _PasswordFieldState extends State<PasswordField> {
       validator: widget.validator,
       enabled: widget.enabled,
       obscureText: _hidden,
-      // Sign-up fields use the English password keyboard; the login field
-      // uses the normal keyboard so any language can be typed.
-      keyboardType: widget.latinOnly
-          ? TextInputType.visiblePassword
-          : TextInputType.text,
+      // Normal keyboard so Arabic or English can be typed. The password is
+      // kept exactly as typed (no digit conversion), so sign-up, login and
+      // the Firebase reset page all accept the same characters.
+      keyboardType: TextInputType.text,
       autocorrect: false,
       enableSuggestions: false,
-      inputFormatters:
-          widget.latinOnly ? const [LatinInputFormatter()] : null,
       textInputAction: widget.textInputAction,
       onFieldSubmitted: widget.onFieldSubmitted,
       autofillHints: widget.autofillHints,

@@ -6,15 +6,19 @@ import '../../theme/app_colors.dart';
 import '../../widgets/coming_soon.dart';
 import '../../widgets/gradient_header.dart';
 import '../../widgets/info_card.dart';
+import '../info/about_screen.dart';
 import '../info/photo_guide_screen.dart';
 
+/// Home tab.
+///
+/// A new report is started only from the "بلاغ جديد" button in the centre of
+/// the navigation bar, so the home screen does not repeat that action.
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.onOpenTab, required this.onNewReport, this.service});
+  const HomeScreen({super.key, required this.onOpenTab, this.service});
 
   /// Switches the bottom navigation tab (1 = reports, 2 = map).
   final ValueChanged<int> onOpenTab;
   final ProfileService? service;
-  final VoidCallback onNewReport;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -22,34 +26,42 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late final ProfileService _service =
-     widget.service ?? FirestoreProfileService.instance;
+      widget.service ?? FirestoreProfileService.instance;
   late final Future<AppUser> _profile = _service.getProfile();
 
-  void _openPhotoGuide() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const PhotoGuideScreen()),
-    );
+  void _open(Widget screen) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
   }
 
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+    final muted = AppColors.indigo.withValues(alpha: 0.65);
     return ListView(
       padding: const EdgeInsets.only(bottom: 32),
       children: [
         // Header: avatar, greeting, notifications.
         GradientHeader(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 36),
+            padding: const EdgeInsets.fromLTRB(20, 16, 12, 32),
             child: FutureBuilder<AppUser>(
               future: _profile,
               builder: (context, snapshot) {
                 final user = snapshot.data;
                 return Row(
                   children: [
-                    CircleAvatar(
-                      radius: 28,
-                      backgroundColor: AppColors.teal,
+                    Container(
+                      width: 56,
+                      height: 56,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: AppColors.teal,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.35),
+                          width: 2,
+                        ),
+                      ),
                       child: Text(
                         user?.initial ?? '',
                         style: text.titleLarge?.copyWith(
@@ -71,6 +83,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           Text(
                             user?.fullName ?? '',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: text.titleLarge?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
@@ -83,9 +97,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       tooltip: 'الإشعارات',
                       onPressed: () => showComingSoon(context),
                       icon: const Icon(
-                        Icons.notifications_none,
+                        Icons.notifications_none_rounded,
                         color: Colors.white,
-                        size: 30,
+                        size: 28,
                       ),
                     ),
                   ],
@@ -96,104 +110,120 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 20),
 
-        // Report card.
+        // Photo guide card.
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: _ReportCard(
-            onReport: widget.onNewReport,
-            onHowTo: _openPhotoGuide,
-          ),
+          child: _GuideCard(onTap: () => _open(const PhotoGuideScreen())),
         ),
         const SizedBox(height: 28),
 
-        // Services grid.
-        _SectionTitle('الخدمات'),
+        // Services.
+        const _SectionTitle('الخدمات'),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _ServiceTile(
-                icon: Icons.add,
-                label: 'بلاغ جديد',
-                onTap: widget.onNewReport,
-              ),
-              _ServiceTile(
-                icon: Icons.format_list_bulleted,
+                icon: Icons.assignment_outlined,
                 label: 'بلاغاتي',
                 onTap: () => widget.onOpenTab(1),
               ),
               _ServiceTile(
-                icon: Icons.directions_walk,
+                icon: Icons.map_outlined,
                 label: 'خريطة خُطى',
                 onTap: () => widget.onOpenTab(2),
               ),
               _ServiceTile(
-                icon: Icons.photo_camera_outlined,
+                icon: Icons.menu_book_outlined,
                 label: 'دليل التصوير',
-                onTap: _openPhotoGuide,
+                onTap: () => _open(const PhotoGuideScreen()),
+              ),
+              _ServiceTile(
+                icon: Icons.info_outline_rounded,
+                label: 'عن خُطى',
+                onTap: () => _open(const AboutScreen()),
               ),
             ],
           ),
         ),
         const SizedBox(height: 28),
 
-        // Latest reports: available when report submission is built.
-        _SectionTitle('آخر البلاغات'),
+        // Latest reports. Design only: the list is connected in the report
+        // tracking task (use ReportSummaryCard from widgets/report_card.dart).
+        _SectionTitle(
+          'آخر البلاغات',
+          action: TextButton(
+            onPressed: () => widget.onOpenTab(1),
+            child: const Text('عرض الكل'),
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: InfoCard(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
             child: Column(
               children: [
                 const IconTile(icon: Icons.inbox_outlined, size: 56),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 Text(
                   'لا توجد بلاغات بعد',
-                  style: text.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'ستظهر بلاغاتك هنا بعد إرسالها.',
-                  textAlign: TextAlign.center,
-                  style: text.bodyMedium?.copyWith(
-                    color: AppColors.indigo.withValues(alpha: 0.7),
+                  style: text.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
                   ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'اضغط «بلاغ جديد» في الأسفل لإرسال أول بلاغ، '
+                  'وستظهر بلاغاتك هنا.',
+                  textAlign: TextAlign.center,
+                  style: text.bodyMedium?.copyWith(color: muted, height: 1.6),
                 ),
               ],
             ),
           ),
         ),
-        const SizedBox(height: 40), // space above the center button
+        const SizedBox(height: 48), // space above the centre button
       ],
     );
   }
 }
 
 class _SectionTitle extends StatelessWidget {
-  const _SectionTitle(this.title);
+  const _SectionTitle(this.title, {this.action});
 
   final String title;
+  final Widget? action;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-      child: Text(
-        title,
-        style: Theme.of(context)
-            .textTheme
-            .titleMedium
-            ?.copyWith(fontWeight: FontWeight.w700),
+      padding: EdgeInsets.fromLTRB(16, 0, 8, action == null ? 12 : 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Semantics(
+              header: true,
+              child: Text(
+                title,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
+          ),
+          if (action != null) action!,
+        ],
       ),
     );
   }
 }
 
-class _ReportCard extends StatelessWidget {
-  const _ReportCard({required this.onReport, required this.onHowTo});
+/// Short tips before taking the photo; opens the photo guide.
+class _GuideCard extends StatelessWidget {
+  const _GuideCard({required this.onTap});
 
-  final VoidCallback onReport;
-  final VoidCallback onHowTo;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -210,64 +240,114 @@ class _ReportCard extends StatelessWidget {
             ),
           ),
           child: InkWell(
-            onTap: onReport,
+            onTap: onTap,
             child: Padding(
               padding: const EdgeInsets.all(20),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'أبلغ عن مشكلة في الرصيف',
-                          style: text.titleLarge?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'ساعدنا في تحسين البنية التحتية',
-                          style: text.bodyMedium
-                              ?.copyWith(color: AppColors.tealLight),
-                        ),
-                        const SizedBox(height: 10),
-                        GestureDetector(
-                          onTap: onHowTo,
-                          child: Text(
-                            'كيف أصوّر المشكلة؟',
-                            style: text.bodyMedium?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              decoration: TextDecoration.underline,
-                              decorationColor: Colors.white,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'أبلغ عن مشكلة في الرصيف',
+                              style: text.titleLarge?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'صورة واضحة تساعد على تقييم المشكلة بدقة.',
+                              style: text.bodyMedium?.copyWith(
+                                color: AppColors.tealLight,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 12),
+                      Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const Icon(
+                          Icons.tips_and_updates_outlined,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: AppColors.teal,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: const Icon(
-                      Icons.photo_camera_outlined,
-                      color: Colors.white,
-                      size: 32,
-                      semanticLabel: 'بلاغ جديد',
-                    ),
+                  const SizedBox(height: 16),
+                  const Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _TipChip(icon: Icons.wb_sunny_outlined, label: 'إضاءة جيدة'),
+                      _TipChip(icon: Icons.crop_free, label: 'المشكلة كاملة'),
+                      _TipChip(icon: Icons.straighten, label: 'مسافة مناسبة'),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Text(
+                        'كيف أصوّر المشكلة؟',
+                        style: text.bodyMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(
+                        Icons.arrow_forward,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _TipChip extends StatelessWidget {
+  const _TipChip({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: Colors.white, size: 16),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(color: Colors.white, fontSize: 12),
+          ),
+        ],
       ),
     );
   }
@@ -304,10 +384,10 @@ class _ServiceTile extends StatelessWidget {
                   Text(
                     label,
                     textAlign: TextAlign.center,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(fontWeight: FontWeight.w600),
+                    maxLines: 2,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
