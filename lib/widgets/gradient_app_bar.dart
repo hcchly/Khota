@@ -17,16 +17,19 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Text(title),
       centerTitle: true,
       foregroundColor: Colors.white,
-      titleTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.w700,
-          ),
-      flexibleSpace: const DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.indigo, AppColors.teal],
+      backgroundColor: AppColors.indigo,
+      surfaceTintColor: Colors.transparent,
+      scrolledUnderElevation: 0,
+      titleTextStyle: Theme.of(context).textTheme.titleMedium
+          ?.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
+      flexibleSpace: const SizedBox.expand(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [AppColors.indigo, AppColors.teal],
+            ),
           ),
         ),
       ),

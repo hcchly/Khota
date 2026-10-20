@@ -359,6 +359,8 @@ class _ReportPhotoScreenState extends State<ReportPhotoScreen> {
                             maxLines: 5,
                             maxLength: ReportDraft.maxDescriptionLength,
                             decoration: const InputDecoration(
+                              labelText: 'تفاصيل إضافية (اختياري)',
+                              alignLabelWithHint: true,
                               hintText: 'مثال: بلاط مكسور يعيق مرور المشاة',
                               fillColor: AppColors.warmWhite,
                             ),
@@ -369,10 +371,14 @@ class _ReportPhotoScreenState extends State<ReportPhotoScreen> {
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: _busy ? null : _save,
-                      child: Text(
-                        _uploading
-                            ? 'جارٍ رفع الصورة…'
-                            : 'حفظ الصورة والتفاصيل',
+                      child: Semantics(
+                        liveRegion: true,
+                        child: Text(
+                          _uploading
+                              ? 'جارٍ رفع الصورة…'
+                              : 'حفظ الصورة والتفاصيل',
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
                   ] else if (_image == null) ...[

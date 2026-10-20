@@ -33,7 +33,8 @@ class AppSettings extends ChangeNotifier {
   Future<void> load() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      _textScale = prefs.getDouble(_textScaleKey) ?? 1.0;
+      final savedScale = prefs.getDouble(_textScaleKey);
+      _textScale = textScaleSteps.contains(savedScale) ? savedScale! : 1.0;
       _boldText = prefs.getBool(_boldTextKey) ?? false;
     } catch (_) {
       // If saved settings cannot be read, keep the defaults.

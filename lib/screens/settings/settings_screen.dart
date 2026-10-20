@@ -28,8 +28,9 @@ class SettingsScreen extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 12, right: 4),
                 child: Text(
                   'إمكانية الوصول',
-                  style: text.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                  style: text.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
               InfoCard(
@@ -37,19 +38,22 @@ class SettingsScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Font size.
-                    Row(
+                    Wrap(
+                      spacing: 16,
+                      runSpacing: 8,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        Expanded(
-                          child: Text(
-                            'حجم الخط',
-                            style: text.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.w700),
+                        Text(
+                          'حجم الخط',
+                          style: text.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         Text(
                           AppSettings.textScaleLabels[index],
-                          style: text.bodyMedium
-                              ?.copyWith(color: AppColors.teal),
+                          style: text.bodyMedium?.copyWith(
+                            color: AppColors.indigo,
+                          ),
                         ),
                       ],
                     ),
@@ -79,15 +83,19 @@ class SettingsScreen extends StatelessWidget {
                     const Divider(height: 32, color: AppColors.slate),
 
                     // Bold text.
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(
-                        'نص عريض',
-                        style: text.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w600),
+                    Material(
+                      color: Colors.transparent,
+                      child: SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          'نص عريض',
+                          style: text.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        value: settings.boldText,
+                        onChanged: settings.setBoldText,
                       ),
-                      value: settings.boldText,
-                      onChanged: settings.setBoldText,
                     ),
                     const SizedBox(height: 8),
 
