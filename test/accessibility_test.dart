@@ -9,8 +9,9 @@ import 'package:khota_app/screens/settings/settings_screen.dart';
 import 'package:khota_app/settings/app_settings.dart';
 import 'package:khota_app/theme/app_theme.dart';
 
-import 'report_photo_test.dart' show FakeCamera;
-import 'storage_button_test.dart' show photo;
+import 'helpers/report_fakes.dart';
+
+import 'package:khota_app/screens/reports/new_report_screen.dart';
 
 Widget host(Widget child, double scale) => MaterialApp(
   theme: AppTheme.light(),
@@ -44,6 +45,39 @@ void main() {
     },
   );
   for (final scale in [1.0, 2.0]) {
+    testWidgets('current report flow fits RTL at scale $scale', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(320, 640));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.pumpWidget(
+        host(
+          NewReportScreen(
+            initialDraft: ReportDraft(imageBytes: testPhoto),
+            camera: FakeCamera(),
+            locationProvider: FakeLocationProvider(),
+          ),
+          scale,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      await tester.tap(find.text('استخدام الصورة'));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      await tester.tap(find.text('تأكيد الموقع').last);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      await tester.scrollUntilVisible(
+        find.byType(TextField),
+        120,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).decoration?.labelText,
+        'تفاصيل إضافية (اختياري)',
+      );
+    });
     testWidgets('settings fits 320px RTL at scale $scale', (tester) async {
       await tester.binding.setSurfaceSize(const Size(320, 640));
       addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -64,7 +98,7 @@ void main() {
       await tester.pumpWidget(
         host(
           ReportPhotoScreen(
-            initialDraft: ReportDraft(imageBytes: photo),
+            initialDraft: ReportDraft(imageBytes: testPhoto),
             camera: FakeCamera(),
           ),
           scale,

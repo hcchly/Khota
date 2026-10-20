@@ -770,10 +770,12 @@ class _NewReportScreenState extends State<NewReportScreen>
                       color: AppColors.teal,
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      'موقع البلاغ',
-                      style: text.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
+                    Expanded(
+                      child: Text(
+                        'موقع البلاغ',
+                        style: text.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ],
@@ -836,32 +838,30 @@ class _NewReportScreenState extends State<NewReportScreen>
         // Location.
         InfoCard(
           padding: const EdgeInsets.all(16),
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const IconTile(icon: Icons.location_on_outlined, size: 40),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'الموقع',
-                      style: text.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+              const SizedBox(height: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'الموقع',
+                    style: text.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _address ?? _location?.coordinatesText ?? '',
-                      style: text.bodyMedium?.copyWith(color: muted),
-                    ),
-                    if (_location != null) ...[
-                      const SizedBox(height: 8),
-                      LocationAccuracyBadge(location: _location!),
-                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _address ?? _location?.coordinatesText ?? '',
+                    style: text.bodyMedium?.copyWith(color: muted),
+                  ),
+                  if (_location != null) ...[
+                    const SizedBox(height: 8),
+                    LocationAccuracyBadge(location: _location!),
                   ],
-                ),
+                ],
               ),
               TextButton(
                 onPressed: _sending ? null : () => _goTo(2),
@@ -900,6 +900,8 @@ class _NewReportScreenState extends State<NewReportScreen>
                 maxLength: ReportDraft.maxDescriptionLength,
                 textInputAction: TextInputAction.done,
                 decoration: const InputDecoration(
+                  labelText: 'تفاصيل إضافية (اختياري)',
+                  alignLabelWithHint: true,
                   hintText: 'مثال: بلاط مكسور يعيق مرور المشاة',
                   fillColor: Colors.white,
                 ),
@@ -981,13 +983,13 @@ class LocationAccuracyBadge extends StatelessWidget {
           ),
           ReportLocation.sourceGps when accuracy! <= goodMeters => (
             Icons.gps_fixed,
-            'دقة عالية · ± ${accuracy!.round()} م',
+            'دقة عالية · ± ${accuracy.round()} م',
             StatusTone.success,
             null,
           ),
           ReportLocation.sourceGps when accuracy! <= fairMeters => (
             Icons.gps_not_fixed,
-            'دقة متوسطة · ± ${accuracy!.round()} م',
+            'دقة متوسطة · ± ${accuracy.round()} م',
             StatusTone.progress,
             null,
           ),
@@ -1013,7 +1015,7 @@ class LocationAccuracyBadge extends StatelessWidget {
           children: [
             Icon(icon, size: 16, color: AppColors.indigo.withValues(alpha: 0.7)),
             const SizedBox(width: 6),
-            StatusChip(label: label, tone: tone),
+            Flexible(child: StatusChip(label: label, tone: tone)),
           ],
         ),
         if (hint != null) ...[
