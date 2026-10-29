@@ -124,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 children: [
                   Image.asset(
-                    'assets/images/khota_logo.png',
+                   'assets/images/khota_logo_new.png',
                     width: 140,
                     semanticLabel: 'شعار خُطى',
                   ),
