@@ -8,8 +8,9 @@ import '../../theme/app_colors.dart';
 import '../shell/main_shell.dart';
 import 'login_screen.dart';
 
-/// Animated Khota splash screen.
-/// The rest of the application remains in Light Mode.
+/// Khota animated splash.
+/// Dark splash with smooth turquoise glow.
+/// The rest of the app stays in Light Mode.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({
     super.key,
@@ -68,13 +69,15 @@ class _SplashScreenState extends State<SplashScreen>
       _controller.value = 1;
 
       Future<void>.delayed(
-        const Duration(milliseconds: 800),
+        const Duration(milliseconds: 2200),
         _goNext,
       );
     } else {
       _controller.forward().whenComplete(() {
+        // Keep the completed logo visible
+        // before navigating to the next page.
         Future<void>.delayed(
-          const Duration(milliseconds: 650),
+          const Duration(milliseconds: 2200),
           _goNext,
         );
       });
@@ -112,7 +115,6 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.sizeOf(context).width;
     final text = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -142,35 +144,31 @@ class _SplashScreenState extends State<SplashScreen>
               final symbolSize =
                   math.min(screenWidth * 3.2, 1450.0);
 
-              final glowSize =
-                  math.min(screenWidth * 1.5, 600.0);
-
               return Stack(
                 clipBehavior: Clip.hardEdge,
                 children: [
-                  // Bright turquoise glow at bottom right.
-                  Positioned(
-                    right: -glowSize * 0.28,
-                    bottom: -glowSize * 0.35,
-                    width: glowSize,
-                    height: glowSize,
+
+                  // Smooth, full-screen turquoise glow.
+                  // No square boundaries.
+                  Positioned.fill(
                     child: IgnorePointer(
                       child: DecoratedBox(
                         decoration: BoxDecoration(
                           gradient: RadialGradient(
-                            radius: 0.72,
+                            center: Alignment.bottomRight,
+                            radius: 1.10,
                             colors: [
                               AppColors.mint.withValues(
-                                alpha: 0.86,
+                                alpha: 0.72,
                               ),
                               AppColors.mint.withValues(
-                                alpha: 0.34,
+                                alpha: 0.25,
                               ),
                               Colors.transparent,
                             ],
                             stops: const [
                               0.0,
-                              0.48,
+                              0.38,
                               1.0,
                             ],
                           ),
@@ -179,7 +177,7 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                   ),
 
-                  // Large faded original symbol.
+                  // Large faded brand symbol at the top.
                   Positioned(
                     top: -symbolSize * 0.36,
                     left: (screenWidth - symbolSize) / 2,
@@ -187,7 +185,7 @@ class _SplashScreenState extends State<SplashScreen>
                     height: symbolSize,
                     child: IgnorePointer(
                       child: Opacity(
-                        opacity: 0.13,
+                        opacity: 0.12,
                         child: Image.asset(
                           'assets/images/khota_symbol_original.png',
                           width: symbolSize,
@@ -200,7 +198,7 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                   ),
 
-                  // The logo assembles from 18 pieces.
+                  // Logo pieces assemble in the center.
                   Positioned.fill(
                     child: Center(
                       child: AnimatedBuilder(
@@ -215,7 +213,7 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                   ),
 
-                  // Slogan at bottom.
+                  // Bottom slogan.
                   Positioned(
                     left: 20,
                     right: 20,
@@ -233,8 +231,7 @@ class _SplashScreenState extends State<SplashScreen>
                         child: Text(
                           'معًا لأرصفة أفضل',
                           textAlign: TextAlign.center,
-                          style:
-                              text.titleMedium?.copyWith(
+                          style: text.titleMedium?.copyWith(
                             color: AppColors.mist,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 0.3,
@@ -253,8 +250,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-/// The complete original logo, assembled from individual
-/// rectangular sidewalk-like pieces.
+/// Assemble the original logo from 18 pieces.
 class _AssemblingKhotaLogo extends StatelessWidget {
   const _AssemblingKhotaLogo({
     required this.width,
@@ -277,14 +273,20 @@ class _AssemblingKhotaLogo extends StatelessWidget {
       child: SizedBox(
         width: width,
         height: height,
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            for (var index = 0;
-                index < columns * rows;
-                index++)
-              _buildTile(index),
-          ],
+        child: ClipRect(
+          child: progress >= 0.999
+              // Show the complete logo once
+              // all pieces are assembled.
+              ? _FullLogoArtwork(width: width)
+              : Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    for (var index = 0;
+                        index < columns * rows;
+                        index++)
+                      _buildTile(index),
+                  ],
+                ),
         ),
       ),
     );
@@ -294,28 +296,24 @@ class _AssemblingKhotaLogo extends StatelessWidget {
     final row = index ~/ columns;
     final column = index % columns;
 
-    // Stagger each tile so the pieces are visible.
+    // Each tile begins at a different time.
     final start = index * 0.033;
 
-    final raw =
-        ((progress - start) / 0.30)
-            .clamp(0.0, 1.0)
-            .toDouble();
+    final raw = ((progress - start) / 0.30)
+        .clamp(0.0, 1.0)
+        .toDouble();
 
     final eased = Curves.easeOutCubic.transform(raw);
 
-    // Pieces travel toward their final locations.
+    // Each piece travels toward its final position.
     final horizontalDistance =
         (column - (columns - 1) / 2) * 17.0;
 
     final verticalDistance =
         (row - (rows - 1) / 2) * 36.0;
 
-    final dx =
-        horizontalDistance * (1 - eased);
-
-    final dy =
-        verticalDistance * (1 - eased);
+    final dx = horizontalDistance * (1 - eased);
+    final dy = verticalDistance * (1 - eased);
 
     return Positioned.fill(
       child: ExcludeSemantics(
@@ -328,9 +326,7 @@ class _AssemblingKhotaLogo extends StatelessWidget {
                 row: row,
                 column: column,
               ),
-              child: _FullLogoArtwork(
-                width: width,
-              ),
+              child: _FullLogoArtwork(width: width),
             ),
           ),
         ),
@@ -339,8 +335,8 @@ class _AssemblingKhotaLogo extends StatelessWidget {
   }
 }
 
-/// Draw the full original image at the same size
-/// for every tile, preserving exact alignment.
+/// Display the original high-resolution logo.
+/// Keep the source artwork unchanged.
 class _FullLogoArtwork extends StatelessWidget {
   const _FullLogoArtwork({
     required this.width,
@@ -350,8 +346,7 @@ class _FullLogoArtwork extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The original 1241x1241 PNG has transparent
-    // padding, so enlarge it without modifying it.
+    // The PNG contains transparent padding.
     final imageSize = width * 1.49;
 
     return OverflowBox(
@@ -372,7 +367,7 @@ class _FullLogoArtwork extends StatelessWidget {
   }
 }
 
-/// Each rectangle reveals its own section of the logo.
+/// Divide the logo into a 6 x 3 tile grid.
 class _LogoTileClipper extends CustomClipper<Rect> {
   const _LogoTileClipper({
     required this.row,
@@ -406,3 +401,4 @@ class _LogoTileClipper extends CustomClipper<Rect> {
         oldClipper.column != column;
   }
 }
+
