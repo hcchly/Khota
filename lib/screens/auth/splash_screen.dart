@@ -203,7 +203,7 @@ class _TileRevealLogo extends StatelessWidget {
                       widthFactor: 1 / cols,
                       heightFactor: 1 / rows,
                       child: Image.asset(
-                        'assets/images/khota_logo.png',
+                         'assets/images/khota_symbol_original.png',
                         width: width,
                         fit: BoxFit.contain,
                       ),
