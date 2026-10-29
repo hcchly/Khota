@@ -19,9 +19,9 @@ class AppTheme {
       useMaterial3: true,
       fontFamily: fontFamily,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.indigo,
-        primary: AppColors.indigo,
-        secondary: AppColors.teal,
+        seedColor: AppColors.ocean,
+        primary: AppColors.ocean,
+        secondary: AppColors.mint,
         surface: AppColors.warmWhite,
         error: AppColors.error,
       ),
@@ -31,8 +31,8 @@ class AppTheme {
     return base.copyWith(
       textTheme: base.textTheme.apply(
         fontFamily: fontFamily,
-        bodyColor: AppColors.indigo,
-        displayColor: AppColors.indigo,
+        bodyColor: AppColors.ocean,
+        displayColor: AppColors.ocean,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -42,13 +42,13 @@ class AppTheme {
         border: border(AppColors.slate),
         enabledBorder: border(AppColors.slate),
         disabledBorder: border(AppColors.slate),
-        focusedBorder: border(AppColors.teal, 2),
+        focusedBorder: border(AppColors.mint, 2),
         errorBorder: border(AppColors.error),
         focusedErrorBorder: border(AppColors.error, 2),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.indigo,
+          backgroundColor: AppColors.ocean,
           foregroundColor: Colors.white,
           disabledBackgroundColor: AppColors.slate,
           minimumSize: const Size.fromHeight(52),
@@ -62,26 +62,53 @@ class AppTheme {
           ),
         ),
       ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.ocean,
+          side: const BorderSide(color: AppColors.slate),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: TextStyle(
+            fontFamily: fontFamily,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.all(Colors.white),
         trackColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? AppColors.teal
+              ? AppColors.mint
               : AppColors.slate,
         ),
         trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
       ),
       sliderTheme: SliderThemeData(
-        activeTrackColor: AppColors.teal,
+        activeTrackColor: AppColors.mint,
         inactiveTrackColor: AppColors.slate.withValues(alpha: 0.5),
-        thumbColor: AppColors.teal,
-        overlayColor: AppColors.teal.withValues(alpha: 0.15),
+        thumbColor: AppColors.mint,
+        overlayColor: AppColors.mint.withValues(alpha: 0.15),
         activeTickMarkColor: Colors.white,
-        inactiveTickMarkColor: AppColors.indigo.withValues(alpha: 0.3),
+        inactiveTickMarkColor: AppColors.ocean.withValues(alpha: 0.3),
       ),
       snackBarTheme: const SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.indigo,
+        backgroundColor: AppColors.ocean,
+        contentTextStyle: TextStyle(color: Colors.white),
+      ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: AppColors.ocean,
+        foregroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
+        ),
       ),
     );
   }
