@@ -1,16 +1,25 @@
 import 'package:flutter/material.dart';
 
-/// Khota brand palette (from the app asset pack).
+/// Khota new brand palette.
 class AppColors {
   AppColors._();
 
-  static const Color indigo = Color(0xFF16324F); // primary
-  static const Color teal = Color(0xFF2F8F79); // secondary
-  static const Color tealLight = Color(0xFF5DCAA5); // highlights
-  static const Color sand = Color(0xFFEDE7DB); // app background
-  static const Color warmWhite = Color(0xFFF2ECE1); // cards and fields
-  static const Color slate = Color(0xFFAEC0D2); // borders, disabled
+  // Brand colors from guidelines
+  static const Color ink = Color(0xFF011E26);   // darkest
+  static const Color ocean = Color(0xFF115A73); // primary
+  static const Color mint = Color(0xFF40BA87);  // accent
+  static const Color mist = Color(0xFFE8EBEE);  // light neutral
 
-  static const Color error = Color(0xFFC0392B);
-  static const Color amber = Color(0xFFD4900A);
+  // Keep old names so the rest of the app does not break
+  static const Color indigo = ocean;
+  static const Color teal = mint;
+  static const Color tealLight = Color(0xFF8CDABB);
+
+  // Global surfaces
+  static const Color sand = ink;        // app background (dark)
+  static const Color warmWhite = mist;  // cards and input fields
+  static const Color slate = Color(0xFF89A5AF); // borders / disabled
+
+  static const Color error = Color(0xFFD95D5D);
+  static const Color amber = Color(0xFFF2C14E);
 }
