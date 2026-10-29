@@ -220,6 +220,7 @@ class _SectionTitle extends StatelessWidget {
 }
 
 /// Short tips before taking the photo; opens the photo guide.
+
 class _GuideCard extends StatelessWidget {
   const _GuideCard({required this.onTap});
 
@@ -228,18 +229,20 @@ class _GuideCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(22),
       child: Material(
+        color: Colors.transparent,
         child: Ink(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-         colors: [
-  AppColors.ocean,
-  AppColors.mint,
-],
+              colors: [
+                Color(0xFF084656),
+                Color(0xFF176F62),
+              ],
             ),
           ),
           child: InkWell(
@@ -250,11 +253,13 @@ class _GuideCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment:
+                              CrossAxisAlignment.start,
                           children: [
                             Text(
                               'أبلغ عن مشكلة في الرصيف',
@@ -263,11 +268,13 @@ class _GuideCard extends StatelessWidget {
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 8),
                             Text(
                               'صورة واضحة تساعد على تقييم المشكلة بدقة.',
                               style: text.bodyMedium?.copyWith(
-                                color: AppColors.tealLight,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                                height: 1.5,
                               ),
                             ),
                           ],
@@ -278,28 +285,49 @@ class _GuideCard extends StatelessWidget {
                         width: 56,
                         height: 56,
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.white.withValues(
+                            alpha: 0.14,
+                          ),
+                          borderRadius:
+                              BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.white.withValues(
+                              alpha: 0.20,
+                            ),
+                          ),
                         ),
                         child: const Icon(
                           Icons.tips_and_updates_outlined,
-                          color: Colors.white,
+                          color: AppColors.mint,
                           size: 28,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 18),
+
                   const Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      _TipChip(icon: Icons.wb_sunny_outlined, label: 'إضاءة جيدة'),
-                      _TipChip(icon: Icons.crop_free, label: 'المشكلة كاملة'),
-                      _TipChip(icon: Icons.straighten, label: 'مسافة مناسبة'),
+                      _TipChip(
+                        icon: Icons.wb_sunny_outlined,
+                        label: 'إضاءة جيدة',
+                      ),
+                      _TipChip(
+                        icon: Icons.crop_free,
+                        label: 'المشكلة كاملة',
+                      ),
+                      _TipChip(
+                        icon: Icons.straighten,
+                        label: 'مسافة مناسبة',
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 18),
+
                   Row(
                     children: [
                       Text(
@@ -309,11 +337,11 @@ class _GuideCard extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 6),
                       const Icon(
                         Icons.arrow_forward,
-                        color: Colors.white,
-                        size: 18,
+                        color: AppColors.mint,
+                        size: 20,
                       ),
                     ],
                   ),
@@ -328,7 +356,10 @@ class _GuideCard extends StatelessWidget {
 }
 
 class _TipChip extends StatelessWidget {
-  const _TipChip({required this.icon, required this.label});
+  const _TipChip({
+    required this.icon,
+    required this.label,
+  });
 
   final IconData icon;
   final String label;
@@ -336,25 +367,40 @@ class _TipChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 8,
+      ),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.12),
+        color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.22),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: Colors.white, size: 16),
+          Icon(
+            icon,
+            color: Colors.white,
+            size: 16,
+          ),
           const SizedBox(width: 6),
           Text(
             label,
-            style: const TextStyle(color: Colors.white, fontSize: 12),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
     );
   }
 }
+
 
 class _ServiceTile extends StatelessWidget {
   const _ServiceTile({
