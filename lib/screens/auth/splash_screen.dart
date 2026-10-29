@@ -8,8 +8,8 @@ import '../../theme/app_colors.dart';
 import '../shell/main_shell.dart';
 import 'login_screen.dart';
 
-/// Khota animated brand introduction.
-/// Dark splash only. The rest of the app stays light.
+/// Animated Khota splash screen.
+/// The rest of the application remains in Light Mode.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({
     super.key,
@@ -25,23 +25,22 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-
   late final AuthService _auth =
       widget.auth ?? FirebaseAuthService.instance;
 
   late final AnimationController _controller =
       AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 3000),
+    duration: const Duration(milliseconds: 3500),
   );
 
-  late final Animation<double> _logoReveal =
+  late final Animation<double> _logoProgress =
       CurvedAnimation(
     parent: _controller,
     curve: const Interval(
-      0.05,
+      0.03,
       0.80,
-      curve: Curves.easeOutCubic,
+      curve: Curves.linear,
     ),
   );
 
@@ -49,13 +48,14 @@ class _SplashScreenState extends State<SplashScreen>
       CurvedAnimation(
     parent: _controller,
     curve: const Interval(
-      0.55,
-      0.95,
+      0.63,
+      0.94,
       curve: Curves.easeOut,
     ),
   );
 
   bool _started = false;
+  bool _navigated = false;
 
   @override
   void didChangeDependencies() {
@@ -74,7 +74,7 @@ class _SplashScreenState extends State<SplashScreen>
     } else {
       _controller.forward().whenComplete(() {
         Future<void>.delayed(
-          const Duration(milliseconds: 500),
+          const Duration(milliseconds: 650),
           _goNext,
         );
       });
@@ -82,7 +82,8 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _goNext() {
-    if (!mounted) return;
+    if (!mounted || _navigated) return;
+    _navigated = true;
 
     final next = _auth.currentUser == null
         ? const LoginScreen()
@@ -92,9 +93,7 @@ class _SplashScreenState extends State<SplashScreen>
       PageRouteBuilder(
         transitionDuration:
             const Duration(milliseconds: 450),
-
         pageBuilder: (_, __, ___) => next,
-
         transitionsBuilder:
             (_, animation, __, child) =>
                 FadeTransition(
@@ -113,92 +112,133 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
     final text = Theme.of(context).textTheme;
 
     return Scaffold(
       backgroundColor: AppColors.ink,
-
       body: DecoratedBox(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            stops: [0.0, 0.43, 0.80, 1.0],
+            stops: [0.0, 0.46, 1.0],
             colors: [
               AppColors.ink,
               AppColors.ink,
               AppColors.ocean,
-              AppColors.mint,
             ],
           ),
         ),
-
         child: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final width = constraints.maxWidth;
-              final height = constraints.maxHeight;
+              final screenWidth = constraints.maxWidth;
+              final screenHeight = constraints.maxHeight;
 
               final logoWidth =
-                  math.min(width * 0.84, 410.0);
+                  math.min(screenWidth * 0.86, 420.0);
 
-              final backgroundSymbolSize =
-                  math.min(width * 3.2, 1400.0);
+              final symbolSize =
+                  math.min(screenWidth * 3.2, 1450.0);
+
+              final glowSize =
+                  math.min(screenWidth * 1.5, 600.0);
 
               return Stack(
-                fit: StackFit.expand,
+                clipBehavior: Clip.hardEdge,
                 children: [
-
-                  // Large transparent symbol at the top
+                  // Bright turquoise glow at bottom right.
                   Positioned(
-                    top: -backgroundSymbolSize * 0.40,
-                    left: 0,
-                    right: 0,
+                    right: -glowSize * 0.28,
+                    bottom: -glowSize * 0.35,
+                    width: glowSize,
+                    height: glowSize,
                     child: IgnorePointer(
-                      child: Opacity(
-                        opacity: 0.09,
-                        child: Center(
-                          child: Image.asset(
-                            'assets/images/khota_symbol_original.png',
-                            width: backgroundSymbolSize,
-                            height: backgroundSymbolSize,
-                            fit: BoxFit.contain,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: RadialGradient(
+                            radius: 0.72,
+                            colors: [
+                              AppColors.mint.withValues(
+                                alpha: 0.86,
+                              ),
+                              AppColors.mint.withValues(
+                                alpha: 0.34,
+                              ),
+                              Colors.transparent,
+                            ],
+                            stops: const [
+                              0.0,
+                              0.48,
+                              1.0,
+                            ],
                           ),
                         ),
                       ),
                     ),
                   ),
 
-                  // Full original logo revealed tile by tile
-                  Center(
-                    child: AnimatedBuilder(
-                      animation: _controller,
-                      builder: (context, _) {
-                        return _PavingTileLogo(
-                          width: logoWidth,
-                          progress: _logoReveal.value,
-                        );
-                      },
+                  // Large faded original symbol.
+                  Positioned(
+                    top: -symbolSize * 0.36,
+                    left: (screenWidth - symbolSize) / 2,
+                    width: symbolSize,
+                    height: symbolSize,
+                    child: IgnorePointer(
+                      child: Opacity(
+                        opacity: 0.13,
+                        child: Image.asset(
+                          'assets/images/khota_symbol_original.png',
+                          width: symbolSize,
+                          height: symbolSize,
+                          fit: BoxFit.contain,
+                          filterQuality: FilterQuality.high,
+                          excludeFromSemantics: true,
+                        ),
+                      ),
                     ),
                   ),
 
-                  // Bottom tagline
+                  // The logo assembles from 18 pieces.
+                  Positioned.fill(
+                    child: Center(
+                      child: AnimatedBuilder(
+                        animation: _controller,
+                        builder: (context, child) {
+                          return _AssemblingKhotaLogo(
+                            width: logoWidth,
+                            progress: _logoProgress.value,
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+
+                  // Slogan at bottom.
                   Positioned(
-                    left: 18,
-                    right: 18,
+                    left: 20,
+                    right: 20,
                     bottom: math.max(
-                      30.0,
-                      height * 0.065,
+                      28.0,
+                      screenHeight * 0.06,
                     ),
                     child: FadeTransition(
                       opacity: _taglineFade,
-                      child: Text(
-                        'معًا لأرصفة أفضل',
-                        textAlign: TextAlign.center,
-                        style:
-                            text.titleMedium?.copyWith(
-                          color: AppColors.mist,
-                          fontWeight: FontWeight.w600,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0, 0.35),
+                          end: Offset.zero,
+                        ).animate(_taglineFade),
+                        child: Text(
+                          'معًا لأرصفة أفضل',
+                          textAlign: TextAlign.center,
+                          style:
+                              text.titleMedium?.copyWith(
+                            color: AppColors.mist,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.3,
+                          ),
                         ),
                       ),
                     ),
@@ -213,9 +253,10 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-/// Reveal the real full logo through paving-shaped tiles.
-class _PavingTileLogo extends StatelessWidget {
-  const _PavingTileLogo({
+/// The complete original logo, assembled from individual
+/// rectangular sidewalk-like pieces.
+class _AssemblingKhotaLogo extends StatelessWidget {
+  const _AssemblingKhotaLogo({
     required this.width,
     required this.progress,
   });
@@ -223,31 +264,73 @@ class _PavingTileLogo extends StatelessWidget {
   final double width;
   final double progress;
 
+  static const int columns = 6;
+  static const int rows = 3;
+
   @override
   Widget build(BuildContext context) {
-    // The source PNG is square with transparent space.
-    // This crop makes the actual logo larger and clearer.
-    final height = width * 0.45;
-    final imageSize = width * 1.5;
+    final height = width * 0.40;
 
-    return SizedBox(
-      width: width,
-      height: height,
-      child: ClipRect(
-        child: ClipPath(
-          clipper: _SidewalkTileClipper(progress),
-          child: OverflowBox(
-            alignment: Alignment.center,
-            minWidth: imageSize,
-            maxWidth: imageSize,
-            minHeight: imageSize,
-            maxHeight: imageSize,
-            child: Image.asset(
-              'assets/images/khota_logo_new.png',
-              width: imageSize,
-              height: imageSize,
-              fit: BoxFit.contain,
-              semanticLabel: 'شعار خُطى',
+    return Semantics(
+      label: 'شعار خُطى',
+      image: true,
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            for (var index = 0;
+                index < columns * rows;
+                index++)
+              _buildTile(index),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTile(int index) {
+    final row = index ~/ columns;
+    final column = index % columns;
+
+    // Stagger each tile so the pieces are visible.
+    final start = index * 0.033;
+
+    final raw =
+        ((progress - start) / 0.30)
+            .clamp(0.0, 1.0)
+            .toDouble();
+
+    final eased = Curves.easeOutCubic.transform(raw);
+
+    // Pieces travel toward their final locations.
+    final horizontalDistance =
+        (column - (columns - 1) / 2) * 17.0;
+
+    final verticalDistance =
+        (row - (rows - 1) / 2) * 36.0;
+
+    final dx =
+        horizontalDistance * (1 - eased);
+
+    final dy =
+        verticalDistance * (1 - eased);
+
+    return Positioned.fill(
+      child: ExcludeSemantics(
+        child: Opacity(
+          opacity: eased,
+          child: Transform.translate(
+            offset: Offset(dx, dy),
+            child: ClipRect(
+              clipper: _LogoTileClipper(
+                row: row,
+                column: column,
+              ),
+              child: _FullLogoArtwork(
+                width: width,
+              ),
             ),
           ),
         ),
@@ -256,59 +339,70 @@ class _PavingTileLogo extends StatelessWidget {
   }
 }
 
-/// 6 columns × 3 rows = 18 rectangular tiles.
-class _SidewalkTileClipper
-    extends CustomClipper<Path> {
+/// Draw the full original image at the same size
+/// for every tile, preserving exact alignment.
+class _FullLogoArtwork extends StatelessWidget {
+  const _FullLogoArtwork({
+    required this.width,
+  });
 
-  const _SidewalkTileClipper(this.progress);
-
-  final double progress;
+  final double width;
 
   @override
-  Path getClip(Size size) {
-    const columns = 6;
-    const rows = 3;
+  Widget build(BuildContext context) {
+    // The original 1241x1241 PNG has transparent
+    // padding, so enlarge it without modifying it.
+    final imageSize = width * 1.49;
 
+    return OverflowBox(
+      alignment: Alignment.center,
+      minWidth: imageSize,
+      maxWidth: imageSize,
+      minHeight: imageSize,
+      maxHeight: imageSize,
+      child: Image.asset(
+        'assets/images/khota_logo_new.png',
+        width: imageSize,
+        height: imageSize,
+        fit: BoxFit.contain,
+        filterQuality: FilterQuality.high,
+        excludeFromSemantics: true,
+      ),
+    );
+  }
+}
+
+/// Each rectangle reveals its own section of the logo.
+class _LogoTileClipper extends CustomClipper<Rect> {
+  const _LogoTileClipper({
+    required this.row,
+    required this.column,
+  });
+
+  final int row;
+  final int column;
+
+  static const int columns = 6;
+  static const int rows = 3;
+
+  @override
+  Rect getClip(Size size) {
     final tileWidth = size.width / columns;
     final tileHeight = size.height / rows;
 
-    final mask = Path();
-
-    for (var row = 0; row < rows; row++) {
-      for (var column = 0;
-          column < columns;
-          column++) {
-
-        final tile = row * columns + column;
-
-        final raw = (
-          (progress - tile * 0.025) / 0.42
-        ).clamp(0.0, 1.0).toDouble();
-
-        final reveal =
-            Curves.easeOutCubic.transform(raw);
-
-        if (reveal > 0) {
-          mask.addRect(
-            Rect.fromLTWH(
-              column * tileWidth,
-              row * tileHeight +
-                  tileHeight * (1 - reveal),
-              tileWidth,
-              tileHeight * reveal,
-            ),
-          );
-        }
-      }
-    }
-
-    return mask;
+    return Rect.fromLTWH(
+      column * tileWidth,
+      row * tileHeight,
+      tileWidth,
+      tileHeight,
+    );
   }
 
   @override
   bool shouldReclip(
-    covariant _SidewalkTileClipper oldClipper,
+    covariant _LogoTileClipper oldClipper,
   ) {
-    return oldClipper.progress != progress;
+    return oldClipper.row != row ||
+        oldClipper.column != column;
   }
 }
