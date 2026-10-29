@@ -1,3 +1,6 @@
+
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../services/auth_service.dart';
@@ -5,41 +8,51 @@ import '../../theme/app_colors.dart';
 import '../shell/main_shell.dart';
 import 'login_screen.dart';
 
-/// New splash:
-/// - dark brand look
-/// - logo reveals tile-by-tile like sidewalk blocks
-/// - wordmark appears separately for a cleaner result
+/// Khota animated brand introduction.
+/// Dark splash only. The rest of the app stays light.
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key, this.auth});
+  const SplashScreen({
+    super.key,
+    this.auth,
+  });
 
   final AuthService? auth;
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  State<SplashScreen> createState() =>
+      _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-  late final AuthService _auth = widget.auth ?? FirebaseAuthService.instance;
 
-  late final AnimationController _controller = AnimationController(
+  late final AuthService _auth =
+      widget.auth ?? FirebaseAuthService.instance;
+
+  late final AnimationController _controller =
+      AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 3000),
   );
 
-  late final Animation<double> _logoReveal = CurvedAnimation(
+  late final Animation<double> _logoReveal =
+      CurvedAnimation(
     parent: _controller,
-    curve: const Interval(0.00, 0.58, curve: Curves.easeOutCubic),
+    curve: const Interval(
+      0.05,
+      0.80,
+      curve: Curves.easeOutCubic,
+    ),
   );
 
-  late final Animation<double> _nameFade = CurvedAnimation(
+  late final Animation<double> _taglineFade =
+      CurvedAnimation(
     parent: _controller,
-    curve: const Interval(0.45, 0.78, curve: Curves.easeOut),
-  );
-
-  late final Animation<double> _taglineFade = CurvedAnimation(
-    parent: _controller,
-    curve: const Interval(0.65, 0.92, curve: Curves.easeOut),
+    curve: const Interval(
+      0.55,
+      0.95,
+      curve: Curves.easeOut,
+    ),
   );
 
   bool _started = false;
@@ -47,30 +60,47 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
     if (_started) return;
     _started = true;
 
     if (MediaQuery.disableAnimationsOf(context)) {
       _controller.value = 1;
-      Future<void>.delayed(const Duration(milliseconds: 800), _goNext);
+
+      Future<void>.delayed(
+        const Duration(milliseconds: 800),
+        _goNext,
+      );
     } else {
       _controller.forward().whenComplete(() {
-        Future<void>.delayed(const Duration(milliseconds: 500), _goNext);
+        Future<void>.delayed(
+          const Duration(milliseconds: 500),
+          _goNext,
+        );
       });
     }
   }
 
   void _goNext() {
     if (!mounted) return;
-    final next =
-        _auth.currentUser == null ? const LoginScreen() : const MainShell();
+
+    final next = _auth.currentUser == null
+        ? const LoginScreen()
+        : const MainShell();
 
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
-        transitionDuration: const Duration(milliseconds: 450),
+        transitionDuration:
+            const Duration(milliseconds: 450),
+
         pageBuilder: (_, __, ___) => next,
-        transitionsBuilder: (_, animation, __, child) =>
-            FadeTransition(opacity: animation, child: child),
+
+        transitionsBuilder:
+            (_, animation, __, child) =>
+                FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
       ),
     );
   }
@@ -87,71 +117,105 @@ class _SplashScreenState extends State<SplashScreen>
 
     return Scaffold(
       backgroundColor: AppColors.ink,
-      body: Stack(
-        children: [
-          const Positioned.fill(child: _SplashBackgroundPattern()),
-          SafeArea(
-            child: Center(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final logoWidth = constraints.maxWidth > 500 ? 220.0 : 180.0;
 
-                  return AnimatedBuilder(
-                    animation: _controller,
-                    builder: (context, _) {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _TileRevealLogo(
-                            width: logoWidth,
-                            progress: _logoReveal.value,
-                          ),
-                          const SizedBox(height: 28),
-                          Opacity(
-                            opacity: _nameFade.value,
-                            child: Transform.translate(
-                              offset: Offset(0, 12 * (1 - _nameFade.value)),
-                              child: Text(
-                                'خُطى',
-                                style: text.displayMedium?.copyWith(
-                                  color: AppColors.mist,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Opacity(
-                            opacity: _taglineFade.value,
-                            child: Transform.translate(
-                              offset:
-                                  Offset(0, 10 * (1 - _taglineFade.value)),
-                              child: Text(
-                                'معاً لأرصفة أفضل',
-                                style: text.titleMedium?.copyWith(
-                                  color: AppColors.mint,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
+      body: DecoratedBox(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            stops: [0.0, 0.43, 0.80, 1.0],
+            colors: [
+              AppColors.ink,
+              AppColors.ink,
+              AppColors.ocean,
+              AppColors.mint,
+            ],
           ),
-        ],
+        ),
+
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final width = constraints.maxWidth;
+              final height = constraints.maxHeight;
+
+              final logoWidth =
+                  math.min(width * 0.84, 410.0);
+
+              final backgroundSymbolSize =
+                  math.min(width * 3.2, 1400.0);
+
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+
+                  // Large transparent symbol at the top
+                  Positioned(
+                    top: -backgroundSymbolSize * 0.40,
+                    left: 0,
+                    right: 0,
+                    child: IgnorePointer(
+                      child: Opacity(
+                        opacity: 0.09,
+                        child: Center(
+                          child: Image.asset(
+                            'assets/images/khota_symbol_original.png',
+                            width: backgroundSymbolSize,
+                            height: backgroundSymbolSize,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Full original logo revealed tile by tile
+                  Center(
+                    child: AnimatedBuilder(
+                      animation: _controller,
+                      builder: (context, _) {
+                        return _PavingTileLogo(
+                          width: logoWidth,
+                          progress: _logoReveal.value,
+                        );
+                      },
+                    ),
+                  ),
+
+                  // Bottom tagline
+                  Positioned(
+                    left: 18,
+                    right: 18,
+                    bottom: math.max(
+                      30.0,
+                      height * 0.065,
+                    ),
+                    child: FadeTransition(
+                      opacity: _taglineFade,
+                      child: Text(
+                        'معًا لأرصفة أفضل',
+                        textAlign: TextAlign.center,
+                        style:
+                            text.titleMedium?.copyWith(
+                          color: AppColors.mist,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
       ),
     );
   }
 }
 
-class _TileRevealLogo extends StatelessWidget {
-  const _TileRevealLogo({
+/// Reveal the real full logo through paving-shaped tiles.
+class _PavingTileLogo extends StatelessWidget {
+  const _PavingTileLogo({
     required this.width,
     required this.progress,
   });
@@ -159,123 +223,92 @@ class _TileRevealLogo extends StatelessWidget {
   final double width;
   final double progress;
 
-  static const int cols = 4;
-  static const int rows = 3;
-  static const double imageAspectRatio = 512 / 278;
-
   @override
   Widget build(BuildContext context) {
-    final height = width / imageAspectRatio;
-    final tileWidth = width / cols;
-    final tileHeight = height / rows;
-    final totalTiles = rows * cols;
+    // The source PNG is square with transparent space.
+    // This crop makes the actual logo larger and clearer.
+    final height = width * 0.45;
+    final imageSize = width * 1.5;
 
-    return Semantics(
-      label: 'شعار خُطى',
-      child: SizedBox(
-        width: width,
-        height: height,
-        child: Stack(
-          children: List.generate(totalTiles, (index) {
-            final row = index ~/ cols;
-            final col = index % cols;
-
-            final start = index * 0.05;
-            const duration = 0.28;
-            final raw = ((progress - start) / duration).clamp(0.0, 1.0);
-            final t = Curves.easeOutCubic.transform(raw);
-
-            return Positioned(
-              left: col * tileWidth,
-              top: row * tileHeight,
-              width: tileWidth,
-              height: tileHeight,
-              child: Opacity(
-                opacity: t,
-                child: Transform.translate(
-                  offset: Offset(0, 14 * (1 - t)),
-                  child: ClipRect(
-                    child: Align(
-                      alignment: Alignment(
-                        -1 + ((col * 2 + 1) / cols),
-                        -1 + ((row * 2 + 1) / rows),
-                      ),
-                      widthFactor: 1 / cols,
-                      heightFactor: 1 / rows,
-                      child: Image.asset(
-                         'assets/images/khota_symbol_original.png',
-                        width: width,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          }),
+    return SizedBox(
+      width: width,
+      height: height,
+      child: ClipRect(
+        child: ClipPath(
+          clipper: _SidewalkTileClipper(progress),
+          child: OverflowBox(
+            alignment: Alignment.center,
+            minWidth: imageSize,
+            maxWidth: imageSize,
+            minHeight: imageSize,
+            maxHeight: imageSize,
+            child: Image.asset(
+              'assets/images/khota_logo_new.png',
+              width: imageSize,
+              height: imageSize,
+              fit: BoxFit.contain,
+              semanticLabel: 'شعار خُطى',
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-class _SplashBackgroundPattern extends StatelessWidget {
-  const _SplashBackgroundPattern();
+/// 6 columns × 3 rows = 18 rectangular tiles.
+class _SidewalkTileClipper
+    extends CustomClipper<Path> {
+
+  const _SidewalkTileClipper(this.progress);
+
+  final double progress;
 
   @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _SplashPatternPainter(),
-      child: const SizedBox.expand(),
-    );
-  }
-}
+  Path getClip(Size size) {
+    const columns = 6;
+    const rows = 3;
 
-class _SplashPatternPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final base = Paint()..color = AppColors.ink;
-    canvas.drawRect(Offset.zero & size, base);
+    final tileWidth = size.width / columns;
+    final tileHeight = size.height / rows;
 
-    final lines = Paint()
-      ..color = AppColors.mist.withValues(alpha: 0.05)
-      ..strokeWidth = 1.2
-      ..style = PaintingStyle.stroke;
+    final mask = Path();
 
-    for (double x = -size.height; x < size.width; x += 22) {
-      canvas.drawLine(
-        Offset(x, size.height),
-        Offset(x + size.height, 0),
-        lines,
-      );
+    for (var row = 0; row < rows; row++) {
+      for (var column = 0;
+          column < columns;
+          column++) {
+
+        final tile = row * columns + column;
+
+        final raw = (
+          (progress - tile * 0.025) / 0.42
+        ).clamp(0.0, 1.0).toDouble();
+
+        final reveal =
+            Curves.easeOutCubic.transform(raw);
+
+        if (reveal > 0) {
+          mask.addRect(
+            Rect.fromLTWH(
+              column * tileWidth,
+              row * tileHeight +
+                  tileHeight * (1 - reveal),
+              tileWidth,
+              tileHeight * reveal,
+            ),
+          );
+        }
+      }
     }
 
-    final glow = Paint()
-      ..shader = const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          AppColors.ocean,
-          AppColors.mint,
-        ],
-      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
-      ..color = Colors.white.withValues(alpha: 0.10);
-
-    final rect = RRect.fromRectAndRadius(
-      Rect.fromCenter(
-        center: Offset(size.width / 2, size.height / 2),
-        width: size.width * 0.78,
-        height: size.height * 0.42,
-      ),
-      const Radius.circular(36),
-    );
-
-    canvas.drawRRect(
-      rect,
-      glow..color = AppColors.ocean.withValues(alpha: 0.08),
-    );
+    return mask;
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldReclip(
+    covariant _SidewalkTileClipper oldClipper,
+  ) {
+    return oldClipper.progress != progress;
+  }
 }
