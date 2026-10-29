@@ -23,7 +23,12 @@ class GradientHeader extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [AppColors.indigo, AppColors.teal],
+          stops: [0.0, 0.65, 1.0],
+colors: [
+  AppColors.ink,
+  AppColors.ocean,
+  AppColors.mint,
+],
           ),
         ),
         child: CustomPaint(
