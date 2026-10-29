@@ -26,7 +26,7 @@ class AboutScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(32),
               ),
               child: Image.asset(
-                'assets/images/khota_logo.png',
+              'assets/images/khota_logo_new.png',
                 semanticLabel: 'شعار خُطى',
               ),
             ),
