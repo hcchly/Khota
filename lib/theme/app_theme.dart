@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -7,23 +8,37 @@ class AppTheme {
   AppTheme._();
 
   static ThemeData light() {
-    final String? fontFamily = GoogleFonts.ibmPlexSansArabic().fontFamily;
+    final String? fontFamily =
+        GoogleFonts.ibmPlexSansArabic().fontFamily;
 
-    OutlineInputBorder border(Color color, [double width = 1]) =>
+    OutlineInputBorder border(
+      Color color, [
+      double width = 1,
+    ]) =>
         OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: color, width: width),
+          borderSide: BorderSide(
+            color: color,
+            width: width,
+          ),
         );
 
     final base = ThemeData(
       useMaterial3: true,
       fontFamily: fontFamily,
+      brightness: Brightness.light,
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.ocean,
+        brightness: Brightness.light,
+      ).copyWith(
         primary: AppColors.ocean,
+        onPrimary: Colors.white,
         secondary: AppColors.mint,
+        onSecondary: AppColors.ink,
         surface: AppColors.warmWhite,
+        onSurface: AppColors.ink,
         error: AppColors.error,
+        outline: AppColors.slate,
       ),
       scaffoldBackgroundColor: AppColors.sand,
     );
@@ -31,21 +46,26 @@ class AppTheme {
     return base.copyWith(
       textTheme: base.textTheme.apply(
         fontFamily: fontFamily,
-        bodyColor: AppColors.ocean,
-        displayColor: AppColors.ocean,
+        bodyColor: AppColors.ink,
+        displayColor: AppColors.ink,
       ),
+
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.warmWhite,
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         border: border(AppColors.slate),
         enabledBorder: border(AppColors.slate),
         disabledBorder: border(AppColors.slate),
-        focusedBorder: border(AppColors.mint, 2),
+        focusedBorder: border(AppColors.ocean, 2),
         errorBorder: border(AppColors.error),
         focusedErrorBorder: border(AppColors.error, 2),
       ),
+
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.ocean,
@@ -62,42 +82,62 @@ class AppTheme {
           ),
         ),
       ),
+
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.ocean,
-          side: const BorderSide(color: AppColors.slate),
+          side: const BorderSide(
+            color: AppColors.slate,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
-          textStyle: TextStyle(
-            fontFamily: fontFamily,
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-          ),
         ),
       ),
+
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.ocean,
+        ),
+      ),
+
       switchTheme: SwitchThemeData(
-        thumbColor: WidgetStateProperty.all(Colors.white),
+        thumbColor: WidgetStateProperty.all(
+          Colors.white,
+        ),
         trackColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
-              ? AppColors.mint
+          (states) => states.contains(
+            WidgetState.selected,
+          )
+              ? AppColors.ocean
               : AppColors.slate,
         ),
-        trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+        trackOutlineColor:
+            WidgetStateProperty.all(
+          Colors.transparent,
+        ),
       ),
+
       sliderTheme: SliderThemeData(
-        activeTrackColor: AppColors.mint,
-        inactiveTrackColor: AppColors.slate.withValues(alpha: 0.5),
-        thumbColor: AppColors.mint,
-        overlayColor: AppColors.mint.withValues(alpha: 0.15),
+        activeTrackColor: AppColors.ocean,
+        inactiveTrackColor:
+            AppColors.slate.withValues(alpha: 0.5),
+        thumbColor: AppColors.ocean,
+        overlayColor:
+            AppColors.mint.withValues(alpha: 0.15),
         activeTickMarkColor: Colors.white,
-        inactiveTickMarkColor: AppColors.ocean.withValues(alpha: 0.3),
+        inactiveTickMarkColor:
+            AppColors.ink.withValues(alpha: 0.3),
       ),
+
       snackBarTheme: const SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.ocean,
-        contentTextStyle: TextStyle(color: Colors.white),
+        backgroundColor: AppColors.ink,
+        contentTextStyle: TextStyle(
+          color: Colors.white,
+        ),
       ),
+
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.ocean,
         foregroundColor: Colors.white,
