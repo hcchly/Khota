@@ -134,6 +134,7 @@ class _ReportPhotoScreenState extends State<ReportPhotoScreen> {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight + 12),
           child: GradientHeader(
+            pattern: 4,
             child: Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: AppBar(

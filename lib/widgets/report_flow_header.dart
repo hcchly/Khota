@@ -29,6 +29,7 @@ class ReportFlowHeader extends StatelessWidget {
     final total = stepLabels.length;
     return GradientHeader(
       bottomRadius: 24,
+      pattern: 4,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 4, 8, 18),
         child: Column(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import 'gradient_header.dart';
 
 /// Indigo-to-teal app bar used on inner pages (with a back arrow).
 class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -22,14 +23,11 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
       scrolledUnderElevation: 0,
       titleTextStyle: Theme.of(context).textTheme.titleMedium
           ?.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
-      flexibleSpace: const SizedBox.expand(
+      flexibleSpace: SizedBox.expand(
         child: DecoratedBox(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [AppColors.indigo, AppColors.teal],
-            ),
+            color: AppColors.ink,
+            image: brandBackground(4),
           ),
         ),
       ),

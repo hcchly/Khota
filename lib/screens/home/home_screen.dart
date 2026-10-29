@@ -235,15 +235,9 @@ class _GuideCard extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: Ink(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF084656),
-                Color(0xFF176F62),
-              ],
-            ),
+          decoration: BoxDecoration(
+            color: AppColors.ink,
+            image: brandBackground(5),
           ),
           child: InkWell(
             onTap: onTap,

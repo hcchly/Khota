@@ -2,16 +2,21 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 
-/// Indigo-to-teal header with a faint paving pattern and a curved bottom.
+/// Brand header: dark navy with the Khota background art (design pages 4-6)
+/// and a curved bottom.
+///
+/// [pattern] picks the art: 4 = subtle, 5 = diagonal shapes, 6 = chevron arrows.
 class GradientHeader extends StatelessWidget {
   const GradientHeader({
     super.key,
     required this.child,
     this.bottomRadius = 28,
+    this.pattern = 6,
   });
 
   final Widget child;
   final double bottomRadius;
+  final int pattern;
 
   @override
   Widget build(BuildContext context) {
@@ -19,58 +24,23 @@ class GradientHeader extends StatelessWidget {
       borderRadius:
           BorderRadius.vertical(bottom: Radius.circular(bottomRadius)),
       child: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          stops: [0.0, 0.65, 1.0],
-colors: [
-  AppColors.ink,
-  AppColors.ocean,
-  AppColors.mint,
-],
-          ),
+        decoration: BoxDecoration(
+          color: AppColors.ink,
+          image: brandBackground(pattern),
         ),
-        child: CustomPaint(
-          painter: _PavingPatternPainter(),
-          child: SafeArea(bottom: false, child: child),
-        ),
+        child: SafeArea(bottom: false, child: child),
       ),
     );
   }
 }
 
-class _PavingPatternPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final lines = Paint()
-      ..color = Colors.white.withValues(alpha: 0.05)
-      ..strokeWidth = 1.2
-      ..style = PaintingStyle.stroke;
-    for (double x = -size.height; x < size.width; x += 18) {
-      canvas.drawLine(
-        Offset(x, size.height),
-        Offset(x + size.height, 0),
-        lines,
-      );
-    }
-
-    // Curved line, like the one under the pedestrian in the logo.
-    final curve = Paint()
-      ..color = Colors.white.withValues(alpha: 0.10)
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-    final path = Path()
-      ..moveTo(0, size.height * 0.78)
-      ..quadraticBezierTo(
-        size.width * 0.5,
-        size.height * 0.55,
-        size.width,
-        size.height * 0.85,
-      );
-    canvas.drawPath(path, curve);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+/// The brand background art as a [DecorationImage] (pattern 4, 5 or 6).
+DecorationImage brandBackground(int pattern) {
+  final p = (pattern < 4 || pattern > 6) ? 6 : pattern;
+  return DecorationImage(
+    image: AssetImage('assets/images/brand_bg_$p.jpg'),
+    fit: BoxFit.cover,
+    alignment: Alignment.centerRight,
+    filterQuality: FilterQuality.medium,
+  );
 }

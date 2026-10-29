@@ -161,6 +161,7 @@ class _ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     return GradientHeader(
+      pattern: 4,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
         child: Column(

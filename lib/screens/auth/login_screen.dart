@@ -117,26 +117,17 @@ class _LoginScreenState extends State<LoginScreen> {
       body: ListView(
         padding: EdgeInsets.zero,
         children: [
-          // Header with logo and name.
+          // Header with the logo only.
           GradientHeader(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 72),
-              child: Column(
-                children: [
-                  Image.asset(
-                   'assets/images/khota_logo_new.png',
-                    width: 140,
-                    semanticLabel: 'شعار خُطى',
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'خُطى',
-                    style: text.headlineLarge?.copyWith(
-                      color: AppColors.warmWhite,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ],
+              padding: const EdgeInsets.fromLTRB(16, 48, 16, 96),
+              child: Center(
+                child: Image.asset(
+                  'assets/images/khota_logo_mist.png',
+                  width: 250,
+                  filterQuality: FilterQuality.high,
+                  semanticLabel: 'شعار خُطى',
+                ),
               ),
             ),
           ),

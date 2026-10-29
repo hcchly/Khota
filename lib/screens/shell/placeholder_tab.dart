@@ -22,6 +22,7 @@ class PlaceholderTab extends StatelessWidget {
     return Column(
       children: [
         GradientHeader(
+          pattern: 5,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
             child: Center(
