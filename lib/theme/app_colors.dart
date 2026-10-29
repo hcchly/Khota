@@ -1,25 +1,26 @@
 import 'package:flutter/material.dart';
 
-/// Khota new brand palette.
+/// Khota brand colors - Light Mode
 class AppColors {
   AppColors._();
 
-  // Brand colors from guidelines
-  static const Color ink = Color(0xFF011E26);   // darkest
-  static const Color ocean = Color(0xFF115A73); // primary
-  static const Color mint = Color(0xFF40BA87);  // accent
-  static const Color mist = Color(0xFFE8EBEE);  // light neutral
+  // Original brand colors
+  static const Color ink = Color(0xFF011E26);
+  static const Color ocean = Color(0xFF115A73);
+  static const Color mint = Color(0xFF40BA87);
+  static const Color mist = Color(0xFFE8EBEE);
 
-  // Keep old names so the rest of the app does not break
-  static const Color indigo = ocean;
-  static const Color teal = mint;
-  static const Color tealLight = Color(0xFF8CDABB);
+  // Keep existing names to avoid breaking old screens
+  static const Color indigo = ink;
+  static const Color teal = ocean;
+  static const Color tealLight = mint;
 
-  // Global surfaces
-  static const Color sand = ink;        // app background (dark)
-  static const Color warmWhite = mist;  // cards and input fields
-  static const Color slate = Color(0xFF89A5AF); // borders / disabled
+  // Light mode backgrounds
+  static const Color sand = Color(0xFFF5F8F9);
+  static const Color warmWhite = Color(0xFFFFFFFF);
+  static const Color slate = Color(0xFFB5C8CE);
 
-  static const Color error = Color(0xFFD95D5D);
-  static const Color amber = Color(0xFFF2C14E);
+  // Alerts
+  static const Color error = Color(0xFFC0392B);
+  static const Color amber = Color(0xFFB56A12);
 }
