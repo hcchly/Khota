@@ -236,7 +236,10 @@ class _GuideCard extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [AppColors.indigo, AppColors.teal],
+         colors: [
+  AppColors.ocean,
+  AppColors.mint,
+],
             ),
           ),
           child: InkWell(
