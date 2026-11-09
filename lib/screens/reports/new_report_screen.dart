@@ -62,7 +62,7 @@ class _NewReportScreenState extends State<NewReportScreen>
   /// injected (tests), and falls back to the system camera when unavailable.
   LiveCameraController? _live;
   late final ReportLocationProvider _locator =
-      widget.locationProvider ?? const TemporaryReportLocationProvider();
+      widget.locationProvider ?? const GpsReportLocationProvider();
   late final TextEditingController _description = TextEditingController(
     text: widget.initialDraft?.description ?? '',
   );
