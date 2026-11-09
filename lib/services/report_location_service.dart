@@ -1,5 +1,11 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:async';
+import 'package:flutter/foundation.dart';
+
 import '../models/report_location.dart';
 
 /// Connection point between the new-report flow and the location task.
@@ -11,8 +17,7 @@ import '../models/report_location.dart';
 ///    location permission is denied, to choose the point on a map.
 ///  * [buildMap] to draw the map in the step.
 ///
-/// The location task replaces [TemporaryReportLocationProvider] with a real
-/// implementation (GPS + flutter_map) and passes it to NewReportScreen.
+/// [GpsReportLocationProvider] implements the device GPS and manual map picker.
 abstract class ReportLocationProvider {
   /// Current device position, or null if it is unavailable or denied.
   Future<ReportLocation?> currentLocation();
@@ -58,8 +63,12 @@ class TemporaryReportLocationProvider implements ReportLocationProvider {
   @override
   Future<String?> addressFor(ReportLocation location) async => null;
 }
-class GpsReportLocationProvider extends TemporaryReportLocationProvider {
+
+/// Reads the device location and lets the reporter select a different point.
+class GpsReportLocationProvider implements ReportLocationProvider {
   const GpsReportLocationProvider();
+
+  static const _riyadh = LatLng(24.7136, 46.6753);
 
   @override
   Future<ReportLocation?> currentLocation() async {
@@ -69,24 +78,217 @@ class GpsReportLocationProvider extends TemporaryReportLocationProvider {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
-
     if (permission != LocationPermission.whileInUse &&
         permission != LocationPermission.always) {
       return null;
     }
 
-    final position = await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        timeLimit: Duration(seconds: 15),
-      ),
-    );
+    final requestStartedAt = DateTime.now();
+Position position;
 
+try {
+  position = await Geolocator.getCurrentPosition(
+    locationSettings: const LocationSettings(
+      accuracy: LocationAccuracy.high,
+      timeLimit: Duration(seconds: 15),
+    ),
+  );
+} on TimeoutException {
+  if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
+    rethrow;
+  }
+
+  final latest = await Geolocator.getLastKnownPosition(
+    forceAndroidLocationManager: true,
+  );
+
+  if (latest == null || latest.timestamp.isBefore(requestStartedAt)) {
+    rethrow;
+  }
+
+  position = latest;
+}
     return ReportLocation(
       latitude: position.latitude,
       longitude: position.longitude,
       source: ReportLocation.sourceGps,
       accuracyMeters: position.accuracy,
+    );
+  }
+
+  @override
+  Future<ReportLocation?> pickManually(
+    BuildContext context,
+    ReportLocation? initial,
+  ) {
+    return Navigator.of(context).push<ReportLocation>(
+      MaterialPageRoute<ReportLocation>(
+        builder: (_) => _ReportLocationPicker(
+          center: initial == null
+              ? _riyadh
+              : LatLng(initial.latitude, initial.longitude),
+          zoom: initial == null ? 12.0 : 17.0,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget buildMap(BuildContext context, ReportLocation? location) {
+    final point = location == null
+        ? null
+        : LatLng(location.latitude, location.longitude);
+    return _ReportMap(
+      key: ValueKey((location?.latitude, location?.longitude)),
+      center: point ?? _riyadh,
+      zoom: point == null ? 12.0 : 17.0,
+      point: point,
+    );
+  }
+
+  @override
+  Future<String?> addressFor(ReportLocation location) async => null;
+}
+
+class _ReportLocationPicker extends StatefulWidget {
+  const _ReportLocationPicker({required this.center, required this.zoom});
+
+  final LatLng center;
+  final double zoom;
+
+  @override
+  State<_ReportLocationPicker> createState() => _ReportLocationPickerState();
+}
+
+class _ReportLocationPickerState extends State<_ReportLocationPicker> {
+  LatLng? _selected;
+
+  void _confirm() {
+    final point = _selected;
+    if (point == null) return;
+    Navigator.of(context).pop(
+      ReportLocation(
+        latitude: point.latitude,
+        longitude: point.longitude,
+        source: ReportLocation.sourceManual,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('تحديد الموقع يدوياً')),
+      body: SafeArea(
+        top: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text('اضغط على مكان المشكلة في الخريطة، ثم أكّد الموقع.'),
+            ),
+            Expanded(
+              child: _ReportMap(
+                center: widget.center,
+                zoom: widget.zoom,
+                point: _selected,
+                onSelect: (point) => setState(() => _selected = point),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: ElevatedButton(
+                onPressed: _selected == null ? null : _confirm,
+                child: const Text('تأكيد الموقع'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ReportMap extends StatelessWidget {
+  const _ReportMap({
+    super.key,
+    required this.center,
+    required this.zoom,
+    required this.point,
+    this.onSelect,
+  });
+
+  final LatLng center;
+  final double zoom;
+  final LatLng? point;
+  final ValueChanged<LatLng>? onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = point;
+    final select = onSelect;
+    final colors = Theme.of(context).colorScheme;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        FlutterMap(
+          options: MapOptions(
+            initialCenter: center,
+            initialZoom: zoom,
+            maxZoom: 19,
+            interactionOptions: select == null
+                ? const InteractionOptions(flags: InteractiveFlag.none)
+                : const InteractionOptions(),
+            onTap: select == null ? null : (_, coordinate) => select(coordinate),
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'sa.edu.ksu.khota_app',
+              maxNativeZoom: 19,
+            ),
+            if (selected != null)
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: selected,
+                    width: 24,
+                    height: 24,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: colors.primary,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 3),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ),
+        Positioned(
+          bottom: 2,
+          right: 4,
+          child: TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: colors.surface,
+              foregroundColor: colors.onSurface,
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              minimumSize: const Size(0, 26),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            onPressed: () async {
+              await launchUrl(Uri.https('www.openstreetmap.org', '/copyright'));
+            },
+            child: const Text(
+              '© OpenStreetMap contributors',
+              textDirection: TextDirection.ltr,
+              style: TextStyle(fontSize: 10),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
