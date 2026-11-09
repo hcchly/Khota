@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-
+import 'package:geolocator/geolocator.dart';
 import '../models/report_location.dart';
 
 /// Connection point between the new-report flow and the location task.
@@ -57,4 +57,36 @@ class TemporaryReportLocationProvider implements ReportLocationProvider {
 
   @override
   Future<String?> addressFor(ReportLocation location) async => null;
+}
+class GpsReportLocationProvider extends TemporaryReportLocationProvider {
+  const GpsReportLocationProvider();
+
+  @override
+  Future<ReportLocation?> currentLocation() async {
+    if (!await Geolocator.isLocationServiceEnabled()) return null;
+
+    var permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    if (permission != LocationPermission.whileInUse &&
+        permission != LocationPermission.always) {
+      return null;
+    }
+
+    final position = await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        timeLimit: Duration(seconds: 15),
+      ),
+    );
+
+    return ReportLocation(
+      latitude: position.latitude,
+      longitude: position.longitude,
+      source: ReportLocation.sourceGps,
+      accuracyMeters: position.accuracy,
+    );
+  }
 }
