@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>يستخدم تطبيق خُطى موقعك لتحديد مكان المشكلة عند إرسال البلاغ.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>نحتاج الكاميرا لتصوير مشكلة الرصيف وإرفاقها بالبلاغ.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
