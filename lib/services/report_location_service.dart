@@ -1,10 +1,11 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:async';
-import 'package:flutter/foundation.dart';
 
 import '../models/report_location.dart';
 
@@ -72,7 +73,10 @@ class GpsReportLocationProvider implements ReportLocationProvider {
 
   @override
   Future<ReportLocation?> currentLocation() async {
-    if (!await Geolocator.isLocationServiceEnabled()) return null;
+    if (!await Geolocator.isLocationServiceEnabled()) {
+      debugPrint('[Khota location] Device location service is disabled.');
+      return null;
+    }
 
     var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
@@ -80,34 +84,30 @@ class GpsReportLocationProvider implements ReportLocationProvider {
     }
     if (permission != LocationPermission.whileInUse &&
         permission != LocationPermission.always) {
+      debugPrint('[Khota location] Location permission: ${permission.name}.');
       return null;
     }
 
-    final requestStartedAt = DateTime.now();
-Position position;
+    Position position;
+    try {
+      position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 20),
+        ),
+      );
+    } on TimeoutException {
+      if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) rethrow;
 
-try {
-  position = await Geolocator.getCurrentPosition(
-    locationSettings: const LocationSettings(
-      accuracy: LocationAccuracy.high,
-      timeLimit: Duration(seconds: 15),
-    ),
-  );
-} on TimeoutException {
-  if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
-    rethrow;
-  }
-
-  final latest = await Geolocator.getLastKnownPosition(
-    forceAndroidLocationManager: true,
-  );
-
-  if (latest == null || latest.timestamp.isBefore(requestStartedAt)) {
-    rethrow;
-  }
-
-  position = latest;
-}
+      debugPrint('[Khota location] Retrying with Android LocationManager.');
+      position = await Geolocator.getCurrentPosition(
+        locationSettings: AndroidSettings(
+          forceLocationManager: true,
+          accuracy: LocationAccuracy.high,
+          timeLimit: const Duration(seconds: 15),
+        ),
+      );
+    }
     return ReportLocation(
       latitude: position.latitude,
       longitude: position.longitude,
@@ -161,22 +161,27 @@ class _ReportLocationPicker extends StatefulWidget {
 }
 
 class _ReportLocationPickerState extends State<_ReportLocationPicker> {
-  LatLng? _selected;
+  ReportLocation? _selected;
 
-  void _confirm() {
-    final point = _selected;
-    if (point == null) return;
-    Navigator.of(context).pop(
-      ReportLocation(
+  void _select(LatLng point) {
+    setState(() {
+      _selected = ReportLocation(
         latitude: point.latitude,
         longitude: point.longitude,
         source: ReportLocation.sourceManual,
-      ),
-    );
+      );
+    });
+  }
+
+  void _confirm() {
+    final selected = _selected;
+    if (selected == null) return;
+    Navigator.of(context).pop(selected);
   }
 
   @override
   Widget build(BuildContext context) {
+    final selected = _selected;
     return Scaffold(
       appBar: AppBar(title: const Text('تحديد الموقع يدوياً')),
       body: SafeArea(
@@ -192,14 +197,25 @@ class _ReportLocationPickerState extends State<_ReportLocationPicker> {
               child: _ReportMap(
                 center: widget.center,
                 zoom: widget.zoom,
-                point: _selected,
-                onSelect: (point) => setState(() => _selected = point),
+                point: selected == null
+                    ? null
+                    : LatLng(selected.latitude, selected.longitude),
+                onSelect: _select,
               ),
             ),
+            if (selected != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Text(
+                  selected.coordinatesText,
+                  textAlign: TextAlign.center,
+                  textDirection: TextDirection.ltr,
+                ),
+              ),
             Padding(
               padding: const EdgeInsets.all(16),
               child: ElevatedButton(
-                onPressed: _selected == null ? null : _confirm,
+                onPressed: selected == null ? null : _confirm,
                 child: const Text('تأكيد الموقع'),
               ),
             ),
@@ -237,9 +253,12 @@ class _ReportMap extends StatelessWidget {
             initialCenter: center,
             initialZoom: zoom,
             maxZoom: 19,
+            // Disabling double-tap zoom lets each tap select immediately.
             interactionOptions: select == null
                 ? const InteractionOptions(flags: InteractiveFlag.none)
-                : const InteractionOptions(),
+                : const InteractionOptions(
+                    flags: InteractiveFlag.all & ~InteractiveFlag.doubleTapZoom,
+                  ),
             onTap: select == null ? null : (_, coordinate) => select(coordinate),
           ),
           children: [

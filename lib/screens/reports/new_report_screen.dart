@@ -41,8 +41,7 @@ class NewReportScreen extends StatefulWidget {
   final ReportCameraService? camera;
   final Future<String> Function(Uint8List)? uploadImage;
 
-  /// GPS, manual selection and the map. Until the location task is connected,
-  /// [TemporaryReportLocationProvider] is used.
+  /// Overrides the default [GpsReportLocationProvider].
   final ReportLocationProvider? locationProvider;
   final SubmitReport? submitReport;
 
@@ -79,6 +78,7 @@ class _NewReportScreenState extends State<NewReportScreen>
   ReportLocation? _location;
   String? _address;
   bool _locating = false;
+  int _locationRequest = 0;
   String? _locationError;
 
   // Step 3: send.
@@ -241,13 +241,14 @@ class _NewReportScreenState extends State<NewReportScreen>
   // ---------------------------------------------------------------- Step 2
 
   Future<void> _locate() async {
+    final request = ++_locationRequest;
     setState(() {
       _locating = true;
       _locationError = null;
     });
     try {
       final location = await _locator.currentLocation();
-      if (!mounted) return;
+      if (!mounted || request != _locationRequest) return;
       if (location == null || !location.isValid) {
         setState(
           () => _locationError =
@@ -260,15 +261,22 @@ class _NewReportScreenState extends State<NewReportScreen>
         _address = null;
       });
       final address = await _locator.addressFor(location);
-      if (mounted) setState(() => _address = address);
-    } catch (_) {
-      if (!mounted) return;
+      if (mounted && request == _locationRequest) {
+        setState(() => _address = address);
+      }
+    } catch (error) {
+      debugPrint(
+        '[Khota location] Automatic lookup failed: ${error.runtimeType}.',
+      );
+      if (!mounted || request != _locationRequest) return;
       setState(
         () => _locationError =
             'تعذّر تحديد موقعك تلقائياً. حدّد الموقع يدوياً على الخريطة.',
       );
     } finally {
-      if (mounted) setState(() => _locating = false);
+      if (mounted && request == _locationRequest) {
+        setState(() => _locating = false);
+      }
     }
   }
 
@@ -283,13 +291,18 @@ class _NewReportScreenState extends State<NewReportScreen>
       }
       return;
     }
+    // Ignore a pending GPS result once the user confirms a manual point.
+    final request = ++_locationRequest;
     setState(() {
       _location = picked;
       _address = null;
       _locationError = null;
+      _locating = false;
     });
     final address = await _locator.addressFor(picked);
-    if (mounted) setState(() => _address = address);
+    if (mounted && request == _locationRequest) {
+      setState(() => _address = address);
+    }
   }
 
   // ---------------------------------------------------------------- Step 3
@@ -504,7 +517,7 @@ class _NewReportScreenState extends State<NewReportScreen>
           ),
           const SizedBox(height: 4),
           TextButton.icon(
-            onPressed: _locating ? null : _pickManually,
+            onPressed: _pickManually,
             icon: const Icon(Icons.edit_location_alt_outlined, size: 20),
             label: const Text('تحديد الموقع يدوياً'),
           ),

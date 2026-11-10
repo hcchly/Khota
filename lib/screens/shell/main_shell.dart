@@ -6,7 +6,7 @@ import '../reports/report_submitted_screen.dart';
 import '../../models/submitted_report.dart';
 import '../home/home_screen.dart';
 import '../profile/profile_screen.dart';
-import 'placeholder_tab.dart';
+import '../map/reports_map_screen.dart';
 
 /// The main app frame: bottom navigation bar with four tabs
 /// and the "بلاغ جديد" button in the middle.
@@ -45,11 +45,8 @@ class _MainShellState extends State<MainShell> {
      case 1:
   return const ReportsScreen();
       case 2:
-        return const PlaceholderTab(
-          title: 'خُطى',
-          icon: Icons.directions_walk,
-          message: 'ستظهر هنا خريطة البلاغات في الرياض.',
-        );
+    case 2:
+  return const ReportsMapScreen();
       default:
         return const ProfileScreen();
     }
