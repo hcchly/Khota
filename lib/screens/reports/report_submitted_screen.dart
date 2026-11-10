@@ -5,6 +5,7 @@ import '../../models/submitted_report.dart';
 import '../../services/report_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/info_card.dart';
+import '../../widgets/brand_surface.dart';
 import '../../widgets/report_card.dart';
 
 /// Shown after a report has been saved: report number, a summary with the
@@ -21,8 +22,18 @@ class ReportSubmittedScreen extends StatelessWidget {
   final DateTime? now;
 
   static const _months = [
-    'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
-    'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
+    'يناير',
+    'فبراير',
+    'مارس',
+    'أبريل',
+    'مايو',
+    'يونيو',
+    'يوليو',
+    'أغسطس',
+    'سبتمبر',
+    'أكتوبر',
+    'نوفمبر',
+    'ديسمبر',
   ];
 
   static String formatDate(DateTime date) =>
@@ -46,75 +57,90 @@ class ReportSubmittedScreen extends StatelessWidget {
                 Semantics(
                   liveRegion: true,
                   label: 'تم استلام بلاغك. رقم البلاغ $number',
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 104,
-                        height: 104,
-                        decoration: BoxDecoration(
-                          color: AppColors.teal,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.teal.withValues(alpha: 0.35),
-                              blurRadius: 24,
-                              offset: const Offset(0, 8),
+                  child: BrandSurface(
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 104,
+                          height: 104,
+                          decoration: BoxDecoration(
+                            color: AppColors.mint,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.teal.withValues(alpha: 0.35),
+                                blurRadius: 24,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.check_rounded,
+                            color: AppColors.ink,
+                            size: 60,
+                          ),
+                        ),
+                        const SizedBox(height: 22),
+                        Text(
+                          'تم استلام بلاغك',
+                          textAlign: TextAlign.center,
+                          style: text.headlineSmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'شكرًا لخطوتك نحو أرصفة أفضل.',
+                          textAlign: TextAlign.center,
+                          style: text.bodyMedium?.copyWith(
+                            color: Colors.white70,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        // Report number with copy.
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: SelectableText(
+                                number,
+                                textDirection: TextDirection.ltr,
+                                style: text.titleMedium?.copyWith(
+                                  color: AppColors.mint,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.8,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: 'نسخ رقم البلاغ',
+                              visualDensity: VisualDensity.compact,
+                              icon: const Icon(Icons.copy_rounded, size: 20),
+                              color: AppColors.mint,
+                              onPressed: () async {
+                                await Clipboard.setData(
+                                  ClipboardData(text: number),
+                                );
+                                if (!context.mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('تم نسخ رقم البلاغ'),
+                                  ),
+                                );
+                              },
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          Icons.check_rounded,
-                          color: Colors.white,
-                          size: 60,
-                        ),
-                      ),
-                      const SizedBox(height: 22),
-                      Text(
-                        'تم استلام بلاغك',
-                        textAlign: TextAlign.center,
-                        style: text.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      // Report number with copy.
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SelectableText(
-                            number,
-                            textDirection: TextDirection.ltr,
-                            style: text.titleMedium?.copyWith(
-                              color: AppColors.teal,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.8,
-                            ),
+                        Text(
+                          'احتفظ برقم البلاغ لمتابعته لاحقاً.',
+                          textAlign: TextAlign.center,
+                          style: text.bodySmall?.copyWith(
+                            color: Colors.white70,
                           ),
-                          IconButton(
-                            tooltip: 'نسخ رقم البلاغ',
-                            visualDensity: VisualDensity.compact,
-                            icon: const Icon(Icons.copy_rounded, size: 20),
-                            color: AppColors.teal,
-                            onPressed: () async {
-                              await Clipboard.setData(
-                                ClipboardData(text: number),
-                              );
-                              if (!context.mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('تم نسخ رقم البلاغ'),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                      Text(
-                        'احتفظ برقم البلاغ لمتابعته لاحقاً.',
-                        textAlign: TextAlign.center,
-                        style: text.bodySmall?.copyWith(color: muted),
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -136,19 +162,18 @@ class ReportSubmittedScreen extends StatelessWidget {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              report.address ??
-                                  report.location.coordinatesText,
+                              report.address ?? report.location.coordinatesText,
                               style: text.bodyMedium?.copyWith(
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            formatDate(now ?? DateTime.now()),
-                            style: text.bodySmall?.copyWith(color: muted),
-                          ),
                         ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        formatDate(now ?? DateTime.now()),
+                        style: text.bodySmall?.copyWith(color: muted),
                       ),
                       const Divider(height: 24),
                       _SummaryRow(
@@ -182,14 +207,12 @@ class ReportSubmittedScreen extends StatelessWidget {
                       const _NextStep(
                         number: 1,
                         title: 'تحليل الصورة',
-                        body:
-                            'يحلّل النظام الصورة تلقائياً لتحديد نوع المشكلة ومستوى خطورتها.',
+                        body: 'يحلّل النظام الصورة تلقائياً لتحديد نوع المشكلة ومستوى خطورتها.',
                       ),
                       const _NextStep(
                         number: 2,
                         title: 'معالجة البلاغ من الجهة المختصة',
-                        body:
-                            'تراجع الجهة المختصة البلاغ وتحدّث حالته: قيد الانتظار، ثم قيد التنفيذ، ثم تم الحل.',
+                        body: 'تراجع الجهة المختصة البلاغ وتحدّث حالته: قيد الانتظار، ثم قيد التنفيذ، ثم تم الحل.',
                       ),
                       const _NextStep(
                         number: 3,
@@ -240,16 +263,15 @@ class _SummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Text(
-            label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.indigo.withValues(alpha: 0.65),
-            ),
-          ),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodySmall
+              ?.copyWith(color: AppColors.indigo.withValues(alpha: 0.65)),
         ),
+        const SizedBox(height: 6),
         child,
       ],
     );

@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-import '../theme/app_colors.dart';
+import 'brand_surface.dart';
 
-/// Brand header: dark navy with the Khota background art (design pages 4-6)
-/// and a curved bottom.
-///
-/// [pattern] picks the art: 4 = subtle, 5 = diagonal shapes, 6 = chevron arrows.
 class GradientHeader extends StatelessWidget {
   const GradientHeader({
     super.key,
     required this.child,
-    this.bottomRadius = 28,
+    this.bottomRadius = 30,
     this.pattern = 6,
   });
 
@@ -20,25 +17,27 @@ class GradientHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius:
-          BorderRadius.vertical(bottom: Radius.circular(bottomRadius)),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: AppColors.ink,
-          image: brandBackground(pattern),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: ClipRRect(
+        borderRadius: BorderRadius.vertical(
+          bottom: Radius.circular(bottomRadius),
         ),
-        child: SafeArea(bottom: false, child: child),
+        child: BrandSurface(
+          radius: 0,
+          padding: EdgeInsets.zero,
+          child: SafeArea(bottom: false, child: child),
+        ),
       ),
     );
   }
 }
 
-/// The brand background art as a [DecorationImage] (pattern 4, 5 or 6).
+/// Existing full-page art remains available to the pages that use it.
 DecorationImage brandBackground(int pattern) {
-  final p = (pattern < 4 || pattern > 6) ? 6 : pattern;
+  final index = pattern.clamp(4, 6);
   return DecorationImage(
-    image: AssetImage('assets/images/brand_bg_$p.jpg'),
+    image: AssetImage('assets/images/brand_bg_$index.jpg'),
     fit: BoxFit.cover,
     alignment: Alignment.centerRight,
     filterQuality: FilterQuality.medium,

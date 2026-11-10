@@ -1,35 +1,33 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
-import 'gradient_header.dart';
+import 'brand_surface.dart';
 
-/// Indigo-to-teal app bar used on inner pages (with a back arrow).
 class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
   const GradientAppBar({super.key, required this.title});
 
   final String title;
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(64);
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      toolbarHeight: 64,
       title: Text(title),
       centerTitle: true,
       foregroundColor: Colors.white,
-      backgroundColor: AppColors.indigo,
+      backgroundColor: AppColors.ink,
       surfaceTintColor: Colors.transparent,
+      elevation: 0,
       scrolledUnderElevation: 0,
-      titleTextStyle: Theme.of(context).textTheme.titleMedium
+      titleTextStyle: Theme.of(context).textTheme.titleLarge
           ?.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
-      flexibleSpace: SizedBox.expand(
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: AppColors.ink,
-            image: brandBackground(4),
-          ),
-        ),
+      flexibleSpace: const BrandSurface(
+        radius: 0,
+        padding: EdgeInsets.zero,
+        child: SizedBox.expand(),
       ),
     );
   }

@@ -73,7 +73,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_emailFieldKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('اكتب بريدك الإلكتروني أولاً ثم اضغط "نسيت كلمة المرور؟"'),
+          content: Text(
+            'اكتب بريدك الإلكتروني أولاً ثم اضغط "نسيت كلمة المرور؟"',
+          ),
         ),
       );
       return;
@@ -105,9 +107,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _openRegister() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => RegisterScreen(auth: _auth)),
-    );
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => RegisterScreen(auth: _auth)));
   }
 
   @override
@@ -119,14 +120,28 @@ class _LoginScreenState extends State<LoginScreen> {
         children: [
           // Header with the logo only.
           GradientHeader(
+            pattern: 4,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 48, 16, 96),
+              padding: const EdgeInsets.fromLTRB(24, 42, 24, 88),
               child: Center(
-                child: Image.asset(
-                  'assets/images/khota_logo_mist.png',
-                  width: 250,
-                  filterQuality: FilterQuality.high,
-                  semanticLabel: 'شعار خُطى',
+                child: Column(
+                  children: [
+                    Image.asset(
+                      'assets/images/khota_logo_mist.png',
+                      width: 198,
+                      filterQuality: FilterQuality.high,
+                      semanticLabel: 'شعار خُطى',
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'أرصفة أفضل تبدأ بخطوة',
+                      textAlign: TextAlign.center,
+                      style: text.titleMedium?.copyWith(
+                        color: AppColors.mint,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -141,10 +156,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: AppColors.warmWhite,
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: BorderRadius.circular(32),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.indigo.withValues(alpha: 0.10),
+                      color: AppColors.indigo.withValues(alpha: 0.055),
                       blurRadius: 20,
                       offset: const Offset(0, 8),
                     ),
@@ -160,9 +175,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'تسجيل الدخول',
-                          style: text.headlineSmall
-                              ?.copyWith(fontWeight: FontWeight.w800),
+                          'أهلًا برجعتك',
+                          style: text.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'سجّل دخولك لإرسال بلاغاتك ومتابعتها.',
+                          style: text.bodyMedium?.copyWith(
+                            color: AppColors.ink.withValues(alpha: 0.68),
+                            height: 1.5,
+                          ),
                         ),
                         const SizedBox(height: 24),
                         LabeledField(
@@ -212,7 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 8),
                         if (_error != null) ErrorBox(_error!),
                         LoadingButton(
-                          label: 'دخول',
+                          label: 'تسجيل الدخول',
                           loading: _loading,
                           onPressed: _signIn,
                         ),

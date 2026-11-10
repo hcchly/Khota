@@ -1,9 +1,9 @@
-
 import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
 import '../../widgets/gradient_app_bar.dart';
 import '../../widgets/info_card.dart';
+import '../../widgets/brand_surface.dart';
 
 class PhotoGuideScreen extends StatelessWidget {
   const PhotoGuideScreen({super.key});
@@ -52,36 +52,13 @@ class PhotoGuideScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
         children: [
-          InfoCard(
-            color: AppColors.tealLight.withValues(alpha: 0.3),
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.photo_camera_outlined,
-                  size: 40,
-                  color: AppColors.indigo,
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'صورة واضحة، تقييم أدق',
-                        style: text.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      const Text(
-                        'اتبع إرشادات التصوير للحصول على صورة مناسبة لتحليل المشكلة.',
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+          const BrandIntro(
+            eyebrow: 'قبل ما تصوّر',
+            title: 'الصورة الواضحة\nتشرح المشكلة',
+            description:
+                'أظهر الضرر والرصيف المحيط به. '
+                'هنا أمثلة تساعدك تختار الزاوية والمسافة المناسبة.',
+            icon: Icons.camera_alt_outlined,
           ),
 
           const SizedBox(height: 20),
@@ -91,20 +68,39 @@ class PhotoGuideScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '${i + 1}. ${_tips[i].$1}',
-                    style: text.titleMedium?.copyWith(
-                      color: AppColors.indigo,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: AppColors.ocean.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(11),
+                        ),
+                        child: Text(
+                          '${i + 1}',
+                          style: text.titleSmall?.copyWith(
+                            color: AppColors.ocean,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          _tips[i].$1,
+                          style: text.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
 
                   const SizedBox(height: 6),
 
-                  Text(
-                    _tips[i].$2,
-                    style: text.bodyMedium,
-                  ),
+                  Text(_tips[i].$2, style: text.bodyMedium),
 
                   const SizedBox(height: 16),
 
@@ -124,11 +120,7 @@ class PhotoGuideScreen extends StatelessWidget {
 
                       if (constraints.maxWidth < 420) {
                         return Column(
-                          children: [
-                            good,
-                            const SizedBox(height: 12),
-                            bad,
-                          ],
+                          children: [good, const SizedBox(height: 12), bad],
                         );
                       }
 
@@ -152,10 +144,7 @@ class PhotoGuideScreen extends StatelessWidget {
           InfoCard(
             child: Row(
               children: [
-                const Icon(
-                  Icons.privacy_tip_outlined,
-                  color: AppColors.teal,
-                ),
+                const Icon(Icons.privacy_tip_outlined, color: AppColors.teal),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -191,24 +180,33 @@ class _ExampleCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Icon(
-              good
-                  ? Icons.check_circle
-                  : Icons.cancel,
-              color: color,
-              size: 22,
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.09),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            child: Row(
+              children: [
+                Icon(
+                  good ? Icons.check_circle_outline : Icons.cancel_outlined,
+                  color: color,
+                  size: 20,
+                ),
+                const SizedBox(width: 7),
+                Expanded(
+                  child: Text(
+                    good ? 'تصوير صحيح' : 'تصوير خاطئ',
+                    style: text.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: color,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 6),
-            Text(
-              good ? 'تصوير صحيح' : 'تصوير خاطئ',
-              style: text.titleSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: color,
-              ),
-            ),
-          ],
+          ),
         ),
 
         const SizedBox(height: 8),
@@ -240,11 +238,7 @@ class _ExampleCard extends StatelessWidget {
 
         const SizedBox(height: 8),
 
-        Text(
-          subtitle,
-          style: text.bodySmall,
-          textAlign: TextAlign.center,
-        ),
+        Text(subtitle, style: text.bodySmall, textAlign: TextAlign.center),
       ],
     );
   }

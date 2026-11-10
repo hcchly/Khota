@@ -1,6 +1,4 @@
-
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
 
@@ -8,39 +6,33 @@ class AppTheme {
   AppTheme._();
 
   static ThemeData light() {
-    final String? fontFamily =
-        GoogleFonts.ibmPlexSansArabic().fontFamily;
+    const fontFamily = 'KhotaArabic';
 
-    OutlineInputBorder border(
-      Color color, [
-      double width = 1,
-    ]) =>
+    OutlineInputBorder border(Color color, [double width = 1]) =>
         OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(
-            color: color,
-            width: width,
-          ),
+          borderRadius: BorderRadius.circular(18),
+          borderSide: BorderSide(color: color, width: width),
         );
 
     final base = ThemeData(
       useMaterial3: true,
       fontFamily: fontFamily,
       brightness: Brightness.light,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.ocean,
-        brightness: Brightness.light,
-      ).copyWith(
-        primary: AppColors.ocean,
-        onPrimary: Colors.white,
-        secondary: AppColors.mint,
-        onSecondary: AppColors.ink,
-        surface: AppColors.warmWhite,
-        onSurface: AppColors.ink,
-        error: AppColors.error,
-        outline: AppColors.slate,
-      ),
-      scaffoldBackgroundColor: AppColors.sand,
+      colorScheme:
+          ColorScheme.fromSeed(
+            seedColor: AppColors.ocean,
+            brightness: Brightness.light,
+          ).copyWith(
+            primary: AppColors.ocean,
+            onPrimary: Colors.white,
+            secondary: AppColors.mint,
+            onSecondary: AppColors.ink,
+            surface: AppColors.warmWhite,
+            onSurface: AppColors.ink,
+            error: AppColors.error,
+            outline: AppColors.slate,
+          ),
+      scaffoldBackgroundColor: const Color(0xFFF1F6F4),
     );
 
     return base.copyWith(
@@ -52,15 +44,14 @@ class AppTheme {
 
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.warmWhite,
-        contentPadding:
-            const EdgeInsets.symmetric(
+        fillColor: const Color(0xFFF7FAF8),
+        contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 16,
         ),
         border: border(AppColors.slate),
-        enabledBorder: border(AppColors.slate),
-        disabledBorder: border(AppColors.slate),
+        enabledBorder: border(AppColors.ocean.withValues(alpha: 0.12)),
+        disabledBorder: border(AppColors.mist),
         focusedBorder: border(AppColors.ocean, 2),
         errorBorder: border(AppColors.error),
         focusedErrorBorder: border(AppColors.error, 2),
@@ -71,9 +62,10 @@ class AppTheme {
           backgroundColor: AppColors.ocean,
           foregroundColor: Colors.white,
           disabledBackgroundColor: AppColors.slate,
-          minimumSize: const Size.fromHeight(52),
+          minimumSize: const Size.fromHeight(56),
+          elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(18),
           ),
           textStyle: TextStyle(
             fontFamily: fontFamily,
@@ -86,56 +78,40 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.ocean,
-          side: const BorderSide(
-            color: AppColors.slate,
-          ),
+          side: const BorderSide(color: AppColors.mist),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(18),
           ),
         ),
       ),
 
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: AppColors.ocean,
-        ),
+        style: TextButton.styleFrom(foregroundColor: AppColors.ocean),
       ),
 
       switchTheme: SwitchThemeData(
-        thumbColor: WidgetStateProperty.all(
-          Colors.white,
-        ),
+        thumbColor: WidgetStateProperty.all(Colors.white),
         trackColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(
-            WidgetState.selected,
-          )
+          (states) => states.contains(WidgetState.selected)
               ? AppColors.ocean
               : AppColors.slate,
         ),
-        trackOutlineColor:
-            WidgetStateProperty.all(
-          Colors.transparent,
-        ),
+        trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
       ),
 
       sliderTheme: SliderThemeData(
         activeTrackColor: AppColors.ocean,
-        inactiveTrackColor:
-            AppColors.slate.withValues(alpha: 0.5),
+        inactiveTrackColor: AppColors.ocean.withValues(alpha: 0.12),
         thumbColor: AppColors.ocean,
-        overlayColor:
-            AppColors.mint.withValues(alpha: 0.15),
+        overlayColor: AppColors.mint.withValues(alpha: 0.15),
         activeTickMarkColor: Colors.white,
-        inactiveTickMarkColor:
-            AppColors.ink.withValues(alpha: 0.3),
+        inactiveTickMarkColor: AppColors.ink.withValues(alpha: 0.3),
       ),
 
       snackBarTheme: const SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: AppColors.ink,
-        contentTextStyle: TextStyle(
-          color: Colors.white,
-        ),
+        contentTextStyle: TextStyle(color: Colors.white),
       ),
 
       appBarTheme: AppBarTheme(

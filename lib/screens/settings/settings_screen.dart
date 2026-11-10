@@ -4,9 +4,8 @@ import '../../settings/app_settings.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/gradient_app_bar.dart';
 import '../../widgets/info_card.dart';
+import '../../widgets/brand_surface.dart';
 
-/// Accessibility settings (supports the Accessibility NFR).
-/// Map and notification settings will be added with those features.
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -22,41 +21,47 @@ class SettingsScreen extends StatelessWidget {
         builder: (context, _) {
           final index = settings.textScaleIndex;
           return ListView(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
             children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12, right: 4),
-                child: Text(
-                  'إمكانية الوصول',
-                  style: text.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+              const BrandIntro(
+                eyebrow: 'تفضيلاتك',
+                title: 'خلّ خُطى على راحتك',
+                description: 'اضبط حجم الخط ووضوحه لتجربة قراءة تناسبك.',
+                icon: Icons.tune_rounded,
               ),
+              const SizedBox(height: 20),
               InfoCard(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Font size.
-                    Wrap(
-                      spacing: 16,
-                      runSpacing: 8,
-                      crossAxisAlignment: WrapCrossAlignment.center,
+                    Row(
                       children: [
-                        Text(
-                          'حجم الخط',
-                          style: text.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
+                        const IconTile(
+                          icon: Icons.text_fields_rounded,
+                          size: 40,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'حجم الخط',
+                            style: text.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
-                        Text(
-                          AppSettings.textScaleLabels[index],
-                          style: text.bodyMedium?.copyWith(
-                            color: AppColors.indigo,
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            AppSettings.textScaleLabels[index],
+                            style: text.bodyMedium?.copyWith(
+                              color: AppColors.ocean,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
                       ],
                     ),
+                    const SizedBox(height: 10),
                     Slider(
                       value: index.toDouble(),
                       min: 0,
@@ -68,53 +73,60 @@ class SettingsScreen extends StatelessWidget {
                       onChanged: (v) => settings.setTextScaleIndex(v.round()),
                     ),
                     Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(
                         color: AppColors.sand,
                         borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: AppColors.mist),
                       ),
-                      child: Text(
-                        'معاً لأرصفة أفضل وأكثر أماناً',
-                        textAlign: TextAlign.center,
-                        style: text.titleMedium,
-                      ),
-                    ),
-                    const Divider(height: 32, color: AppColors.slate),
-
-                    // Bold text.
-                    Material(
-                      color: Colors.transparent,
-                      child: SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(
-                          'نص عريض',
-                          style: text.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
+                      child: Column(
+                        children: [
+                          Text(
+                            'معاينة النص',
+                            style: text.labelMedium?.copyWith(
+                              color: AppColors.ocean,
+                            ),
                           ),
-                        ),
-                        value: settings.boldText,
-                        onChanged: settings.setBoldText,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Note.
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: AppColors.tealLight.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Text(
-                        'يتبع التطبيق أيضاً إعدادات إمكانية الوصول في جهازك، مثل حجم الخط وقارئ الشاشة.',
-                        style: text.bodyMedium?.copyWith(
-                          color: AppColors.indigo.withValues(alpha: 0.75),
-                        ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'أرصفة أفضل تبدأ بخطوة',
+                            textAlign: TextAlign.center,
+                            style: text.titleMedium,
+                          ),
+                        ],
                       ),
                     ),
                   ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              InfoCard(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    'نص عريض',
+                    style: text.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  subtitle: const Text(
+                    'يساعد على إبراز الكلمات أثناء القراءة.',
+                  ),
+                  value: settings.boldText,
+                  onChanged: settings.setBoldText,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'يتبع خُطى أيضًا إعدادات إمكانية الوصول في جهازك، '
+                'مثل حجم الخط وقارئ الشاشة.',
+                style: text.bodyMedium?.copyWith(
+                  color: AppColors.ink.withValues(alpha: 0.68),
+                  height: 1.6,
                 ),
               ),
             ],

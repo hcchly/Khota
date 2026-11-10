@@ -1,18 +1,19 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../services/auth_service.dart';
 import '../../theme/app_colors.dart';
+import '../../widgets/brand_surface.dart';
 import '../shell/main_shell.dart';
 import 'login_screen.dart';
 
 /// Khota animated splash.
 ///
 /// Motion:
-///  1. The chevron mark is laid like sidewalk pavers: small tiles drop in
-///     and settle, from the bottom-left to the top-right.
-///  2. A small pulse when the mark is complete.
+///  1. Sidewalk pavers assemble the chevron mark row by row.
+///  2. The completed mark briefly settles into place.
 ///  3. The Arabic word "خطى" is revealed smoothly (never split).
 ///  4. The tagline fades in.
 class SplashScreen extends StatefulWidget {
@@ -59,8 +60,9 @@ class _SplashScreenState extends State<SplashScreen>
     if (!mounted || _navigated) return;
     _navigated = true;
 
-    final next =
-        _auth.currentUser == null ? const LoginScreen() : const MainShell();
+    final next = _auth.currentUser == null
+        ? const LoginScreen()
+        : const MainShell();
 
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
@@ -87,120 +89,74 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-
-    return Scaffold(
-      backgroundColor: AppColors.ink,
-      body: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: [0.0, 0.45, 1.0],
-            colors: [Color(0xFF0D2A33), AppColors.ink, Color(0xFF0A2F2C)],
-          ),
-        ),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final w = constraints.maxWidth;
-            final h = constraints.maxHeight;
-            final logoWidth = math.min(w * 0.74, 380.0);
-            final watermark = w * 1.05;
-
-            return Stack(
-              clipBehavior: Clip.hardEdge,
-              children: [
-                // Mint glow rising from the bottom-left corner.
-                const Positioned.fill(
-                  child: IgnorePointer(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: RadialGradient(
-                          center: Alignment.bottomLeft,
-                          radius: 1.25,
-                          colors: [
-                            Color(0xF240BA87),
-                            Color(0x5940BA87),
-                            Color(0x0040BA87),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: AppColors.ink,
+        body: BrandSurface(
+          radius: 0,
+          padding: EdgeInsets.zero,
+          child: SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final width = math.min(constraints.maxWidth * 0.78, 340.0);
+                return Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Center(
+                      child: AnimatedBuilder(
+                        animation: _controller,
+                        builder: (context, _) => _KhotaLogo(
+                          width: width,
+                          time: _controller.value * _total,
+                          wordProgress: _seg(1.73, 2.16),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      left: 24,
+                      right: 24,
+                      bottom: 42,
+                      child: AnimatedBuilder(
+                        animation: _controller,
+                        builder: (context, child) =>
+                            Opacity(opacity: _seg(2.02, 2.48), child: child),
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 36,
+                              height: 3,
+                              decoration: BoxDecoration(
+                                color: AppColors.mint,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'أرصفة أفضل تبدأ بخطوة',
+                              textAlign: TextAlign.center,
+                              style: text.titleMedium?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                height: 1.5,
+                              ),
+                            ),
                           ],
-                          stops: [0.0, 0.38, 0.75],
                         ),
                       ),
                     ),
-                  ),
-                ),
-
-                // Large faint mark, top-right, partly off-screen.
-                Positioned(
-                  top: -watermark * 0.10,
-                  right: -watermark * 0.22,
-                  width: watermark,
-                  child: IgnorePointer(
-                    child: Opacity(
-                      opacity: 0.07,
-                      child: Image.asset(
-                        'assets/images/khota_mark_mist.png',
-                        fit: BoxFit.contain,
-                        filterQuality: FilterQuality.high,
-                        excludeFromSemantics: true,
-                      ),
-                    ),
-                  ),
-                ),
-
-                // Logo.
-                Positioned.fill(
-                  child: Align(
-                    alignment: const Alignment(0, -0.08),
-                    child: AnimatedBuilder(
-                      animation: _controller,
-                      builder: (context, _) => _KhotaLogo(
-                        width: logoWidth,
-                        time: _controller.value * _total,
-                        wordProgress: _seg(1.15, 1.75),
-                      ),
-                    ),
-                  ),
-                ),
-
-                // Tagline.
-                Positioned(
-                  left: 20,
-                  right: 20,
-                  bottom: math.max(40.0, h * 0.09),
-                  child: AnimatedBuilder(
-                    animation: _controller,
-                    builder: (context, child) {
-                      final p = Curves.easeOut.transform(_seg(1.75, 2.35));
-                      return Opacity(
-                        opacity: p,
-                        child: Transform.translate(
-                          offset: Offset(0, 6 * (1 - p)),
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: Text(
-                      'معًا لأرصفة أفضل',
-                      textAlign: TextAlign.center,
-                      style: text.titleMedium?.copyWith(
-                        color: AppColors.mist,
-                        fontWeight: FontWeight.w300,
-                        letterSpacing: 2.5,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
+                  ],
+                );
+              },
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-/// Word on the left, mark on the right (brand lockup, always left-to-right).
-/// Proportions come from the original logo artwork (811 x 250 units).
+/// The assembled mark appears above the original Arabic wordmark.
 class _KhotaLogo extends StatelessWidget {
   const _KhotaLogo({
     required this.width,
@@ -212,54 +168,38 @@ class _KhotaLogo extends StatelessWidget {
   final double time;
   final double wordProgress;
 
-  static const double _unitsW = 811, _unitsH = 250;
-  static const double _wordW = 445, _wordH = 215, _wordTop = 0;
-  static const double _markW = 338, _markH = 248, _markTop = 2;
-
   @override
   Widget build(BuildContext context) {
-    final s = width / _unitsW;
-    final p = Curves.easeOutCubic.transform(wordProgress);
-
+    final progress = Curves.easeOutCubic.transform(wordProgress);
     return Semantics(
       label: 'شعار خُطى',
       image: true,
       child: SizedBox(
         width: width,
-        height: _unitsH * s,
-        child: Stack(
-          clipBehavior: Clip.none,
-          textDirection: TextDirection.ltr,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Word: smooth reveal from the side next to the mark.
-            Positioned(
-              left: 0,
-              top: _wordTop * s,
-              width: _wordW * s,
-              height: _wordH * s,
-              child: Opacity(
-                opacity: p,
-                child: Transform.translate(
-                  offset: Offset(10 * (1 - p), 0),
-                  child: ClipRect(
-                    clipper: _RevealFromRight(p),
-                    child: Image.asset(
-                      'assets/images/khota_word_mist.png',
-                      fit: BoxFit.fill,
-                      filterQuality: FilterQuality.high,
-                      excludeFromSemantics: true,
-                    ),
+            SizedBox(
+              width: width * 0.66,
+              height: width * 0.66 * 248 / 338,
+              child: _PaverMark(time: time),
+            ),
+            const SizedBox(height: 24),
+            Opacity(
+              opacity: progress,
+              child: Transform.translate(
+                offset: Offset(0, 12 * (1 - progress)),
+                child: ClipRect(
+                  clipper: _RevealFromRight(progress),
+                  child: Image.asset(
+                    'assets/images/khota_word_mist.png',
+                    width: width * 0.62,
+                    height: width * 0.62 * 215 / 445,
+                    fit: BoxFit.fill,
+                    excludeFromSemantics: true,
                   ),
                 ),
               ),
-            ),
-            // Mark: laid tile by tile.
-            Positioned(
-              right: 0,
-              top: _markTop * s,
-              width: _markW * s,
-              height: _markH * s,
-              child: _PaverMark(time: time),
             ),
           ],
         ),
@@ -274,54 +214,28 @@ class _RevealFromRight extends CustomClipper<Rect> {
 
   @override
   Rect getClip(Size size) => Rect.fromLTWH(
-      size.width * (1 - progress), 0, size.width * progress, size.height);
+    size.width * (1 - progress),
+    0,
+    size.width * progress,
+    size.height,
+  );
 
   @override
   bool shouldReclip(_RevealFromRight old) => old.progress != progress;
 }
 
-/// The chevron mark built from 11 x 8 "paver" tiles.
+/// Four courses of pavers laid from the bottom of the original mark.
 class _PaverMark extends StatelessWidget {
   const _PaverMark({required this.time});
 
   final double time;
 
-  static const int cols = 11, rows = 8;
-
-  /// Cells that contain part of the mark (1) or are empty (0).
-  static const List<String> _mask = [
-    '00001111100',
-    '01111111110',
-    '11111111111',
-    '11110111111',
-    '00111111111',
-    '11111111111',
-    '11111011110',
-    '11000001110',
-  ];
-
-  static const double _tileDuration = 0.38;
-  static const double _doneAt = 1.12;
-
-  static final List<_Tile> _tiles = () {
-    final rnd = math.Random(7);
-    final list = <_Tile>[];
-    for (var r = 0; r < rows; r++) {
-      for (var c = 0; c < cols; c++) {
-        if (_mask[r][c] != '1') continue;
-        final delay =
-            ((rows - 1 - r) * 0.75 + c) * 0.045 + rnd.nextDouble() * 0.05;
-        list.add(_Tile(r, c, delay));
-      }
-    }
-    return list;
-  }();
-
-  static double _easeOutBack(double t) {
-    const s = 1.6;
-    final x = t - 1;
-    return 1 + (s + 1) * x * x * x + s * x * x;
-  }
+  static const _columns = 4;
+  static const _rows = 4;
+  static const _tileCount = _columns * _rows;
+  static const _stagger = 0.085;
+  static const _landingDuration = 0.36;
+  static const _finished = (_tileCount - 1) * _stagger + _landingDuration;
 
   @override
   Widget build(BuildContext context) {
@@ -332,65 +246,74 @@ class _PaverMark extends StatelessWidget {
       excludeFromSemantics: true,
     );
 
-    // Small pulse once every tile is in place.
-    var pulse = 1.0;
-    if (time > 1.1 && time < 1.35) {
-      pulse = 1 + 0.04 * math.sin((time - 1.1) / 0.25 * math.pi);
+    if (time >= _finished) {
+      final settle = ((time - _finished) / 0.25).clamp(0.0, 1.0);
+      return Transform.scale(
+        scale: 1 + 0.035 * math.sin(settle * math.pi),
+        child: image,
+      );
     }
 
-    // After the last tile lands, draw the whole image (no tile seams).
-    if (time >= _doneAt + 0.05) {
-      return Transform.scale(scale: pulse, child: image);
-    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth / _columns;
+        final height = constraints.maxHeight / _rows;
 
-    return Transform.scale(
-      scale: pulse,
-      child: LayoutBuilder(
-        builder: (context, box) {
-          final tw = box.maxWidth / cols;
-          final th = box.maxHeight / rows;
-          return Stack(
-            clipBehavior: Clip.none,
-            children: [
-              for (final tile in _tiles)
-                _buildTile(tile, tw, th, box.biggest, image),
-            ],
-          );
-        },
-      ),
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            for (var i = 0; i < _tileCount; i++)
+              if (time > i * _stagger) _paver(i, width, height, image),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildTile(_Tile tile, double tw, double th, Size size, Widget image) {
-    final raw =
-        ((time - tile.delay) / _tileDuration).clamp(0.0, 1.0).toDouble();
-    if (raw == 0) return const SizedBox.shrink();
-
-    final e = _easeOutBack(raw);
-    final dy = (1 - e) * 18;
-    final scale = 0.55 + 0.45 * math.min(1.0, e);
-    final rect = Rect.fromLTWH(tile.c * tw, tile.r * th, tw + 0.6, th + 0.6);
+  Widget _paver(int index, double width, double height, Widget image) {
+    final row = _rows - 1 - index ~/ _columns;
+    final step = index % _columns;
+    final column = row.isEven ? _columns - 1 - step : step;
+    final progress = ((time - index * _stagger) / _landingDuration)
+        .clamp(0.0, 1.0)
+        .toDouble();
+    final travel = 1 - Curves.easeOutCubic.transform(progress);
+    final highlight = math.sin(progress * math.pi);
+    final area = Rect.fromLTWH(
+      column * width,
+      row * height,
+      width + (column < _columns - 1 ? 0.5 : 0),
+      height + (row < _rows - 1 ? 0.5 : 0),
+    );
 
     return Positioned.fill(
       child: Opacity(
-        opacity: math.min(1.0, raw * 1.6),
-        child: Transform(
-          // Scale each tile around its own centre and drop it into place.
-          transform: Matrix4.identity()
-            ..translateByDouble(rect.center.dx, rect.center.dy + dy, 0, 1)
-            ..scaleByDouble(scale, scale, 1, 1)
-            ..translateByDouble(-rect.center.dx, -rect.center.dy, 0, 1),
-          child: ClipRect(clipper: _TileClip(rect), child: image),
+        opacity: math.min(1.0, progress * 3),
+        child: Transform.translate(
+          offset: Offset((column.isEven ? -10 : 10) * travel, -26 * travel),
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: ClipRect(clipper: _TileClip(area), child: image),
+              ),
+              Positioned.fromRect(
+                rect: area.deflate(1),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: AppColors.ocean.withValues(alpha: 0.38 * highlight),
+                    borderRadius: BorderRadius.circular(3),
+                    border: Border.all(
+                      color: AppColors.mint.withValues(alpha: 0.82 * highlight),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
-}
-
-class _Tile {
-  const _Tile(this.r, this.c, this.delay);
-  final int r, c;
-  final double delay;
 }
 
 class _TileClip extends CustomClipper<Rect> {

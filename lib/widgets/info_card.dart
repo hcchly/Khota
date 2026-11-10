@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 
-/// Warm white rounded card with a soft shadow.
 class InfoCard extends StatelessWidget {
   const InfoCard({
     super.key,
@@ -22,12 +21,13 @@ class InfoCard extends StatelessWidget {
       padding: padding,
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.ocean.withValues(alpha: 0.07)),
         boxShadow: [
           BoxShadow(
-            color: AppColors.indigo.withValues(alpha: 0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: AppColors.ink.withValues(alpha: 0.035),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -36,7 +36,6 @@ class InfoCard extends StatelessWidget {
   }
 }
 
-/// Rounded square with a tinted background and an icon inside.
 class IconTile extends StatelessWidget {
   const IconTile({
     super.key,
@@ -55,10 +54,17 @@ class IconTile extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(14),
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          colors: [
+            Color.alphaBlend(color.withValues(alpha: 0.16), Colors.white),
+            Color.alphaBlend(color.withValues(alpha: 0.06), Colors.white),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(size * 0.31),
       ),
-      child: Icon(icon, color: color, size: size * 0.5),
+      child: Icon(icon, color: color, size: size * 0.48),
     );
   }
 }

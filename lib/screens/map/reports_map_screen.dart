@@ -7,6 +7,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../theme/app_colors.dart';
+import '../../widgets/gradient_app_bar.dart';
+import '../../widgets/brand_surface.dart';
 import '../../widgets/report_status_widgets.dart';
 
 class ReportsMapScreen extends StatefulWidget {
@@ -43,12 +45,9 @@ class _ReportsMapScreenState extends State<ReportsMapScreen> {
 
   void _queueLoad(MapCamera camera, bool _) {
     _viewportTimer?.cancel();
-    _viewportTimer = Timer(
-      const Duration(milliseconds: 350),
-      () {
-        if (mounted) _loadMarkers(camera.visibleBounds);
-      },
-    );
+    _viewportTimer = Timer(const Duration(milliseconds: 350), () {
+      if (mounted) _loadMarkers(camera.visibleBounds);
+    });
   }
 
   void _showReport(Map<String, dynamic> data) {
@@ -77,8 +76,16 @@ class _ReportsMapScreenState extends State<ReportsMapScreen> {
           shrinkWrap: true,
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           children: [
-            Text('ملخص البلاغ', style: Theme.of(context).textTheme.titleLarge),
-            ListTile(title: const Text('نوع المشكلة'), subtitle: Text(issueClass)),
+            const BrandIntro(
+              title: 'كل بلاغ له أثر',
+              description: 'ملخص المشكلة المسجلة في هذا الموقع.',
+              icon: Icons.location_on_outlined,
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              title: const Text('نوع المشكلة'),
+              subtitle: Text(issueClass),
+            ),
             ListTile(title: const Text('الشدة'), subtitle: Text(severity)),
             ListTile(title: const Text('حالة البلاغ'), subtitle: Text(status)),
           ],
@@ -91,10 +98,14 @@ class _ReportsMapScreenState extends State<ReportsMapScreen> {
     final data = doc.data();
     final latitude = data['latitude'];
     final longitude = data['longitude'];
-    if (latitude is! num || longitude is! num ||
-        !latitude.isFinite || !longitude.isFinite ||
-        latitude < -90 || latitude > 90 ||
-        longitude < -180 || longitude > 180) {
+    if (latitude is! num ||
+        longitude is! num ||
+        !latitude.isFinite ||
+        !longitude.isFinite ||
+        latitude < -90 ||
+        latitude > 90 ||
+        longitude < -180 ||
+        longitude > 180) {
       return null;
     }
 
@@ -106,7 +117,12 @@ class _ReportsMapScreenState extends State<ReportsMapScreen> {
       child: IconButton(
         tooltip: 'عرض ملخص البلاغ',
         onPressed: () => _showReport(data),
-        icon: const Icon(Icons.location_pin, color: AppColors.teal, size: 32),
+        style: IconButton.styleFrom(
+          backgroundColor: AppColors.ink,
+          foregroundColor: AppColors.mint,
+          side: const BorderSide(color: Colors.white, width: 2),
+        ),
+        icon: const Icon(Icons.location_on_rounded, size: 25),
       ),
     );
   }
@@ -114,15 +130,20 @@ class _ReportsMapScreenState extends State<ReportsMapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('خريطة خُطى')),
+      appBar: const GradientAppBar(title: 'خريطة خُطى'),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: _markers,
         builder: (context, snapshot) {
-          final loading = !snapshot.hasError &&
-              (_markers == null || snapshot.connectionState == ConnectionState.waiting);
+          final loading =
+              !snapshot.hasError &&
+              (_markers == null ||
+                  snapshot.connectionState == ConnectionState.waiting);
           final markers = loading || snapshot.hasError
               ? const <Marker>[]
-              : (snapshot.data?.docs ?? []).map(_marker).whereType<Marker>().toList();
+              : (snapshot.data?.docs ?? [])
+                    .map(_marker)
+                    .whereType<Marker>()
+                    .toList();
 
           return Stack(
             fit: StackFit.expand,
@@ -136,14 +157,16 @@ class _ReportsMapScreenState extends State<ReportsMapScreen> {
                   maxZoom: 19,
                   onMapReady: () {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted) _loadMarkers(_controller.camera.visibleBounds);
+                      if (mounted)
+                        _loadMarkers(_controller.camera.visibleBounds);
                     });
                   },
                   onPositionChanged: _queueLoad,
                 ),
                 children: [
                   TileLayer(
-                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    urlTemplate:
+                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'sa.edu.ksu.khota_app',
                     maxNativeZoom: 19,
                   ),
@@ -171,11 +194,16 @@ class _ReportsMapScreenState extends State<ReportsMapScreen> {
                         ),
                         child: snapshot.hasError
                             ? TextButton(
-                                onPressed: () =>
-                                    _loadMarkers(_controller.camera.visibleBounds),
-                                child: const Text('تعذّر تحميل البلاغات. إعادة المحاولة'),
+                                onPressed: () => _loadMarkers(
+                                  _controller.camera.visibleBounds,
+                                ),
+                                child: const Text(
+                                  'تعذّر تحميل البلاغات. إعادة المحاولة',
+                                ),
                               )
-                            : const Text('لا توجد بلاغات في الجزء الظاهر من الخريطة'),
+                            : const Text(
+                                'لا توجد بلاغات في الجزء الظاهر من الخريطة',
+                              ),
                       ),
                     ),
                   ),
@@ -191,7 +219,9 @@ class _ReportsMapScreenState extends State<ReportsMapScreen> {
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   onPressed: () async {
-                    await launchUrl(Uri.https('www.openstreetmap.org', '/copyright'));
+                    await launchUrl(
+                      Uri.https('www.openstreetmap.org', '/copyright'),
+                    );
                   },
                   child: const Text(
                     '© OpenStreetMap contributors',

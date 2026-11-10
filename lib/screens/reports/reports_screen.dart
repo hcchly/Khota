@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/report_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/info_card.dart';
+import '../../widgets/brand_surface.dart';
 import '../../widgets/private_report_image.dart';
 import '../../widgets/report_status_widgets.dart';
 
@@ -40,10 +40,7 @@ class CitizenReport {
       return ReportStatusLabels.inProgress;
     }
 
-    if (s == 'resolved' ||
-        s == 'completed' ||
-        s == 'done' ||
-        s == 'تم الحل') {
+    if (s == 'resolved' || s == 'completed' || s == 'done' || s == 'تم الحل') {
       return ReportStatusLabels.resolved;
     }
 
@@ -53,9 +50,7 @@ class CitizenReport {
   static String analysisLabel(dynamic value) {
     final s = (value ?? '').toString().trim().toLowerCase();
 
-    if (s == 'processing' ||
-        s == 'analyzing' ||
-        s == 'جارٍ تحليل الصورة') {
+    if (s == 'processing' || s == 'analyzing' || s == 'جارٍ تحليل الصورة') {
       return ReportStatusLabels.analyzing;
     }
 
@@ -63,9 +58,7 @@ class CitizenReport {
       return 'اكتمل تحليل الصورة';
     }
 
-    if (s == 'failed' ||
-        s == 'not_assessable' ||
-        s == 'notassessable') {
+    if (s == 'failed' || s == 'not_assessable' || s == 'notassessable') {
       return 'تعذّر تحليل الصورة';
     }
 
@@ -77,8 +70,7 @@ class CitizenReport {
   ) {
     final data = doc.data();
 
-    final description =
-        (data['description'] ?? '').toString().trim();
+    final description = (data['description'] ?? '').toString().trim();
 
     final image = data['imageUrl'];
 
@@ -87,31 +79,22 @@ class CitizenReport {
       description: description.isEmpty
           ? 'بلاغ عن مشكلة في الرصيف'
           : description,
-      reportStatus: reportLabel(
-        data['reportStatus'] ?? data['status'],
-      ),
+      reportStatus: reportLabel(data['reportStatus'] ?? data['status']),
       analysisStatus: analysisLabel(
-        data['analysisStatus'] ??
-            data['imageAnalysisStatus'],
+        data['analysisStatus'] ?? data['imageAnalysisStatus'],
       ),
-      imageUrl: image is String && image.isNotEmpty
-          ? image
-          : null,
+      imageUrl: image is String && image.isNotEmpty ? image : null,
     );
   }
 }
 
 class ReportsScreen extends StatefulWidget {
-  const ReportsScreen({
-    super.key,
-    this.initialPreview = false,
-  });
+  const ReportsScreen({super.key, this.initialPreview = false});
 
   final bool initialPreview;
 
   @override
-  State<ReportsScreen> createState() =>
-      _ReportsScreenState();
+  State<ReportsScreen> createState() => _ReportsScreenState();
 }
 
 class _ReportsScreenState extends State<ReportsScreen> {
@@ -167,16 +150,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
               children: [
                 Text(
                   'تفاصيل البلاغ',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge,
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
 
                 const SizedBox(height: 12),
 
-                Text(
-                  'رقم البلاغ: ${displayReportNumber(report.id)}',
-                ),
+                Text('رقم البلاغ: ${displayReportNumber(report.id)}'),
 
                 const SizedBox(height: 12),
 
@@ -204,9 +183,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
                 if (previewMode) ...[
                   const SizedBox(height: 16),
-                  const Text(
-                    'هذا بلاغ تجريبي وليس بلاغًا حقيقيًا.',
-                  ),
+                  const Text('هذا بلاغ تجريبي وليس بلاغًا حقيقيًا.'),
                 ],
               ],
             ),
@@ -225,37 +202,24 @@ class _ReportsScreenState extends State<ReportsScreen> {
           selectedFilter = 'الكل';
         });
       },
-      icon: const Icon(
-        Icons.visibility_outlined,
-      ),
-      label: const Text(
-        'معاينة الحالات والفلاتر',
-      ),
+      icon: const Icon(Icons.visibility_outlined),
+      label: const Text('معاينة الحالات والفلاتر'),
     );
   }
 
   // Build reports according to selected filter.
-  Widget buildReportList(
-    List<CitizenReport> reports,
-  ) {
+  Widget buildReportList(List<CitizenReport> reports) {
     final filtered = selectedFilter == 'الكل'
         ? reports
         : reports
-            .where(
-              (report) =>
-                  report.reportStatus == selectedFilter,
-            )
-            .toList();
+              .where((report) => report.reportStatus == selectedFilter)
+              .toList();
 
     if (filtered.isEmpty) {
       return InfoCard(
         child: Column(
           children: [
-            const Icon(
-              Icons.inbox_outlined,
-              size: 48,
-              color: AppColors.teal,
-            ),
+            const Icon(Icons.inbox_outlined, size: 48, color: AppColors.teal),
 
             const SizedBox(height: 12),
 
@@ -283,31 +247,28 @@ class _ReportsScreenState extends State<ReportsScreen> {
             child: InfoCard(
               padding: const EdgeInsets.all(16),
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.stretch,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Row(
                     children: [
-                      const Icon(
-                        Icons.description_outlined,
-                        color: AppColors.teal,
+                      const IconTile(
+                        icon: Icons.receipt_long_outlined,
+                        size: 38,
                       ),
-
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 10),
 
                       Expanded(
                         child: Text(
                           'بلاغ ${displayReportNumber(report.id)}',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
 
                       const Icon(
-                        Icons.chevron_left,
+                        Icons.chevron_left_rounded,
+                        color: AppColors.ocean,
                       ),
                     ],
                   ),
@@ -316,15 +277,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
                   Text(
                     report.description,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.ink.withValues(alpha: 0.76),
+                    ),
                   ),
 
                   const SizedBox(height: 16),
 
                   ReportStatusSummary(
-                    analysisStatus:
-                        report.analysisStatus,
-                    reportStatus:
-                        report.reportStatus,
+                    analysisStatus: report.analysisStatus,
+                    reportStatus: report.reportStatus,
                   ),
                 ],
               ),
@@ -339,16 +301,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   // Read only the signed-in citizen's reports.
   Widget buildLiveReports() {
-    final userId =
-        FirebaseAuth.instance.currentUser?.uid;
+    final userId = FirebaseAuth.instance.currentUser?.uid;
 
     if (userId == null) {
       return InfoCard(
         child: Column(
           children: [
-            const Text(
-              'سجّل الدخول لعرض بلاغاتك.',
-            ),
+            const Text('سجّل الدخول لعرض بلاغاتك.'),
 
             const SizedBox(height: 12),
 
@@ -358,14 +317,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
       );
     }
 
-    return StreamBuilder<
-        QuerySnapshot<Map<String, dynamic>>>(
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
       stream: FirebaseFirestore.instance
           .collection('reports')
-          .where(
-            'userId',
-            isEqualTo: userId,
-          )
+          .where('userId', isEqualTo: userId)
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -386,9 +341,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         }
 
         if (!snapshot.hasData) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
 
         final reports = snapshot.data!.docs
@@ -402,38 +355,21 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
-
     return SafeArea(
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          16,
-          24,
-          16,
-          96,
-        ),
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 96),
         children: [
-          Text(
-            'بلاغاتي',
-            style: text.headlineSmall?.copyWith(
-              color: AppColors.indigo,
-              fontWeight: FontWeight.w800,
-            ),
+          const BrandIntro(
+            eyebrow: 'بلاغاتي',
+            title: 'كل خطوة موثّقة',
+            description: 'تابع بلاغاتك، من إرسال الصورة إلى آخر تحديث.',
+            icon: Icons.receipt_long_outlined,
           ),
-
-          const SizedBox(height: 8),
-
-          const Text(
-            'تابع حالة تحليل الصورة وحالة البلاغ بشكل منفصل.',
-          ),
-
           const SizedBox(height: 20),
 
           const Text(
             'تصفية حسب حالة البلاغ',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
 
           const SizedBox(height: 12),
@@ -453,18 +389,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
           if (previewMode) ...[
             InfoCard(
-              color: AppColors.tealLight.withValues(
-                alpha: 0.18,
-              ),
+              color: AppColors.tealLight.withValues(alpha: 0.18),
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.stretch,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const Text(
                     'وضع المعاينة: هذه أمثلة تجريبية وليست بلاغات حقيقية.',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
 
                   TextButton(
@@ -474,9 +405,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         selectedFilter = 'الكل';
                       });
                     },
-                    child: const Text(
-                      'العودة إلى بلاغاتي الحقيقية',
-                    ),
+                    child: const Text('العودة إلى بلاغاتي الحقيقية'),
                   ),
                 ],
               ),

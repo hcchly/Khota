@@ -5,6 +5,7 @@ import '../../services/profile_service.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/validators.dart';
 import '../../widgets/gradient_app_bar.dart';
+import '../../widgets/brand_surface.dart';
 
 /// PBI-08: As a citizen, I want to edit my profile
 /// so that I can keep my account information up to date.
@@ -24,8 +25,9 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _nameController =
-      TextEditingController(text: widget.user.fullName);
+  late final TextEditingController _nameController = TextEditingController(
+    text: widget.user.fullName,
+  );
   bool _saving = false;
 
   @override
@@ -41,9 +43,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     try {
       final updated = await widget.service.updateName(_nameController.text);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم حفظ التغييرات')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('تم حفظ التغييرات')));
       Navigator.of(context).pop(updated);
     } catch (_) {
       if (!mounted) return;
@@ -67,6 +68,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            const BrandIntro(
+              title: 'اسمك في خُطى',
+              description: 'حدّث الاسم اللي يظهر في حسابك.',
+              icon: Icons.manage_accounts_outlined,
+            ),
+            const SizedBox(height: 24),
             Text(
               'الاسم الكامل',
               style: text.titleSmall?.copyWith(fontWeight: FontWeight.w700),
@@ -79,9 +86,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               textInputAction: TextInputAction.done,
               autofillHints: const [AutofillHints.name],
               onFieldSubmitted: (_) => _save(),
-              decoration: const InputDecoration(
-                hintText: 'أدخل اسمك الكامل',
-              ),
+              decoration: const InputDecoration(hintText: 'أدخل اسمك الكامل'),
             ),
             const SizedBox(height: 20),
             Text(

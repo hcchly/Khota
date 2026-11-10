@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
@@ -11,12 +10,7 @@ class ReportStatusLabels {
   static const inProgress = 'قيد التنفيذ من الجهة المختصة';
   static const resolved = 'تم الحل';
 
-  static const filters = [
-    'الكل',
-    pending,
-    inProgress,
-    resolved,
-  ];
+  static const filters = ['الكل', pending, inProgress, resolved];
 }
 
 /// Shows image analysis and report progress separately.
@@ -32,21 +26,37 @@ class ReportStatusSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _StatusItem(
-          title: 'حالة تحليل الصورة',
-          value: analysisStatus,
-          icon: Icons.image_search_outlined,
-        ),
-        const SizedBox(height: 16),
-        _StatusItem(
-          title: 'حالة البلاغ',
-          value: reportStatus,
-          icon: Icons.assignment_outlined,
-        ),
-      ],
+    final analysis = _StatusItem(
+      title: 'حالة تحليل الصورة',
+      value: analysisStatus,
+      icon: Icons.image_search_outlined,
+    );
+    final report = _StatusItem(
+      title: 'حالة البلاغ',
+      value: reportStatus,
+      icon: Icons.assignment_outlined,
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns =
+            constraints.maxWidth >= 288 &&
+            MediaQuery.textScalerOf(context).scale(14) <= 18;
+        if (columns) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: analysis),
+              const SizedBox(width: 8),
+              Expanded(child: report),
+            ],
+          );
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [analysis, const SizedBox(height: 8), report],
+        );
+      },
     );
   }
 }
@@ -66,29 +76,33 @@ class _StatusItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: theme.textTheme.bodySmall,
-        ),
-        const SizedBox(height: 6),
-        Row(
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppColors.sand,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: AppColors.teal, size: 20),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                value,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            Row(
+              children: [
+                Icon(icon, color: AppColors.ocean, size: 16),
+                const SizedBox(width: 6),
+                Expanded(child: Text(title, style: theme.textTheme.bodySmall)),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],
         ),
-      ],
+      ),
     );
   }
 }
@@ -114,6 +128,16 @@ class ReportStatusFilters extends StatelessWidget {
           ChoiceChip(
             label: Text(filter),
             selected: selectedFilter == filter,
+            backgroundColor: AppColors.warmWhite,
+            selectedColor: Color.alphaBlend(
+              AppColors.mint.withValues(alpha: 0.21),
+              AppColors.warmWhite,
+            ),
+            side: BorderSide(
+              color: selectedFilter == filter
+                  ? AppColors.ocean.withValues(alpha: 0.38)
+                  : AppColors.mist,
+            ),
             onSelected: (_) => onFilterChanged(filter),
           ),
       ],

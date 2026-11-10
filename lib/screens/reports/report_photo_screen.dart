@@ -9,6 +9,7 @@ import '../../services/storage_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/gradient_header.dart';
 import '../../widgets/info_card.dart';
+import '../../widgets/brand_surface.dart';
 
 class ReportPhotoScreen extends StatefulWidget {
   const ReportPhotoScreen({
@@ -163,6 +164,13 @@ class _ReportPhotoScreenState extends State<ReportPhotoScreen> {
                     ScrollViewKeyboardDismissBehavior.onDrag,
                 padding: const EdgeInsets.fromLTRB(20, 28, 20, 28),
                 children: [
+                  const BrandIntro(
+                    eyebrow: 'خطوتك الأولى',
+                    title: 'خلّ الصورة تتكلم',
+                    description: 'صوّر المشكلة بوضوح، وأظهر الجزء المتضرر من الرصيف كاملًا.',
+                    icon: Icons.add_a_photo_outlined,
+                  ),
+                  const SizedBox(height: 20),
                   InfoCard(
                     padding: const EdgeInsets.all(16),
                     child: Column(

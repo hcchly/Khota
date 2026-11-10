@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import 'gradient_header.dart';
 
-/// Header of the new-report flow: back button, title and a 3-step indicator
-/// (الصورة · الموقع · المراجعة).
 class ReportFlowHeader extends StatelessWidget {
   const ReportFlowHeader({
     super.key,
@@ -15,79 +13,78 @@ class ReportFlowHeader extends StatelessWidget {
   });
 
   final String title;
-
-  /// Current step, starting at 1.
   final int step;
-
-  /// Back button action; hidden when null.
   final VoidCallback? onBack;
   final List<String> stepLabels;
 
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final total = stepLabels.length;
     return GradientHeader(
-      bottomRadius: 24,
-      pattern: 4,
+      bottomRadius: 30,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 4, 8, 18),
+        padding: const EdgeInsetsDirectional.fromSTEB(18, 12, 18, 22),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              height: 52,
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 48,
-                    child: onBack == null
-                        ? null
-                        : IconButton(
-                            tooltip: 'رجوع',
-                            onPressed: onBack,
-                            icon: const Icon(
-                              Icons.arrow_back,
-                              color: Colors.white,
-                            ),
-                          ),
-                  ),
-                  Expanded(
-                    child: Semantics(
-                      header: true,
-                      child: Text(
-                        title,
-                        textAlign: TextAlign.center,
-                        style: text.titleMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+            Row(
+              children: [
+                if (onBack != null) ...[
+                  IconButton(
+                    tooltip: 'رجوع',
+                    onPressed: onBack,
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.white.withValues(alpha: 0.1),
+                    ),
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
                     ),
                   ),
-                  const SizedBox(width: 48),
+                  const SizedBox(width: 10),
                 ],
-              ),
-            ),
-            const SizedBox(height: 6),
-            Semantics(
-              label: 'الخطوة $step من $total: ${stepLabels[step - 1]}',
-              excludeSemantics: true,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Row(
-                  children: [
-                    for (var i = 1; i <= total; i++) ...[
-                      Expanded(
-                        child: _StepSegment(
-                          label: stepLabels[i - 1],
-                          done: i < step,
-                          current: i == step,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'بلاغ جديد · خطوة $step من ${stepLabels.length}',
+                        style: text.labelMedium?.copyWith(
+                          color: AppColors.mint,
                         ),
                       ),
-                      if (i < total) const SizedBox(width: 8),
+                      const SizedBox(height: 3),
+                      Text(
+                        title,
+                        style: text.headlineSmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
                     ],
-                  ],
+                  ),
                 ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Semantics(
+              label:
+                  'الخطوة $step من ${stepLabels.length}: ${stepLabels[step - 1]}',
+              excludeSemantics: true,
+              child: Row(
+                children: [
+                  for (var i = 0; i < stepLabels.length; i++) ...[
+                    Expanded(
+                      child: _StepSegment(
+                        number: i + 1,
+                        label: stepLabels[i],
+                        done: i + 1 < step,
+                        current: i + 1 == step,
+                      ),
+                    ),
+                    if (i + 1 < stepLabels.length) const SizedBox(width: 7),
+                  ],
+                ],
               ),
             ),
           ],
@@ -99,57 +96,52 @@ class ReportFlowHeader extends StatelessWidget {
 
 class _StepSegment extends StatelessWidget {
   const _StepSegment({
+    required this.number,
     required this.label,
     required this.done,
     required this.current,
   });
 
+  final int number;
   final String label;
   final bool done;
   final bool current;
 
   @override
   Widget build(BuildContext context) {
-    final active = done || current;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          height: 5,
-          decoration: BoxDecoration(
-            color: active
-                ? AppColors.tealLight
-                : Colors.white.withValues(alpha: 0.25),
-            borderRadius: BorderRadius.circular(3),
-          ),
-        ),
-        const SizedBox(height: 6),
-        Row(
-          children: [
-            if (done)
-              const Padding(
-                padding: EdgeInsetsDirectional.only(end: 4),
-                child: Icon(
-                  Icons.check_circle,
-                  size: 14,
-                  color: AppColors.tealLight,
-                ),
-              ),
-            Flexible(
-              child: Text(
-                label,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.white.withValues(alpha: active ? 1 : 0.6),
-                  fontWeight: current ? FontWeight.w700 : FontWeight.w500,
-                ),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 220),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      decoration: BoxDecoration(
+        color: current ? AppColors.mint : Colors.white.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (done)
+            const Icon(Icons.check_rounded, size: 16, color: AppColors.mint)
+          else
+            Text(
+              '$number',
+              style: TextStyle(
+                color: current ? AppColors.ink : Colors.white,
+                fontWeight: FontWeight.w800,
               ),
             ),
-          ],
-        ),
-      ],
+          const SizedBox(width: 5),
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: current ? AppColors.ink : Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

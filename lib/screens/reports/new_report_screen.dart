@@ -165,9 +165,7 @@ class _NewReportScreenState extends State<NewReportScreen>
       }
     } catch (_) {
       if (!mounted) return;
-      setState(
-        () => _photoError = 'تعذّر التقاط الصورة. حاول مرة أخرى.',
-      );
+      setState(() => _photoError = 'تعذّر التقاط الصورة. حاول مرة أخرى.');
     } finally {
       if (mounted) setState(() => _picking = false);
       _syncCamera();
@@ -233,9 +231,8 @@ class _NewReportScreenState extends State<NewReportScreen>
   }
 
   void _openPhotoGuide() {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => const PhotoGuideScreen()));
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => const PhotoGuideScreen()));
   }
 
   // ---------------------------------------------------------------- Step 2
@@ -549,6 +546,8 @@ class _NewReportScreenState extends State<NewReportScreen>
     return Container(
       decoration: BoxDecoration(
         color: AppColors.warmWhite,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
+        border: Border.all(color: AppColors.mist),
         boxShadow: [
           BoxShadow(
             color: AppColors.indigo.withValues(alpha: 0.08),
@@ -575,7 +574,7 @@ class _NewReportScreenState extends State<NewReportScreen>
     minimumSize: const Size.fromHeight(50),
     foregroundColor: AppColors.indigo,
     side: BorderSide(color: AppColors.slate.withValues(alpha: 0.8)),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
   );
 
   // ---------------------------------------------------------------- Step 1 UI
@@ -674,7 +673,9 @@ class _NewReportScreenState extends State<NewReportScreen>
                 tooltip: live.flashOn ? 'إطفاء الإضاءة' : 'تشغيل الإضاءة',
                 onPressed: live.toggleFlash,
                 icon: Icon(
-                  live.flashOn ? Icons.flash_on_rounded : Icons.flash_off_rounded,
+                  live.flashOn
+                      ? Icons.flash_on_rounded
+                      : Icons.flash_off_rounded,
                   color: Colors.white,
                 ),
               ),
@@ -700,8 +701,7 @@ class _NewReportScreenState extends State<NewReportScreen>
         busy: true,
       ),
       LiveCameraStatus.denied => const _Viewfinder(
-        message:
-            'لا يوجد إذن لاستخدام الكاميرا.\nفعّله من الإعدادات، أو اختر صورة من المعرض.',
+        message: 'لا يوجد إذن لاستخدام الكاميرا.\nفعّله من الإعدادات، أو اختر صورة من المعرض.',
       ),
       _ => const _Viewfinder(),
     };
@@ -712,7 +712,8 @@ class _NewReportScreenState extends State<NewReportScreen>
   Widget _buildLocationStep(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final muted = AppColors.indigo.withValues(alpha: 0.65);
-    final map = _locator.buildMap(context, _location) ?? const _MapPlaceholder();
+    final map =
+        _locator.buildMap(context, _location) ?? const _MapPlaceholder();
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
       children: [
@@ -980,45 +981,49 @@ class LocationAccuracyBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accuracy = location.accuracyMeters;
-    final (IconData icon, String label, StatusTone tone, String? hint) =
-        switch (location.source) {
-          ReportLocation.sourceManual => (
-            Icons.touch_app_outlined,
-            'تم تحديده يدوياً على الخريطة',
-            StatusTone.info,
-            null,
-          ),
-          ReportLocation.sourceGps when accuracy == null => (
-            Icons.gps_fixed,
-            'تم تحديده من موقعك (GPS)',
-            StatusTone.success,
-            null,
-          ),
-          ReportLocation.sourceGps when accuracy! <= goodMeters => (
-            Icons.gps_fixed,
-            'دقة عالية · ± ${accuracy.round()} م',
-            StatusTone.success,
-            null,
-          ),
-          ReportLocation.sourceGps when accuracy! <= fairMeters => (
-            Icons.gps_not_fixed,
-            'دقة متوسطة · ± ${accuracy.round()} م',
-            StatusTone.progress,
-            null,
-          ),
-          ReportLocation.sourceGps => (
-            Icons.gps_off_outlined,
-            'دقة منخفضة · ± ${accuracy!.round()} م',
-            StatusTone.warning,
-            'لموقع أدق، انتقل إلى مكان مفتوح أو حدّد الموقع يدوياً.',
-          ),
-          _ => (
-            Icons.science_outlined,
-            'موقع تجريبي مؤقت',
-            StatusTone.progress,
-            null,
-          ),
-        };
+    final (
+      IconData icon,
+      String label,
+      StatusTone tone,
+      String? hint,
+    ) = switch (location.source) {
+      ReportLocation.sourceManual => (
+        Icons.touch_app_outlined,
+        'تم تحديده يدوياً على الخريطة',
+        StatusTone.info,
+        null,
+      ),
+      ReportLocation.sourceGps when accuracy == null => (
+        Icons.gps_fixed,
+        'تم تحديده من موقعك (GPS)',
+        StatusTone.success,
+        null,
+      ),
+      ReportLocation.sourceGps when accuracy! <= goodMeters => (
+        Icons.gps_fixed,
+        'دقة عالية · ± ${accuracy.round()} م',
+        StatusTone.success,
+        null,
+      ),
+      ReportLocation.sourceGps when accuracy! <= fairMeters => (
+        Icons.gps_not_fixed,
+        'دقة متوسطة · ± ${accuracy.round()} م',
+        StatusTone.progress,
+        null,
+      ),
+      ReportLocation.sourceGps => (
+        Icons.gps_off_outlined,
+        'دقة منخفضة · ± ${accuracy!.round()} م',
+        StatusTone.warning,
+        'لموقع أدق، انتقل إلى مكان مفتوح أو حدّد الموقع يدوياً.',
+      ),
+      _ => (
+        Icons.science_outlined,
+        'موقع تجريبي مؤقت',
+        StatusTone.progress,
+        null,
+      ),
+    };
     final text = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1026,17 +1031,20 @@ class LocationAccuracyBadge extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: AppColors.indigo.withValues(alpha: 0.7)),
+            Icon(
+              icon,
+              size: 16,
+              color: AppColors.indigo.withValues(alpha: 0.7),
+            ),
             const SizedBox(width: 6),
-            Flexible(child: StatusChip(label: label, tone: tone)),
+            Flexible(
+              child: StatusChip(label: label, tone: tone),
+            ),
           ],
         ),
         if (hint != null) ...[
           const SizedBox(height: 6),
-          Text(
-            hint,
-            style: text.bodySmall?.copyWith(color: AppColors.error),
-          ),
+          Text(hint, style: text.bodySmall?.copyWith(color: AppColors.error)),
         ],
       ],
     );
@@ -1182,7 +1190,11 @@ class _ViewfinderPainter extends CustomPainter {
       (const Offset(m, m + l), const Offset(m, m), const Offset(m + l, m)),
       (Offset(w - m - l, m), Offset(w - m, m), Offset(w - m, m + l)),
       (Offset(m, h - m - l), Offset(m, h - m), Offset(m + l, h - m)),
-      (Offset(w - m - l, h - m), Offset(w - m, h - m), Offset(w - m, h - m - l)),
+      (
+        Offset(w - m - l, h - m),
+        Offset(w - m, h - m),
+        Offset(w - m, h - m - l),
+      ),
     ]) {
       canvas.drawPath(
         Path()
@@ -1399,9 +1411,8 @@ class _ErrorBox extends StatelessWidget {
             Expanded(
               child: Text(
                 message,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: AppColors.error),
+                style: Theme.of(context).textTheme.bodySmall
+                    ?.copyWith(color: AppColors.error),
               ),
             ),
             if (actionLabel != null)

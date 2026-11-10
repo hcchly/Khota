@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../reports/reports_screen.dart';
 import '../../theme/app_colors.dart';
 import '../reports/new_report_screen.dart';
@@ -42,11 +43,10 @@ class _MainShellState extends State<MainShell> {
     switch (_index) {
       case 0:
         return HomeScreen(onOpenTab: _openTab);
-     case 1:
-  return const ReportsScreen();
+      case 1:
+        return const ReportsScreen();
       case 2:
-    case 2:
-  return const ReportsMapScreen();
+        return const ReportsMapScreen();
       default:
         return const ProfileScreen();
     }
@@ -59,11 +59,11 @@ class _MainShellState extends State<MainShell> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: _NewReportButton(onPressed: _openNewReport),
       bottomNavigationBar: BottomAppBar(
-        color: AppColors.warmWhite,
+        color: AppColors.ink,
         surfaceTintColor: Colors.transparent,
         elevation: 8,
         padding: EdgeInsets.zero,
-        height: 72,
+        height: 80,
         shape: const CircularNotchedRectangle(),
         notchMargin: 8,
         child: Row(
@@ -77,17 +77,17 @@ class _MainShellState extends State<MainShell> {
               onTap: () => _openTab(0),
             ),
             _NavItem(
-              icon: Icons.format_list_bulleted,
-              selectedIcon: Icons.format_list_bulleted,
+              icon: Icons.receipt_long_outlined,
+              selectedIcon: Icons.receipt_long,
               label: 'البلاغات',
               selected: _index == 1,
               onTap: () => _openTab(1),
             ),
             const SizedBox(width: 88), // space for the center button
             _NavItem(
-              icon: Icons.directions_walk,
-              selectedIcon: Icons.directions_walk,
-              label: 'خُطى',
+              icon: Icons.explore_outlined,
+              selectedIcon: Icons.explore,
+              label: 'الخريطة',
               selected: _index == 2,
               onTap: () => _openTab(2),
             ),
@@ -123,8 +123,8 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = selected
-        ? AppColors.teal
-        : AppColors.indigo.withValues(alpha: 0.45);
+        ? AppColors.mint
+        : Colors.white.withValues(alpha: 0.6);
     return Expanded(
       child: Semantics(
         selected: selected,
@@ -136,7 +136,7 @@ class _NavItem extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(selected ? selectedIcon : icon, color: color, size: 26),
+              Icon(selected ? selectedIcon : icon, color: color, size: 24),
               const SizedBox(height: 4),
               FittedBox(
                 child: Text(
@@ -169,11 +169,11 @@ class _NewReportButton extends StatelessWidget {
       child: FloatingActionButton(
         onPressed: onPressed,
         tooltip: 'بلاغ جديد',
-        backgroundColor: AppColors.indigo,
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.mint,
+        foregroundColor: AppColors.ink,
         elevation: 4,
         shape: const CircleBorder(
-          side: BorderSide(color: AppColors.warmWhite, width: 4),
+          side: BorderSide(color: AppColors.ink, width: 5),
         ),
         child: const Padding(
           padding: EdgeInsets.all(8),
@@ -181,7 +181,7 @@ class _NewReportButton extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.photo_camera_outlined, size: 28),
+                Icon(Icons.add_a_photo_outlined, size: 25),
                 SizedBox(height: 2),
                 Text(
                   'بلاغ جديد',

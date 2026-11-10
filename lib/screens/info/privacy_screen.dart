@@ -3,53 +3,25 @@ import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/gradient_app_bar.dart';
 import '../../widgets/info_card.dart';
+import '../../widgets/brand_surface.dart';
 
 class PrivacyScreen extends StatelessWidget {
   const PrivacyScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
-    final muted = AppColors.indigo.withValues(alpha: 0.7);
     return Scaffold(
       appBar: const GradientAppBar(title: 'الخصوصية'),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
         children: [
-          // Intro card with a teal bar on the right side.
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: InfoCard(
-              padding: EdgeInsets.zero,
-              child: IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Container(width: 5, color: AppColors.teal),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'خصوصيتك أولوية',
-                              style: text.titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.w700),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              'نجمع الحد الأدنى من البيانات اللازمة لمعالجة بلاغات الأرصفة.',
-                              style: text.bodyMedium?.copyWith(color: muted),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          const BrandIntro(
+            eyebrow: 'خصوصية ووضوح',
+            title: 'بلاغك في أيدٍ أمينة',
+            description:
+                'نعرض بيانات المشكلة اللازمة على الخريطة، '
+                'ونحمي صور بلاغك وبيانات حسابك.',
+            icon: Icons.shield_outlined,
           ),
           const SizedBox(height: 16),
           const _PrivacyItem(
@@ -93,16 +65,17 @@ class _PrivacyItem extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            IconTile(icon: icon),
-            const SizedBox(width: 16),
+            IconTile(icon: icon, size: 42),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: text.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w700),
+                    style: text.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   Text(

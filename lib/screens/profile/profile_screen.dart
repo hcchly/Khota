@@ -5,6 +5,7 @@ import '../../services/auth_service.dart';
 import '../../services/profile_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/gradient_header.dart';
+import '../../widgets/info_card.dart';
 import '../auth/login_screen.dart';
 import '../info/about_screen.dart';
 import '../info/photo_guide_screen.dart';
@@ -106,11 +107,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               _ProfileHeader(user: user),
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 96),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    Text(
+                      'الحساب',
+                      style: Theme.of(context).textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: 10),
                     _MenuTile(
-                      icon: Icons.edit_outlined,
+                      icon: Icons.manage_accounts_outlined,
                       label: 'تعديل البيانات',
                       onTap: () => _openEditProfile(user),
                     ),
@@ -119,6 +127,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       label: 'الإعدادات',
                       onTap: () => _open(const SettingsScreen()),
                     ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'المساعدة والمعلومات',
+                      style: Theme.of(context).textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: 10),
                     _MenuTile(
                       icon: Icons.photo_camera_outlined,
                       label: 'دليل التصوير',
@@ -163,56 +178,67 @@ class _ProfileHeader extends StatelessWidget {
     return GradientHeader(
       pattern: 4,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+        padding: const EdgeInsetsDirectional.fromSTEB(20, 14, 20, 26),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'حسابي',
-              style: text.titleMedium?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Semantics(
-              label: 'الصورة الرمزية',
-              child: Container(
-                width: 88,
-                height: 88,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: AppColors.teal,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.5),
-                    width: 3,
-                  ),
-                ),
-                child: Text(
-                  user.initial,
-                  style: text.headlineMedium?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              user.fullName,
-              textAlign: TextAlign.center,
               style: text.titleLarge?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
+                color: AppColors.warmWhite,
+                fontWeight: FontWeight.w800,
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              user.email,
-              textDirection: TextDirection.ltr,
-              style: text.bodyMedium?.copyWith(
-                color: Colors.white.withValues(alpha: 0.85),
-              ),
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                Semantics(
+                  label: 'الصورة الرمزية',
+                  child: Container(
+                    width: 72,
+                    height: 72,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: AppColors.mint,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.mint.withValues(alpha: 0.7),
+                        width: 2,
+                      ),
+                    ),
+                    child: Text(
+                      user.initial,
+                      style: text.headlineSmall?.copyWith(
+                        color: AppColors.ink,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user.fullName,
+                        style: text.titleLarge?.copyWith(
+                          color: AppColors.warmWhite,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        user.email,
+                        textDirection: TextDirection.ltr,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.bodyMedium?.copyWith(color: AppColors.mist),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -236,45 +262,37 @@ class _MenuTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconColor = color == AppColors.error ? AppColors.error : AppColors.teal;
+    final iconColor = color == AppColors.error
+        ? AppColors.error
+        : AppColors.teal;
 
+    final radius = BorderRadius.circular(16);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 9),
       child: Material(
         color: AppColors.warmWhite,
-        borderRadius: BorderRadius.circular(16),
-        elevation: 0.5,
-        shadowColor: AppColors.indigo.withValues(alpha: 0.2),
+        shape: RoundedRectangleBorder(
+          borderRadius: radius,
+          side: const BorderSide(color: AppColors.mist),
+        ),
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: radius,
           onTap: onTap,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 64),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Row(
-                children: [
-                  // In RTL the first child sits on the right.
-                  Expanded(
-                    child: Text(
-                      label,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: color,
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+            child: Row(
+              children: [
+                IconTile(icon: icon, color: iconColor, size: 42),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: Theme.of(context).textTheme.titleMedium
+                        ?.copyWith(color: color, fontWeight: FontWeight.w600),
                   ),
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: iconColor.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(icon, color: iconColor, semanticLabel: label),
-                  ),
-                ],
-              ),
+                ),
+                Icon(Icons.chevron_left_rounded, color: iconColor, size: 22),
+              ],
             ),
           ),
         ),

@@ -47,16 +47,17 @@ class PlaceholderTab extends StatelessWidget {
                     width: 96,
                     height: 96,
                     decoration: BoxDecoration(
-                      color: AppColors.tealLight.withValues(alpha: 0.25),
-                      shape: BoxShape.circle,
+                      color: AppColors.mint.withValues(alpha: 0.22),
+                      borderRadius: BorderRadius.circular(28),
                     ),
                     child: Icon(icon, size: 44, color: AppColors.teal),
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    'قريباً',
-                    style: text.titleLarge
-                        ?.copyWith(fontWeight: FontWeight.w700),
+                    'خطوات جديدة قريبًا',
+                    style: text.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(

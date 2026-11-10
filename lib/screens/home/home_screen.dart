@@ -73,8 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final location = data['location'];
     final createdAt = _createdAt(report);
     final imageUrl = data['imageUrl'];
-    final rawStatus =
-        (data['reportStatus'] ?? data['status'] ?? '').toString();
+    final rawStatus = (data['reportStatus'] ?? data['status'] ?? '').toString();
     final reportStatus = switch (rawStatus.trim().toLowerCase()) {
       'قيد التنفيذ من الجهة المختصة' => 'in_progress',
       'completed' || 'done' || 'تم الحل' => 'resolved',
@@ -136,71 +135,91 @@ class _HomeScreenState extends State<HomeScreen> {
     return ListView(
       padding: const EdgeInsets.only(bottom: 32),
       children: [
-        // Header: avatar, greeting, notifications.
         GradientHeader(
+          bottomRadius: 34,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 12, 32),
-            child: FutureBuilder<AppUser>(
-              future: _profile,
-              builder: (context, snapshot) {
-                final user = snapshot.data;
-                return Row(
-                  children: [
-                    Container(
-                      width: 56,
-                      height: 56,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: AppColors.teal,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.35),
-                          width: 2,
-                        ),
-                      ),
-                      child: Text(
-                        user?.initial ?? '',
-                        style: text.titleLarge?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'مرحباً،',
-                            style: text.bodyMedium?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.8),
-                            ),
+            padding: const EdgeInsetsDirectional.fromSTEB(22, 16, 22, 30),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FutureBuilder<AppUser>(
+                  future: _profile,
+                  builder: (context, snapshot) {
+                    final user = snapshot.data;
+                    return Row(
+                      children: [
+                        Container(
+                          width: 46,
+                          height: 46,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: AppColors.mint,
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                          Text(
-                            user?.fullName ?? '',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          child: Text(
+                            user?.initial ?? '',
                             style: text.titleLarge?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
+                              color: AppColors.ink,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: 'الإشعارات',
-                      onPressed: () => showComingSoon(context),
-                      icon: const Icon(
-                        Icons.notifications_none_rounded,
-                        color: Colors.white,
-                        size: 28,
-                      ),
-                    ),
-                  ],
-                );
-              },
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'أهلًا بك في خُطى',
+                                style: text.bodySmall?.copyWith(
+                                  color: Colors.white.withValues(alpha: 0.7),
+                                ),
+                              ),
+                              Text(
+                                user?.fullName ?? '',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: text.titleMedium?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: 'الإشعارات',
+                          onPressed: () => showComingSoon(context),
+                          style: IconButton.styleFrom(
+                            backgroundColor: Colors.white.withValues(
+                              alpha: 0.1,
+                            ),
+                            foregroundColor: Colors.white,
+                          ),
+                          icon: const Icon(Icons.notifications_none_rounded),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 26),
+                Text(
+                  'أرصفة أفضل\nتبدأ بخطوة',
+                  style: text.headlineLarge?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    height: 1.35,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'بلّغ عن المشكلة، وتابع أثر خطوتك.',
+                  style: text.bodyMedium?.copyWith(
+                    color: AppColors.mist,
+                    height: 1.6,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -216,29 +235,39 @@ class _HomeScreenState extends State<HomeScreen> {
         // Services.
         const _SectionTitle('الخدمات'),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
             children: [
-              _ServiceTile(
-                icon: Icons.assignment_outlined,
-                label: 'بلاغاتي',
-                onTap: () => widget.onOpenTab(1),
+              Row(
+                children: [
+                  _ServiceTile(
+                    icon: Icons.receipt_long_outlined,
+                    label: 'بلاغاتي',
+                    onTap: () => widget.onOpenTab(1),
+                  ),
+                  const SizedBox(width: 10),
+                  _ServiceTile(
+                    icon: Icons.explore_outlined,
+                    label: 'خريطة خُطى',
+                    onTap: () => widget.onOpenTab(2),
+                  ),
+                ],
               ),
-              _ServiceTile(
-                icon: Icons.map_outlined,
-                label: 'خريطة خُطى',
-                onTap: () => widget.onOpenTab(2),
-              ),
-              _ServiceTile(
-                icon: Icons.menu_book_outlined,
-                label: 'دليل التصوير',
-                onTap: () => _open(const PhotoGuideScreen()),
-              ),
-              _ServiceTile(
-                icon: Icons.info_outline_rounded,
-                label: 'عن خُطى',
-                onTap: () => _open(const AboutScreen()),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  _ServiceTile(
+                    icon: Icons.photo_camera_outlined,
+                    label: 'دليل التصوير',
+                    onTap: () => _open(const PhotoGuideScreen()),
+                  ),
+                  const SizedBox(width: 10),
+                  _ServiceTile(
+                    icon: Icons.info_outline_rounded,
+                    label: 'عن خُطى',
+                    onTap: () => _open(const AboutScreen()),
+                  ),
+                ],
               ),
             ],
           ),
@@ -305,7 +334,12 @@ class _SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(16, 0, 8, action == null ? 12 : 4),
+      padding: EdgeInsetsDirectional.fromSTEB(
+        16,
+        0,
+        12,
+        action == null ? 12 : 4,
+      ),
       child: Row(
         children: [
           Expanded(
@@ -313,9 +347,8 @@ class _SectionTitle extends StatelessWidget {
               header: true,
               child: Text(
                 title,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                style: Theme.of(context).textTheme.titleLarge
+                    ?.copyWith(fontWeight: FontWeight.w800),
               ),
             ),
           ),
@@ -336,172 +369,61 @@ class _GuideCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(22),
-      child: Material(
-        color: Colors.transparent,
-        child: Ink(
-          decoration: BoxDecoration(
-            color: AppColors.ink,
-            image: brandBackground(5),
-          ),
-          child: InkWell(
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'أبلغ عن مشكلة في الرصيف',
-                              style: text.titleLarge?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'صورة واضحة تساعد على تقييم المشكلة بدقة.',
-                              style: text.bodyMedium?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500,
-                                height: 1.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(
-                            alpha: 0.14,
-                          ),
-                          borderRadius:
-                              BorderRadius.circular(16),
-                          border: Border.all(
-                            color: Colors.white.withValues(
-                              alpha: 0.20,
-                            ),
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.tips_and_updates_outlined,
-                          color: AppColors.mint,
-                          size: 28,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 18),
-
-                  const Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _TipChip(
-                        icon: Icons.wb_sunny_outlined,
-                        label: 'إضاءة جيدة',
-                      ),
-                      _TipChip(
-                        icon: Icons.crop_free,
-                        label: 'المشكلة كاملة',
-                      ),
-                      _TipChip(
-                        icon: Icons.straighten,
-                        label: 'مسافة مناسبة',
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 18),
-
-                  Row(
-                    children: [
-                      Text(
-                        'كيف أصوّر المشكلة؟',
-                        style: text.bodyMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      const Icon(
-                        Icons.arrow_forward,
-                        color: AppColors.mint,
-                        size: 20,
-                      ),
-                    ],
-                  ),
-                ],
+    final radius = BorderRadius.circular(24);
+    return Material(
+      color: AppColors.mint,
+      borderRadius: radius,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: radius,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.45),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Icon(
+                  Icons.camera_alt_outlined,
+                  size: 28,
+                  color: AppColors.ink,
+                ),
               ),
-            ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'صورة أوضح. بلاغ أدق.',
+                      style: text.titleLarge?.copyWith(
+                        color: AppColors.ink,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      'افتح دليل التصوير قبل إرسال بلاغك.',
+                      style: text.bodySmall?.copyWith(
+                        color: AppColors.ink.withValues(alpha: 0.8),
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 6),
+              const Icon(Icons.arrow_back_rounded, color: AppColors.ink),
+            ],
           ),
         ),
       ),
     );
   }
 }
-
-class _TipChip extends StatelessWidget {
-  const _TipChip({
-    required this.icon,
-    required this.label,
-  });
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 8,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.22),
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: Colors.white,
-            size: 16,
-          ),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 
 class _ServiceTile extends StatelessWidget {
   const _ServiceTile({
@@ -516,31 +438,31 @@ class _ServiceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final radius = BorderRadius.circular(16);
     return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Material(
-          color: AppColors.warmWhite,
-          borderRadius: BorderRadius.circular(18),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(18),
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
-              child: Column(
-                children: [
-                  IconTile(icon: icon, size: 48),
-                  const SizedBox(height: 10),
-                  Text(
+      child: Material(
+        color: AppColors.warmWhite,
+        shape: RoundedRectangleBorder(
+          borderRadius: radius,
+          side: const BorderSide(color: AppColors.mist),
+        ),
+        child: InkWell(
+          borderRadius: radius,
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+            child: Row(
+              children: [
+                IconTile(icon: icon, size: 44),
+                const SizedBox(width: 9),
+                Expanded(
+                  child: Text(
                     label,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.w700),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

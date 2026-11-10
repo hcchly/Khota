@@ -5,6 +5,7 @@ import '../../utils/input_formatters.dart';
 import '../../utils/validators.dart';
 import '../../widgets/gradient_app_bar.dart';
 import '../../widgets/labeled_field.dart';
+import '../../widgets/brand_surface.dart';
 import '../shell/main_shell.dart';
 
 /// PBI-04: As a citizen, I want to create an account
@@ -55,9 +56,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: _passwordController.text,
       );
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم إنشاء الحساب بنجاح')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('تم إنشاء الحساب بنجاح')));
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const MainShell()),
         (_) => false,
@@ -85,6 +85,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
             children: [
+              const BrandIntro(
+                title: 'أول خطوة تبدأ هنا',
+                description: 'أنشئ حسابك وشارك في تحسين أرصفة الرياض.',
+                icon: Icons.person_add_alt_1_outlined,
+              ),
+              const SizedBox(height: 24),
               LabeledField(
                 label: 'الاسم الكامل',
                 child: TextFormField(

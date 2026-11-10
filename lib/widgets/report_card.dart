@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
@@ -45,30 +44,15 @@ class StatusChip extends StatelessWidget {
   (Color, Color) get _colors {
     switch (tone) {
       case StatusTone.progress:
-        return (
-          const Color(0xFFFBEFD5),
-          const Color(0xFF8A5A00),
-        );
+        return (const Color(0xFFFBEFD5), const Color(0xFF8A5A00));
       case StatusTone.success:
-        return (
-          AppColors.teal.withValues(alpha: 0.15),
-          AppColors.teal,
-        );
+        return (AppColors.teal.withValues(alpha: 0.15), AppColors.teal);
       case StatusTone.info:
-        return (
-          AppColors.indigo.withValues(alpha: 0.10),
-          AppColors.indigo,
-        );
+        return (AppColors.indigo.withValues(alpha: 0.10), AppColors.indigo);
       case StatusTone.warning:
-        return (
-          AppColors.error.withValues(alpha: 0.10),
-          AppColors.error,
-        );
+        return (AppColors.error.withValues(alpha: 0.10), AppColors.error);
       case StatusTone.neutral:
-        return (
-          AppColors.slate.withValues(alpha: 0.45),
-          AppColors.indigo,
-        );
+        return (AppColors.slate.withValues(alpha: 0.45), AppColors.indigo);
     }
   }
 
@@ -77,10 +61,7 @@ class StatusChip extends StatelessWidget {
     final (background, foreground) = _colors;
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 4,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(20),
@@ -101,52 +82,38 @@ class StatusChip extends StatelessWidget {
 /// Kept separate from report status so image analysis
 /// is not confused with authority report handling.
 class AnalysisStatusLine extends StatelessWidget {
-  const AnalysisStatusLine({
-    super.key,
-    required this.status,
-  });
+  const AnalysisStatusLine({super.key, required this.status});
 
   /// processing / completed / not_assessable
   final String status;
 
   @override
   Widget build(BuildContext context) {
-    final (IconData icon, String label, Color color) =
-        switch (status.trim().toLowerCase()) {
+    final (IconData icon, String label, Color color) = switch (status
+        .trim()
+        .toLowerCase()) {
       'completed' || 'done' => (
-          Icons.check_circle_outline,
-          'اكتمل تحليل الصورة',
-          AppColors.teal,
-        ),
-      'not_assessable' || 'notassessable' || 'failed' => (
-          Icons.error_outline,
-          'تعذّر تقييم الصورة',
-          AppColors.error,
-        ),
+        Icons.check_circle_outline,
+        'اكتمل تحليل الصورة',
+        AppColors.teal,
+      ),
+      'not_assessable' ||
+      'notassessable' ||
+      'failed' => (Icons.error_outline, 'تعذّر تقييم الصورة', AppColors.error),
       _ => (
-          Icons.hourglass_top_rounded,
-          ReportStatusLabels.analyzing,
-          AppColors.indigo.withValues(alpha: 0.7),
-        ),
+        Icons.hourglass_top_rounded,
+        ReportStatusLabels.analyzing,
+        AppColors.indigo.withValues(alpha: 0.7),
+      ),
     };
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          icon,
-          size: 16,
-          color: color,
-        ),
+        Icon(icon, size: 16, color: color),
         const SizedBox(width: 4),
         Flexible(
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: color,
-            ),
-          ),
+          child: Text(label, style: TextStyle(fontSize: 12, color: color)),
         ),
       ],
     );
@@ -189,97 +156,88 @@ class ReportSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
 
-    final muted = AppColors.indigo.withValues(
-      alpha: 0.6,
-    );
+    final muted = AppColors.indigo.withValues(alpha: 0.6);
 
+    final radius = BorderRadius.circular(24);
     return Material(
       color: AppColors.warmWhite,
-      borderRadius: BorderRadius.circular(18),
+      shape: RoundedRectangleBorder(
+        borderRadius: radius,
+        side: BorderSide(color: AppColors.ocean.withValues(alpha: 0.07)),
+      ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: radius,
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: const EdgeInsets.all(15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Private report image.
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: SizedBox(
-                  width: 76,
-                  height: 76,
-                  child: imageUrl == null
-                      ? const _ThumbPlaceholder()
-                      : PrivateReportImage(
-                          imageRef: imageUrl!,
-                          height: 76,
-                          fit: BoxFit.cover,
-                        ),
-                ),
-              ),
-
-              const SizedBox(width: 12),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+              Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(17),
+                    child: SizedBox(
+                      width: 62,
+                      height: 62,
+                      child: imageUrl == null
+                          ? const _ThumbPlaceholder()
+                          : PrivateReportImage(
+                              imageRef: imageUrl!,
+                              height: 62,
+                              fit: BoxFit.cover,
+                            ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Text(
-                            title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: text.titleSmall?.copyWith(
+                        if (reportNumber != null)
+                          Text(
+                            reportNumber!,
+                            textDirection: TextDirection.ltr,
+                            style: text.labelSmall?.copyWith(
+                              color: AppColors.ocean,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                        ),
-
-                        const SizedBox(width: 8),
-
-                        StatusChip.reportStatus(
-                          reportStatus,
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 4),
-
-                    Text(
-                      locationText,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: text.bodySmall?.copyWith(
-                        color: muted,
-                      ),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: AnalysisStatusLine(
-                            status: analysisStatus,
-                          ),
-                        ),
-
+                        const SizedBox(height: 4),
                         Text(
-                          reportNumber == null
-                              ? dateText
-                              : '$dateText · $reportNumber',
-                          style: text.labelSmall?.copyWith(
-                            color: muted,
+                          title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: text.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 8),
+                  StatusChip.reportStatus(reportStatus),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                locationText,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: text.bodySmall?.copyWith(color: muted),
+              ),
+              const SizedBox(height: 9),
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                spacing: 12,
+                runSpacing: 6,
+                children: [
+                  AnalysisStatusLine(status: analysisStatus),
+                  Text(
+                    dateText,
+                    style: text.labelSmall?.copyWith(color: muted),
+                  ),
+                ],
               ),
             ],
           ),
@@ -298,9 +256,7 @@ class _ThumbPlaceholder extends StatelessWidget {
       color: AppColors.sand,
       child: Icon(
         Icons.photo_camera_outlined,
-        color: AppColors.slate.withValues(
-          alpha: 0.9,
-        ),
+        color: AppColors.slate.withValues(alpha: 0.9),
       ),
     );
   }
