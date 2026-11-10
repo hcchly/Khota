@@ -1,11 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/app_user.dart';
 import '../../services/profile_service.dart';
+import '../../services/report_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/coming_soon.dart';
 import '../../widgets/gradient_header.dart';
 import '../../widgets/info_card.dart';
+import '../../widgets/report_card.dart';
 import '../info/about_screen.dart';
 import '../info/photo_guide_screen.dart';
 
@@ -28,6 +33,98 @@ class _HomeScreenState extends State<HomeScreen> {
   late final ProfileService _service =
       widget.service ?? FirestoreProfileService.instance;
   late final Future<AppUser> _profile = _service.getProfile();
+  late final Stream<QuerySnapshot<Map<String, dynamic>>>? _reports =
+      _watchOwnReports();
+
+  Stream<QuerySnapshot<Map<String, dynamic>>>? _watchOwnReports() {
+    if (Firebase.apps.isEmpty) return null;
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return null;
+
+    return FirebaseFirestore.instance
+        .collection(ReportService.collection)
+        .where('userId', isEqualTo: userId)
+        .snapshots();
+  }
+
+  DateTime? _createdAt(QueryDocumentSnapshot<Map<String, dynamic>> report) {
+    final timestamp = report.data()['createdAt'];
+    return timestamp is Timestamp ? timestamp.toDate() : null;
+  }
+
+  int _newestFirst(
+    QueryDocumentSnapshot<Map<String, dynamic>> first,
+    QueryDocumentSnapshot<Map<String, dynamic>> second,
+  ) {
+    final firstDate = _createdAt(first);
+    final secondDate = _createdAt(second);
+    if (firstDate == null && secondDate != null) return 1;
+    if (secondDate == null && firstDate != null) return -1;
+    final byDate = firstDate == null ? 0 : secondDate!.compareTo(firstDate);
+    return byDate == 0 ? first.id.compareTo(second.id) : byDate;
+  }
+
+  Widget _reportCard(
+    BuildContext context,
+    QueryDocumentSnapshot<Map<String, dynamic>> report,
+  ) {
+    final data = report.data();
+    final description = (data['description'] ?? '').toString().trim();
+    final location = data['location'];
+    final createdAt = _createdAt(report);
+    final imageUrl = data['imageUrl'];
+    final rawStatus =
+        (data['reportStatus'] ?? data['status'] ?? '').toString();
+    final reportStatus = switch (rawStatus.trim().toLowerCase()) {
+      'قيد التنفيذ من الجهة المختصة' => 'in_progress',
+      'completed' || 'done' || 'تم الحل' => 'resolved',
+      _ => rawStatus,
+    };
+
+    return ReportSummaryCard(
+      key: ValueKey(report.id),
+      title: description.isEmpty ? 'بلاغ عن مشكلة في الرصيف' : description,
+      locationText: location is GeoPoint
+          ? '${location.latitude.toStringAsFixed(5)}، '
+                '${location.longitude.toStringAsFixed(5)}'
+          : 'الموقع غير متاح',
+      dateText: createdAt == null
+          ? 'التاريخ غير متاح'
+          : MaterialLocalizations.of(context).formatCompactDate(createdAt),
+      reportStatus: reportStatus,
+      analysisStatus:
+          (data['analysisStatus'] ?? data['imageAnalysisStatus'] ?? '')
+              .toString(),
+      reportNumber: ReportService.displayNumber(report.id),
+      imageUrl: imageUrl is String && imageUrl.isNotEmpty ? imageUrl : null,
+      onTap: () => widget.onOpenTab(1),
+    );
+  }
+
+  Widget _emptyReports(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final muted = AppColors.indigo.withValues(alpha: 0.65);
+    return InfoCard(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+      child: Column(
+        children: [
+          const IconTile(icon: Icons.inbox_outlined, size: 56),
+          const SizedBox(height: 14),
+          Text(
+            'لا توجد بلاغات بعد',
+            style: text.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'اضغط «بلاغ جديد» في الأسفل لإرسال أول بلاغ، '
+            'وستظهر بلاغاتك هنا.',
+            textAlign: TextAlign.center,
+            style: text.bodyMedium?.copyWith(color: muted, height: 1.6),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _open(Widget screen) {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
@@ -36,7 +133,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final muted = AppColors.indigo.withValues(alpha: 0.65);
     return ListView(
       padding: const EdgeInsets.only(bottom: 32),
       children: [
@@ -149,8 +245,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 28),
 
-        // Latest reports. Design only: the list is connected in the report
-        // tracking task (use ReportSummaryCard from widgets/report_card.dart).
         _SectionTitle(
           'آخر البلاغات',
           action: TextButton(
@@ -160,27 +254,40 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: InfoCard(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
-            child: Column(
-              children: [
-                const IconTile(icon: Icons.inbox_outlined, size: 56),
-                const SizedBox(height: 14),
-                Text(
-                  'لا توجد بلاغات بعد',
-                  style: text.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
+          child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+            stream: _reports,
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return const InfoCard(
+                  child: Text(
+                    'تعذّر تحميل آخر البلاغات.',
+                    textAlign: TextAlign.center,
                   ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'اضغط «بلاغ جديد» في الأسفل لإرسال أول بلاغ، '
-                  'وستظهر بلاغاتك هنا.',
-                  textAlign: TextAlign.center,
-                  style: text.bodyMedium?.copyWith(color: muted, height: 1.6),
-                ),
-              ],
-            ),
+                );
+              }
+
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              final reports = snapshot.data?.docs.toList() ?? [];
+              if (reports.isEmpty) return _emptyReports(context);
+              reports.sort(_newestFirst);
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final report in reports.take(3))
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: _reportCard(context, report),
+                    ),
+                ],
+              );
+            },
           ),
         ),
         const SizedBox(height: 48), // space above the centre button
