@@ -63,8 +63,10 @@ service cloud.firestore {
             'createdAt', 'updatedAt'
           ])
           && data.userId == request.auth.uid
-          && data.imageUrl is string
-          && data.imageUrl.size() > 0
+         && data.imageUrl is string
+&& data.imageUrl.matches(
+  '^uploads/' + request.auth.uid + '/[0-9a-f]{32}$'
+)
           && data.description is string
           && data.description.size() <= 500
           && data.location is latlng

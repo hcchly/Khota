@@ -1,7 +1,9 @@
+
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import 'report_status_widgets.dart';
+import 'private_report_image.dart';
 
 /// Colour family of a [StatusChip].
 enum StatusTone { neutral, progress, success, info, warning }
@@ -43,23 +45,42 @@ class StatusChip extends StatelessWidget {
   (Color, Color) get _colors {
     switch (tone) {
       case StatusTone.progress:
-        return (const Color(0xFFFBEFD5), const Color(0xFF8A5A00));
+        return (
+          const Color(0xFFFBEFD5),
+          const Color(0xFF8A5A00),
+        );
       case StatusTone.success:
-        return (AppColors.teal.withValues(alpha: 0.15), AppColors.teal);
+        return (
+          AppColors.teal.withValues(alpha: 0.15),
+          AppColors.teal,
+        );
       case StatusTone.info:
-        return (AppColors.indigo.withValues(alpha: 0.10), AppColors.indigo);
+        return (
+          AppColors.indigo.withValues(alpha: 0.10),
+          AppColors.indigo,
+        );
       case StatusTone.warning:
-        return (AppColors.error.withValues(alpha: 0.10), AppColors.error);
+        return (
+          AppColors.error.withValues(alpha: 0.10),
+          AppColors.error,
+        );
       case StatusTone.neutral:
-        return (AppColors.slate.withValues(alpha: 0.45), AppColors.indigo);
+        return (
+          AppColors.slate.withValues(alpha: 0.45),
+          AppColors.indigo,
+        );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final (background, foreground) = _colors;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 4,
+      ),
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(20),
@@ -76,45 +97,55 @@ class StatusChip extends StatelessWidget {
   }
 }
 
-/// One line describing the automatic image analysis. Kept separate from the
-/// report status so "image analysis in progress" is never confused with "the
-/// authority is working on the issue".
+/// One line describing the automatic image analysis.
+/// Kept separate from report status so image analysis
+/// is not confused with authority report handling.
 class AnalysisStatusLine extends StatelessWidget {
-  const AnalysisStatusLine({super.key, required this.status});
+  const AnalysisStatusLine({
+    super.key,
+    required this.status,
+  });
 
   /// processing / completed / not_assessable
   final String status;
 
   @override
   Widget build(BuildContext context) {
-    final (IconData icon, String label, Color color) = switch (status
-        .trim()
-        .toLowerCase()) {
+    final (IconData icon, String label, Color color) =
+        switch (status.trim().toLowerCase()) {
       'completed' || 'done' => (
-        Icons.check_circle_outline,
-        'اكتمل تحليل الصورة',
-        AppColors.teal,
-      ),
+          Icons.check_circle_outline,
+          'اكتمل تحليل الصورة',
+          AppColors.teal,
+        ),
       'not_assessable' || 'notassessable' || 'failed' => (
-        Icons.error_outline,
-        'تعذّر تقييم الصورة',
-        AppColors.error,
-      ),
+          Icons.error_outline,
+          'تعذّر تقييم الصورة',
+          AppColors.error,
+        ),
       _ => (
-        Icons.hourglass_top_rounded,
-        ReportStatusLabels.analyzing,
-        AppColors.indigo.withValues(alpha: 0.7),
-      ),
+          Icons.hourglass_top_rounded,
+          ReportStatusLabels.analyzing,
+          AppColors.indigo.withValues(alpha: 0.7),
+        ),
     };
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 16, color: color),
+        Icon(
+          icon,
+          size: 16,
+          color: color,
+        ),
         const SizedBox(width: 4),
         Flexible(
           child: Text(
             label,
-            style: TextStyle(fontSize: 12, color: color),
+            style: TextStyle(
+              fontSize: 12,
+              color: color,
+            ),
           ),
         ),
       ],
@@ -122,8 +153,11 @@ class AnalysisStatusLine extends StatelessWidget {
   }
 }
 
-/// A report in a list (home "آخر البلاغات" and the reports tab).
-/// Display only: the caller provides the data and the tap action.
+/// A report in a list (home "آخر البلاغات"
+/// and the reports tab).
+///
+/// Display only: the caller provides the data
+/// and the tap action.
 class ReportSummaryCard extends StatelessWidget {
   const ReportSummaryCard({
     super.key,
@@ -137,20 +171,28 @@ class ReportSummaryCard extends StatelessWidget {
     this.onTap,
   });
 
-  /// e.g. "تلف في سطح الرصيف", or "بلاغ جديد" before analysis.
+  /// e.g. "تلف في سطح الرصيف",
+  /// or "بلاغ جديد" before analysis.
   final String title;
   final String locationText;
   final String dateText;
   final String reportStatus;
   final String analysisStatus;
   final String? reportNumber;
+
+  /// Private Firebase Storage path for new reports.
   final String? imageUrl;
+
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final muted = AppColors.indigo.withValues(alpha: 0.6);
+
+    final muted = AppColors.indigo.withValues(
+      alpha: 0.6,
+    );
+
     return Material(
       color: AppColors.warmWhite,
       borderRadius: BorderRadius.circular(18),
@@ -162,6 +204,7 @@ class ReportSummaryCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Private report image.
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: SizedBox(
@@ -169,15 +212,16 @@ class ReportSummaryCard extends StatelessWidget {
                   height: 76,
                   child: imageUrl == null
                       ? const _ThumbPlaceholder()
-                      : Image.network(
-                          imageUrl!,
+                      : PrivateReportImage(
+                          imageRef: imageUrl!,
+                          height: 76,
                           fit: BoxFit.cover,
-                          semanticLabel: 'صورة البلاغ',
-                          errorBuilder: (_, _, _) => const _ThumbPlaceholder(),
                         ),
                 ),
               ),
+
               const SizedBox(width: 12),
+
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,28 +238,43 @@ class ReportSummaryCard extends StatelessWidget {
                             ),
                           ),
                         ),
+
                         const SizedBox(width: 8),
-                        StatusChip.reportStatus(reportStatus),
+
+                        StatusChip.reportStatus(
+                          reportStatus,
+                        ),
                       ],
                     ),
+
                     const SizedBox(height: 4),
+
                     Text(
                       locationText,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: text.bodySmall?.copyWith(color: muted),
+                      style: text.bodySmall?.copyWith(
+                        color: muted,
+                      ),
                     ),
+
                     const SizedBox(height: 8),
+
                     Row(
                       children: [
                         Expanded(
-                          child: AnalysisStatusLine(status: analysisStatus),
+                          child: AnalysisStatusLine(
+                            status: analysisStatus,
+                          ),
                         ),
+
                         Text(
                           reportNumber == null
                               ? dateText
                               : '$dateText · $reportNumber',
-                          style: text.labelSmall?.copyWith(color: muted),
+                          style: text.labelSmall?.copyWith(
+                            color: muted,
+                          ),
                         ),
                       ],
                     ),
@@ -239,7 +298,9 @@ class _ThumbPlaceholder extends StatelessWidget {
       color: AppColors.sand,
       child: Icon(
         Icons.photo_camera_outlined,
-        color: AppColors.slate.withValues(alpha: 0.9),
+        color: AppColors.slate.withValues(
+          alpha: 0.9,
+        ),
       ),
     );
   }
