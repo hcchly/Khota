@@ -4,6 +4,7 @@ import '../../models/app_user.dart';
 import '../../services/auth_service.dart';
 import '../../services/profile_service.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/khota_colors.dart';
 import '../../widgets/gradient_header.dart';
 import '../../widgets/info_card.dart';
 import '../auth/login_screen.dart';
@@ -56,7 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.warmWhite,
+        backgroundColor: context.khota.surface,
         title: const Text('تسجيل الخروج'),
         content: const Text('هل تريد تسجيل الخروج من حسابك؟'),
         actions: [
@@ -176,7 +177,6 @@ class _ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     return GradientHeader(
-      pattern: 4,
       child: Padding(
         padding: const EdgeInsetsDirectional.fromSTEB(20, 14, 20, 26),
         child: Column(
@@ -185,7 +185,7 @@ class _ProfileHeader extends StatelessWidget {
             Text(
               'حسابي',
               style: text.titleLarge?.copyWith(
-                color: AppColors.warmWhite,
+                color: Colors.white,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -199,7 +199,7 @@ class _ProfileHeader extends StatelessWidget {
                     height: 72,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.khota.headerBadge,
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: Colors.white.withValues(alpha: 0.7),
@@ -209,7 +209,7 @@ class _ProfileHeader extends StatelessWidget {
                     child: Text(
                       user.initial,
                       style: text.headlineSmall?.copyWith(
-                        color: AppColors.greenDeep,
+                        color: context.khota.onHeaderBadge,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -223,7 +223,7 @@ class _ProfileHeader extends StatelessWidget {
                       Text(
                         user.fullName,
                         style: text.titleLarge?.copyWith(
-                          color: AppColors.warmWhite,
+                          color: Colors.white,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -252,28 +252,31 @@ class _MenuTile extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
-    this.color = AppColors.indigo,
+    this.color,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  final Color color;
+
+  /// Label colour; the theme's text colour when null.
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
+    final color = this.color ?? context.khota.text;
     final iconColor = color == AppColors.error
         ? AppColors.error
-        : AppColors.teal;
+        : context.khota.primary;
 
     final radius = BorderRadius.circular(16);
     return Padding(
       padding: const EdgeInsets.only(bottom: 9),
       child: Material(
-        color: AppColors.warmWhite,
+        color: context.khota.surface,
         shape: RoundedRectangleBorder(
           borderRadius: radius,
-          side: const BorderSide(color: AppColors.mist),
+          side: BorderSide(color: context.khota.divider),
         ),
         child: InkWell(
           borderRadius: radius,

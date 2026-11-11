@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
+import '../../theme/khota_colors.dart';
 import '../../widgets/gradient_header.dart';
 
 /// Tab for features planned in later sprints (reports list, map).
@@ -22,7 +23,6 @@ class PlaceholderTab extends StatelessWidget {
     return Column(
       children: [
         GradientHeader(
-          pattern: 5,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
             child: Center(
@@ -50,7 +50,7 @@ class PlaceholderTab extends StatelessWidget {
                       color: AppColors.mint.withValues(alpha: 0.22),
                       borderRadius: BorderRadius.circular(28),
                     ),
-                    child: Icon(icon, size: 44, color: AppColors.teal),
+                    child: Icon(icon, size: 44, color: context.khota.primary),
                   ),
                   const SizedBox(height: 20),
                   Text(
@@ -64,7 +64,7 @@ class PlaceholderTab extends StatelessWidget {
                     message,
                     textAlign: TextAlign.center,
                     style: text.bodyLarge?.copyWith(
-                      color: AppColors.indigo.withValues(alpha: 0.7),
+                      color: context.khota.muted(0.7),
                     ),
                   ),
                 ],

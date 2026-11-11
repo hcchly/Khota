@@ -1,31 +1,34 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
+import '../theme/khota_colors.dart';
 
 class InfoCard extends StatelessWidget {
   const InfoCard({
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(20),
-    this.color = AppColors.warmWhite,
+    this.color,
   });
 
   final Widget child;
   final EdgeInsetsGeometry padding;
-  final Color color;
+
+  /// Card fill; the theme's card colour when null.
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.khota;
     return Container(
       width: double.infinity,
       padding: padding,
       decoration: BoxDecoration(
-        color: color,
+        color: color ?? colors.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.ocean.withValues(alpha: 0.07)),
+        border: Border.all(color: colors.cardBorder),
         boxShadow: [
           BoxShadow(
-            color: AppColors.ink.withValues(alpha: 0.035),
+            color: colors.shadow,
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -37,19 +40,18 @@ class InfoCard extends StatelessWidget {
 }
 
 class IconTile extends StatelessWidget {
-  const IconTile({
-    super.key,
-    required this.icon,
-    this.color = AppColors.teal,
-    this.size = 48,
-  });
+  const IconTile({super.key, required this.icon, this.color, this.size = 48});
 
   final IconData icon;
-  final Color color;
+
+  /// Icon colour; the theme's accent when null.
+  final Color? color;
   final double size;
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.khota;
+    final color = this.color ?? colors.primary;
     return Container(
       width: size,
       height: size,
@@ -57,10 +59,7 @@ class IconTile extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
-          colors: [
-            Color.alphaBlend(color.withValues(alpha: 0.16), Colors.white),
-            Color.alphaBlend(color.withValues(alpha: 0.06), Colors.white),
-          ],
+          colors: [colors.tint(color, 0.16), colors.tint(color, 0.06)],
         ),
         borderRadius: BorderRadius.circular(size * 0.31),
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/khota_colors.dart';
 import 'brand_surface.dart';
 
 class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -18,7 +19,9 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Text(title),
       centerTitle: true,
       foregroundColor: Colors.white,
-      backgroundColor: AppColors.gradientTop,
+      backgroundColor: context.khota.isDark
+          ? context.khota.background
+          : AppColors.gradientTop,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
@@ -27,6 +30,7 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
       flexibleSpace: const BrandSurface(
         radius: 0,
         padding: EdgeInsets.zero,
+        alignment: Alignment.topCenter,
         child: SizedBox.expand(),
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
+import '../../theme/khota_colors.dart';
 import '../../widgets/gradient_app_bar.dart';
 import '../../widgets/info_card.dart';
 import '../../widgets/brand_surface.dart';
@@ -75,13 +76,13 @@ class PhotoGuideScreen extends StatelessWidget {
                         height: 36,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: AppColors.ocean.withValues(alpha: 0.1),
+                          color: context.khota.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(11),
                         ),
                         child: Text(
                           '${i + 1}',
                           style: text.titleSmall?.copyWith(
-                            color: AppColors.ocean,
+                            color: context.khota.primary,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -144,7 +145,7 @@ class PhotoGuideScreen extends StatelessWidget {
           InfoCard(
             child: Row(
               children: [
-                const Icon(Icons.privacy_tip_outlined, color: AppColors.teal),
+                Icon(Icons.privacy_tip_outlined, color: context.khota.primary),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -174,7 +175,7 @@ class _ExampleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = good ? AppColors.teal : AppColors.error;
+    final color = good ? context.khota.primary : AppColors.error;
     final text = Theme.of(context).textTheme;
 
     return Column(
@@ -220,7 +221,7 @@ class _ExampleCard extends StatelessWidget {
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
-                  color: AppColors.sand,
+                  color: context.khota.background,
                   child: const Center(
                     child: Padding(
                       padding: EdgeInsets.all(8),
