@@ -20,6 +20,16 @@ class ReportFlowHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+    // The header stays compact at very large text sizes (up to 1.3x) so the
+    // step content and its buttons keep the screen; the content below still
+    // follows the full text size.
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: 1.3,
+      child: _header(text),
+    );
+  }
+
+  Widget _header(TextTheme text) {
     return GradientHeader(
       bottomRadius: 30,
       child: Padding(
@@ -50,12 +60,14 @@ class ReportFlowHeader extends StatelessWidget {
                       Text(
                         'بلاغ جديد · خطوة $step من ${stepLabels.length}',
                         style: text.labelMedium?.copyWith(
-                          color: AppColors.mint,
+                          color: Colors.white.withValues(alpha: 0.88),
                         ),
                       ),
                       const SizedBox(height: 3),
                       Text(
                         title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: text.headlineSmall?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w800,
@@ -113,19 +125,19 @@ class _StepSegment extends StatelessWidget {
       duration: const Duration(milliseconds: 220),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       decoration: BoxDecoration(
-        color: current ? AppColors.mint : Colors.white.withValues(alpha: 0.08),
+        color: current ? Colors.white : Colors.white.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (done)
-            const Icon(Icons.check_rounded, size: 16, color: AppColors.mint)
+            const Icon(Icons.check_rounded, size: 16, color: Colors.white)
           else
             Text(
               '$number',
               style: TextStyle(
-                color: current ? AppColors.ink : Colors.white,
+                color: current ? AppColors.greenDeep : Colors.white,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -133,8 +145,10 @@ class _StepSegment extends StatelessWidget {
           Flexible(
             child: Text(
               label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: current ? AppColors.ink : Colors.white,
+                color: current ? AppColors.greenDeep : Colors.white,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),

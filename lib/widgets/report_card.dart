@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import 'report_status_widgets.dart';
+import 'place_name.dart';
 import 'private_report_image.dart';
 
 /// Colour family of a [StatusChip].
@@ -136,6 +137,8 @@ class ReportSummaryCard extends StatelessWidget {
     this.reportNumber,
     this.imageUrl,
     this.onTap,
+    this.latitude,
+    this.longitude,
   });
 
   /// e.g. "تلف في سطح الرصيف",
@@ -151,6 +154,10 @@ class ReportSummaryCard extends StatelessWidget {
   final String? imageUrl;
 
   final VoidCallback? onTap;
+
+  /// Report point, used to look up a place name when [locationText] is empty.
+  final double? latitude;
+  final double? longitude;
 
   @override
   Widget build(BuildContext context) {
@@ -220,10 +227,10 @@ class ReportSummaryCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              Text(
-                locationText,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              PlaceName(
+                address: locationText,
+                latitude: latitude,
+                longitude: longitude,
                 style: text.bodySmall?.copyWith(color: muted),
               ),
               const SizedBox(height: 9),

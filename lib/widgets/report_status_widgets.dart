@@ -10,7 +10,12 @@ class ReportStatusLabels {
   static const inProgress = 'قيد التنفيذ من الجهة المختصة';
   static const resolved = 'تم الحل';
 
-  static const filters = ['الكل', pending, inProgress, resolved];
+  static const all = 'الكل';
+  static const filters = [all, pending, inProgress, resolved];
+
+  /// Short chip text; the full status stays in the report details.
+  static String short(String filter) =>
+      filter == inProgress ? 'قيد التنفيذ' : filter;
 }
 
 /// Shows image analysis and report progress separately.
@@ -107,40 +112,87 @@ class _StatusItem extends StatelessWidget {
   }
 }
 
-/// Filter controls for report progress only.
+/// Filter controls for report progress only: one row of chips the user
+/// slides through, each with its number of reports.
 class ReportStatusFilters extends StatelessWidget {
   const ReportStatusFilters({
     super.key,
     required this.selectedFilter,
     required this.onFilterChanged,
+    this.counts = const {},
   });
 
   final String selectedFilter;
   final ValueChanged<String> onFilterChanged;
 
+  /// Number of reports per filter (filter label -> count).
+  final Map<String, int> counts;
+
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        for (final filter in ReportStatusLabels.filters)
-          ChoiceChip(
-            label: Text(filter),
-            selected: selectedFilter == filter,
-            backgroundColor: AppColors.warmWhite,
-            selectedColor: Color.alphaBlend(
-              AppColors.mint.withValues(alpha: 0.21),
-              AppColors.warmWhite,
-            ),
-            side: BorderSide(
-              color: selectedFilter == filter
-                  ? AppColors.ocean.withValues(alpha: 0.38)
-                  : AppColors.mist,
-            ),
+    final text = Theme.of(context).textTheme;
+    return SizedBox(
+      height: 48,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: ReportStatusLabels.filters.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final filter = ReportStatusLabels.filters[index];
+          final selected = selectedFilter == filter;
+          final count = counts[filter];
+          final fg = selected ? Colors.white : AppColors.charcoal;
+          return ChoiceChip(
+            showCheckmark: false,
+            selected: selected,
             onSelected: (_) => onFilterChanged(filter),
-          ),
-      ],
+            backgroundColor: AppColors.warmWhite,
+            selectedColor: AppColors.greenDeep,
+            shape: StadiumBorder(
+              side: BorderSide(
+                color: selected ? AppColors.greenDeep : AppColors.slate,
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            label: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  ReportStatusLabels.short(filter),
+                  style: text.bodyMedium?.copyWith(
+                    color: fg,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                if (count != null) ...[
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 1,
+                    ),
+                    decoration: BoxDecoration(
+                      color: selected
+                          ? Colors.white.withValues(alpha: 0.22)
+                          : AppColors.mist,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      '$count',
+                      semanticsLabel: '$count بلاغ',
+                      style: text.labelMedium?.copyWith(
+                        color: fg,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

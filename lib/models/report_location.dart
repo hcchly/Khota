@@ -6,6 +6,7 @@ class ReportLocation {
     required this.longitude,
     required this.source,
     this.accuracyMeters,
+    this.address,
   });
 
   /// Coordinates came from the device GPS.
@@ -25,6 +26,19 @@ class ReportLocation {
   /// GPS accuracy radius in metres (smaller is better). Null when the point
   /// was chosen manually or is temporary.
   final double? accuracyMeters;
+
+  /// Readable place name, e.g. "حي العليا، طريق الملك فهد". Null when the
+  /// address lookup failed or had no result.
+  final String? address;
+
+  /// The same point with [address] attached.
+  ReportLocation withAddress(String? address) => ReportLocation(
+    latitude: latitude,
+    longitude: longitude,
+    source: source,
+    accuracyMeters: accuracyMeters,
+    address: address,
+  );
 
   bool get isValid =>
       latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180;

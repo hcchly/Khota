@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../models/submitted_report.dart';
 import '../../services/report_service.dart';
+import '../../utils/date_format.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/info_card.dart';
 import '../../widgets/brand_surface.dart';
@@ -21,23 +22,7 @@ class ReportSubmittedScreen extends StatelessWidget {
   /// Submission date shown in the summary; defaults to today.
   final DateTime? now;
 
-  static const _months = [
-    'يناير',
-    'فبراير',
-    'مارس',
-    'أبريل',
-    'مايو',
-    'يونيو',
-    'يوليو',
-    'أغسطس',
-    'سبتمبر',
-    'أكتوبر',
-    'نوفمبر',
-    'ديسمبر',
-  ];
-
-  static String formatDate(DateTime date) =>
-      '${date.day} ${_months[date.month - 1]} ${date.year}';
+  static String formatDate(DateTime date) => formatArabicDate(date);
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +49,7 @@ class ReportSubmittedScreen extends StatelessWidget {
                           width: 104,
                           height: 104,
                           decoration: BoxDecoration(
-                            color: AppColors.mint,
+                            color: Colors.white,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
@@ -76,7 +61,7 @@ class ReportSubmittedScreen extends StatelessWidget {
                           ),
                           child: const Icon(
                             Icons.check_rounded,
-                            color: AppColors.ink,
+                            color: AppColors.greenDeep,
                             size: 60,
                           ),
                         ),
@@ -107,7 +92,7 @@ class ReportSubmittedScreen extends StatelessWidget {
                                 number,
                                 textDirection: TextDirection.ltr,
                                 style: text.titleMedium?.copyWith(
-                                  color: AppColors.mint,
+                                  color: Colors.white,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 0.8,
                                 ),
@@ -117,7 +102,7 @@ class ReportSubmittedScreen extends StatelessWidget {
                               tooltip: 'نسخ رقم البلاغ',
                               visualDensity: VisualDensity.compact,
                               icon: const Icon(Icons.copy_rounded, size: 20),
-                              color: AppColors.mint,
+                              color: Colors.white,
                               onPressed: () async {
                                 await Clipboard.setData(
                                   ClipboardData(text: number),
@@ -162,7 +147,7 @@ class ReportSubmittedScreen extends StatelessWidget {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              report.address ?? report.location.coordinatesText,
+                              report.address ?? 'الموقع المحدد على الخريطة',
                               style: text.bodyMedium?.copyWith(
                                 fontWeight: FontWeight.w700,
                               ),
