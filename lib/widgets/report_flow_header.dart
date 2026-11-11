@@ -50,7 +50,7 @@ class ReportFlowHeader extends StatelessWidget {
                       Text(
                         'بلاغ جديد · خطوة $step من ${stepLabels.length}',
                         style: text.labelMedium?.copyWith(
-                          color: AppColors.mint,
+                          color: Colors.white.withValues(alpha: 0.88),
                         ),
                       ),
                       const SizedBox(height: 3),
@@ -113,19 +113,19 @@ class _StepSegment extends StatelessWidget {
       duration: const Duration(milliseconds: 220),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       decoration: BoxDecoration(
-        color: current ? AppColors.mint : Colors.white.withValues(alpha: 0.08),
+        color: current ? Colors.white : Colors.white.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (done)
-            const Icon(Icons.check_rounded, size: 16, color: AppColors.mint)
+            const Icon(Icons.check_rounded, size: 16, color: Colors.white)
           else
             Text(
               '$number',
               style: TextStyle(
-                color: current ? AppColors.ink : Colors.white,
+                color: current ? AppColors.greenDeep : Colors.white,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -134,7 +134,7 @@ class _StepSegment extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                color: current ? AppColors.ink : Colors.white,
+                color: current ? AppColors.greenDeep : Colors.white,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),

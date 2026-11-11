@@ -199,17 +199,17 @@ class _ProfileHeader extends StatelessWidget {
                     height: 72,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: AppColors.mint,
+                      color: Colors.white,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: AppColors.mint.withValues(alpha: 0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                         width: 2,
                       ),
                     ),
                     child: Text(
                       user.initial,
                       style: text.headlineSmall?.copyWith(
-                        color: AppColors.ink,
+                        color: AppColors.greenDeep,
                         fontWeight: FontWeight.w800,
                       ),
                     ),

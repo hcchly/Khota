@@ -26,13 +26,13 @@ class AppTheme {
             primary: AppColors.ocean,
             onPrimary: Colors.white,
             secondary: AppColors.mint,
-            onSecondary: AppColors.ink,
+            onSecondary: Colors.white,
             surface: AppColors.warmWhite,
             onSurface: AppColors.ink,
             error: AppColors.error,
             outline: AppColors.slate,
           ),
-      scaffoldBackgroundColor: const Color(0xFFF1F6F4),
+      scaffoldBackgroundColor: AppColors.sand,
     );
 
     return base.copyWith(
@@ -44,7 +44,7 @@ class AppTheme {
 
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFFF7FAF8),
+        fillColor: AppColors.warmWhite,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 16,
@@ -110,12 +110,12 @@ class AppTheme {
 
       snackBarTheme: const SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.ink,
+        backgroundColor: AppColors.charcoal,
         contentTextStyle: TextStyle(color: Colors.white),
       ),
 
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.ocean,
+        backgroundColor: AppColors.gradientTop,
         foregroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         centerTitle: true,

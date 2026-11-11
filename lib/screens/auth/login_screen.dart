@@ -137,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       'أرصفة أفضل تبدأ بخطوة',
                       textAlign: TextAlign.center,
                       style: text.titleMedium?.copyWith(
-                        color: AppColors.mint,
+                        color: Colors.white,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

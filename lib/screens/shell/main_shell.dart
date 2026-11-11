@@ -59,9 +59,10 @@ class _MainShellState extends State<MainShell> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: _NewReportButton(onPressed: _openNewReport),
       bottomNavigationBar: BottomAppBar(
-        color: AppColors.ink,
+        color: AppColors.mist,
         surfaceTintColor: Colors.transparent,
-        elevation: 8,
+        shadowColor: Colors.black.withValues(alpha: 0.25),
+        elevation: 12,
         padding: EdgeInsets.zero,
         height: 80,
         shape: const CircularNotchedRectangle(),
@@ -71,29 +72,46 @@ class _MainShellState extends State<MainShell> {
           children: [
             _NavItem(
               icon: Icons.home_outlined,
-              selectedIcon: Icons.home,
+              selectedIcon: Icons.home_rounded,
               label: 'الرئيسية',
               selected: _index == 0,
               onTap: () => _openTab(0),
             ),
             _NavItem(
-              icon: Icons.receipt_long_outlined,
-              selectedIcon: Icons.receipt_long,
+              icon: Icons.assignment_outlined,
+              selectedIcon: Icons.assignment_rounded,
               label: 'البلاغات',
               selected: _index == 1,
               onTap: () => _openTab(1),
             ),
-            const SizedBox(width: 88), // space for the center button
+            // Space for the centre button, with its label under it.
+            const SizedBox(
+              width: 88,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    'بلاغ جديد',
+                    style: TextStyle(
+                      color: AppColors.greenDeep,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(height: 14),
+                ],
+              ),
+            ),
             _NavItem(
-              icon: Icons.explore_outlined,
-              selectedIcon: Icons.explore,
+              icon: Icons.directions_walk_rounded,
+              selectedIcon: Icons.directions_walk_rounded,
               label: 'الخريطة',
               selected: _index == 2,
               onTap: () => _openTab(2),
             ),
             _NavItem(
-              icon: Icons.person_outline,
-              selectedIcon: Icons.person,
+              icon: Icons.person_outline_rounded,
+              selectedIcon: Icons.person_rounded,
               label: 'حسابي',
               selected: _index == 3,
               onTap: () => _openTab(3),
@@ -123,8 +141,8 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = selected
-        ? AppColors.mint
-        : Colors.white.withValues(alpha: 0.6);
+        ? AppColors.greenDeep
+        : AppColors.charcoal.withValues(alpha: 0.55);
     return Expanded(
       child: Semantics(
         selected: selected,
@@ -136,7 +154,21 @@ class _NavItem extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(selected ? selectedIcon : icon, color: color, size: 24),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 3),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? AppColors.mint.withValues(alpha: 0.18)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(
+                  selected ? selectedIcon : icon,
+                  color: color,
+                  size: 24,
+                ),
+              ),
               const SizedBox(height: 4),
               FittedBox(
                 child: Text(
@@ -163,31 +195,44 @@ class _NewReportButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 76,
-      height: 76,
-      child: FloatingActionButton(
-        onPressed: onPressed,
-        tooltip: 'بلاغ جديد',
-        backgroundColor: AppColors.mint,
-        foregroundColor: AppColors.ink,
-        elevation: 4,
-        shape: const CircleBorder(
-          side: BorderSide(color: AppColors.ink, width: 5),
+    return Semantics(
+      button: true,
+      label: 'بلاغ جديد',
+      excludeSemantics: true,
+      child: Container(
+        width: 68,
+        height: 68,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.mist, width: 4),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.mint.withValues(alpha: 0.45),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
-        child: const Padding(
-          padding: EdgeInsets.all(8),
-          child: FittedBox(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.add_a_photo_outlined, size: 25),
-                SizedBox(height: 2),
-                Text(
-                  'بلاغ جديد',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+        child: Material(
+          shape: const CircleBorder(),
+          clipBehavior: Clip.antiAlias,
+          child: Ink(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [AppColors.mint, AppColors.greenDeep],
+              ),
+            ),
+            child: InkWell(
+              onTap: onPressed,
+              child: const Center(
+                child: Icon(
+                  Icons.photo_camera_rounded,
+                  color: Colors.white,
+                  size: 30,
                 ),
-              ],
+              ),
             ),
           ),
         ),

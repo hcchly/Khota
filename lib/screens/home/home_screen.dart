@@ -7,6 +7,7 @@ import '../../models/app_user.dart';
 import '../../services/profile_service.dart';
 import '../../services/report_service.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/date_format.dart';
 import '../../widgets/coming_soon.dart';
 import '../../widgets/gradient_header.dart';
 import '../../widgets/info_card.dart';
@@ -71,6 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final data = report.data();
     final description = (data['description'] ?? '').toString().trim();
     final location = data['location'];
+    final address = data['address'];
     final createdAt = _createdAt(report);
     final imageUrl = data['imageUrl'];
     final rawStatus = (data['reportStatus'] ?? data['status'] ?? '').toString();
@@ -83,13 +85,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return ReportSummaryCard(
       key: ValueKey(report.id),
       title: description.isEmpty ? 'بلاغ عن مشكلة في الرصيف' : description,
-      locationText: location is GeoPoint
-          ? '${location.latitude.toStringAsFixed(5)}، '
-                '${location.longitude.toStringAsFixed(5)}'
-          : 'الموقع غير متاح',
+      // Saved place name; older reports get it looked up from the point.
+      locationText: address is String ? address.trim() : '',
+      latitude: location is GeoPoint ? location.latitude : null,
+      longitude: location is GeoPoint ? location.longitude : null,
       dateText: createdAt == null
           ? 'التاريخ غير متاح'
-          : MaterialLocalizations.of(context).formatCompactDate(createdAt),
+          : formatArabicDate(createdAt),
       reportStatus: reportStatus,
       analysisStatus:
           (data['analysisStatus'] ?? data['imageAnalysisStatus'] ?? '')
@@ -153,13 +155,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 46,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: AppColors.mint,
+                            color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
                             user?.initial ?? '',
                             style: text.titleLarge?.copyWith(
-                              color: AppColors.ink,
+                              color: AppColors.greenDeep,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -172,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Text(
                                 'أهلًا بك في خُطى',
                                 style: text.bodySmall?.copyWith(
-                                  color: Colors.white.withValues(alpha: 0.7),
+                                  color: Colors.white.withValues(alpha: 0.85),
                                 ),
                               ),
                               Text(
@@ -215,7 +217,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   'بلّغ عن المشكلة، وتابع أثر خطوتك.',
                   style: text.bodyMedium?.copyWith(
-                    color: AppColors.mist,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
                     height: 1.6,
                   ),
                 ),
@@ -232,42 +235,34 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 28),
 
-        // Services.
+        // Services: one row the user slides through.
         const _SectionTitle('الخدمات'),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
+        SizedBox(
+          height: 118,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            physics: const BouncingScrollPhysics(),
             children: [
-              Row(
-                children: [
-                  _ServiceTile(
-                    icon: Icons.receipt_long_outlined,
-                    label: 'بلاغاتي',
-                    onTap: () => widget.onOpenTab(1),
-                  ),
-                  const SizedBox(width: 10),
-                  _ServiceTile(
-                    icon: Icons.explore_outlined,
-                    label: 'خريطة خُطى',
-                    onTap: () => widget.onOpenTab(2),
-                  ),
-                ],
+              _ServiceTile(
+                icon: Icons.assignment_outlined,
+                label: 'بلاغاتي',
+                onTap: () => widget.onOpenTab(1),
               ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  _ServiceTile(
-                    icon: Icons.photo_camera_outlined,
-                    label: 'دليل التصوير',
-                    onTap: () => _open(const PhotoGuideScreen()),
-                  ),
-                  const SizedBox(width: 10),
-                  _ServiceTile(
-                    icon: Icons.info_outline_rounded,
-                    label: 'عن خُطى',
-                    onTap: () => _open(const AboutScreen()),
-                  ),
-                ],
+              _ServiceTile(
+                icon: Icons.directions_walk_rounded,
+                label: 'خريطة خُطى',
+                onTap: () => widget.onOpenTab(2),
+              ),
+              _ServiceTile(
+                icon: Icons.photo_camera_rounded,
+                label: 'دليل التصوير',
+                onTap: () => _open(const PhotoGuideScreen()),
+              ),
+              _ServiceTile(
+                icon: Icons.info_rounded,
+                label: 'عن خُطى',
+                onTap: () => _open(const AboutScreen()),
               ),
             ],
           ),
@@ -371,8 +366,14 @@ class _GuideCard extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final radius = BorderRadius.circular(24);
     return Material(
-      color: AppColors.mint,
-      borderRadius: radius,
+      color: Color.alphaBlend(
+        AppColors.mint.withValues(alpha: 0.12),
+        Colors.white,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: radius,
+        side: BorderSide(color: AppColors.mint.withValues(alpha: 0.45)),
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: radius,
@@ -383,13 +384,13 @@ class _GuideCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.45),
-                  borderRadius: BorderRadius.circular(20),
+                  color: AppColors.mint,
+                  borderRadius: BorderRadius.circular(18),
                 ),
                 child: const Icon(
-                  Icons.camera_alt_outlined,
-                  size: 28,
-                  color: AppColors.ink,
+                  Icons.photo_camera_rounded,
+                  size: 26,
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(width: 14),
@@ -399,8 +400,8 @@ class _GuideCard extends StatelessWidget {
                   children: [
                     Text(
                       'صورة أوضح. بلاغ أدق.',
-                      style: text.titleLarge?.copyWith(
-                        color: AppColors.ink,
+                      style: text.titleMedium?.copyWith(
+                        color: AppColors.charcoal,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -408,7 +409,7 @@ class _GuideCard extends StatelessWidget {
                     Text(
                       'افتح دليل التصوير قبل إرسال بلاغك.',
                       style: text.bodySmall?.copyWith(
-                        color: AppColors.ink.withValues(alpha: 0.8),
+                        color: AppColors.charcoal.withValues(alpha: 0.7),
                         height: 1.5,
                       ),
                     ),
@@ -416,7 +417,7 @@ class _GuideCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-              const Icon(Icons.arrow_back_rounded, color: AppColors.ink),
+              const Icon(Icons.arrow_back_rounded, color: AppColors.greenDeep),
             ],
           ),
         ),
@@ -438,10 +439,12 @@ class _ServiceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(16);
-    return Expanded(
+    final radius = BorderRadius.circular(18);
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(end: 10, bottom: 6),
       child: Material(
         color: AppColors.warmWhite,
+        elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: radius,
           side: const BorderSide(color: AppColors.mist),
@@ -449,17 +452,28 @@ class _ServiceTile extends StatelessWidget {
         child: InkWell(
           borderRadius: radius,
           onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-            child: Row(
+          child: SizedBox(
+            width: 104,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                IconTile(icon: icon, size: 44),
-                const SizedBox(width: 9),
-                Expanded(
-                  child: Text(
-                    label,
-                    style: Theme.of(context).textTheme.bodyMedium
-                        ?.copyWith(fontWeight: FontWeight.w700),
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: AppColors.mint.withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Icon(icon, color: AppColors.greenDeep, size: 25),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.charcoal,
                   ),
                 ),
               ],

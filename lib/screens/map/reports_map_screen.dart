@@ -57,8 +57,8 @@ class _ReportsMapScreenState extends State<ReportsMapScreen> {
       _ => 'غير محدد',
     };
     final severity = switch (data['severity']) {
-      'severe' => 'شديد',
-      'non_severe' => 'غير شديد',
+      'high' || 'severe' => 'عالية',
+      'low_medium' || 'non_severe' => 'منخفضة إلى متوسطة',
       _ => 'غير محددة',
     };
     final status = switch (data['reportStatus']) {
@@ -118,8 +118,8 @@ class _ReportsMapScreenState extends State<ReportsMapScreen> {
         tooltip: 'عرض ملخص البلاغ',
         onPressed: () => _showReport(data),
         style: IconButton.styleFrom(
-          backgroundColor: AppColors.ink,
-          foregroundColor: AppColors.mint,
+          backgroundColor: AppColors.greenDeep,
+          foregroundColor: Colors.white,
           side: const BorderSide(color: Colors.white, width: 2),
         ),
         icon: const Icon(Icons.location_on_rounded, size: 25),
