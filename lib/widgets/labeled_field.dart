@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/khota_colors.dart';
 
 /// A bold label above a text field.
 class LabeledField extends StatelessWidget {
-  const LabeledField({
-    super.key,
-    required this.label,
-    required this.child,
-  });
+  const LabeledField({super.key, required this.label, required this.child});
 
   final String label;
   final Widget child;
@@ -22,9 +19,7 @@ class LabeledField extends StatelessWidget {
         children: [
           Text(
             label,
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall
+            style: Theme.of(context).textTheme.titleSmall
                 ?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
@@ -92,7 +87,7 @@ class _PasswordFieldState extends State<PasswordField> {
           onPressed: () => setState(() => _hidden = !_hidden),
           icon: Icon(
             _hidden ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-            color: AppColors.indigo.withValues(alpha: 0.5),
+            color: context.khota.muted(0.5),
           ),
         ),
       ),
@@ -126,9 +121,7 @@ class ErrorBox extends StatelessWidget {
             Expanded(
               child: Text(
                 message,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
+                style: Theme.of(context).textTheme.bodyMedium
                     ?.copyWith(color: AppColors.error),
               ),
             ),
@@ -157,12 +150,12 @@ class LoadingButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: loading ? null : onPressed,
       child: loading
-          ? const SizedBox(
+          ? SizedBox(
               width: 22,
               height: 22,
               child: CircularProgressIndicator(
                 strokeWidth: 2.5,
-                color: Colors.white,
+                color: context.khota.onPrimary,
               ),
             )
           : Text(label),

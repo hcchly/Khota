@@ -7,6 +7,7 @@ import '../../models/app_user.dart';
 import '../../services/profile_service.dart';
 import '../../services/report_service.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/khota_colors.dart';
 import '../../utils/date_format.dart';
 import '../../widgets/coming_soon.dart';
 import '../../widgets/gradient_header.dart';
@@ -104,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _emptyReports(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final muted = AppColors.indigo.withValues(alpha: 0.65);
+    final muted = context.khota.muted(0.65);
     return InfoCard(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
       child: Column(
@@ -155,13 +156,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 46,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: context.khota.headerBadge,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
                             user?.initial ?? '',
                             style: text.titleLarge?.copyWith(
-                              color: AppColors.greenDeep,
+                              color: context.khota.onHeaderBadge,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -364,12 +365,15 @@ class _GuideCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+    final colors = context.khota;
     final radius = BorderRadius.circular(24);
     return Material(
-      color: Color.alphaBlend(
-        AppColors.mint.withValues(alpha: 0.12),
-        Colors.white,
-      ),
+      color: colors.isDark
+          ? colors.surface
+          : Color.alphaBlend(
+              AppColors.mint.withValues(alpha: 0.12),
+              Colors.white,
+            ),
       shape: RoundedRectangleBorder(
         borderRadius: radius,
         side: BorderSide(color: AppColors.mint.withValues(alpha: 0.45)),
@@ -387,10 +391,10 @@ class _GuideCard extends StatelessWidget {
                   color: AppColors.mint,
                   borderRadius: BorderRadius.circular(18),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.photo_camera_rounded,
                   size: 26,
-                  color: Colors.white,
+                  color: colors.isDark ? colors.onPrimary : Colors.white,
                 ),
               ),
               const SizedBox(width: 14),
@@ -401,7 +405,7 @@ class _GuideCard extends StatelessWidget {
                     Text(
                       'صورة أوضح. بلاغ أدق.',
                       style: text.titleMedium?.copyWith(
-                        color: AppColors.charcoal,
+                        color: colors.text,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -409,7 +413,7 @@ class _GuideCard extends StatelessWidget {
                     Text(
                       'افتح دليل التصوير قبل إرسال بلاغك.',
                       style: text.bodySmall?.copyWith(
-                        color: AppColors.charcoal.withValues(alpha: 0.7),
+                        color: colors.muted(0.7),
                         height: 1.5,
                       ),
                     ),
@@ -417,7 +421,7 @@ class _GuideCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-              const Icon(Icons.arrow_back_rounded, color: AppColors.greenDeep),
+              Icon(Icons.arrow_back_rounded, color: colors.primary),
             ],
           ),
         ),
@@ -439,15 +443,16 @@ class _ServiceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.khota;
     final radius = BorderRadius.circular(18);
     return Padding(
       padding: const EdgeInsetsDirectional.only(end: 10, bottom: 6),
       child: Material(
-        color: AppColors.warmWhite,
+        color: colors.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: radius,
-          side: const BorderSide(color: AppColors.mist),
+          side: BorderSide(color: colors.divider),
         ),
         child: InkWell(
           borderRadius: radius,
@@ -461,10 +466,12 @@ class _ServiceTile extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: AppColors.mint.withValues(alpha: 0.14),
+                    color: AppColors.mint.withValues(
+                      alpha: colors.isDark ? 0.18 : 0.14,
+                    ),
                     borderRadius: BorderRadius.circular(15),
                   ),
-                  child: Icon(icon, color: AppColors.greenDeep, size: 25),
+                  child: Icon(icon, color: colors.primary, size: 25),
                 ),
                 const SizedBox(height: 10),
                 Text(
@@ -473,7 +480,7 @@ class _ServiceTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: AppColors.charcoal,
+                    color: colors.text,
                   ),
                 ),
               ],

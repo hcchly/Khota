@@ -6,7 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../theme/app_colors.dart';
+import '../../theme/khota_colors.dart';
 import '../../widgets/gradient_app_bar.dart';
 import '../../widgets/brand_surface.dart';
 import '../../widgets/report_status_widgets.dart';
@@ -118,9 +118,14 @@ class _ReportsMapScreenState extends State<ReportsMapScreen> {
         tooltip: 'عرض ملخص البلاغ',
         onPressed: () => _showReport(data),
         style: IconButton.styleFrom(
-          backgroundColor: AppColors.greenDeep,
-          foregroundColor: Colors.white,
-          side: const BorderSide(color: Colors.white, width: 2),
+          backgroundColor: context.khota.primary,
+          foregroundColor: context.khota.onPrimary,
+          side: BorderSide(
+            color: context.khota.isDark
+                ? context.khota.background
+                : Colors.white,
+            width: 2,
+          ),
         ),
         icon: const Icon(Icons.location_on_rounded, size: 25),
       ),
@@ -213,7 +218,7 @@ class _ReportsMapScreenState extends State<ReportsMapScreen> {
                 right: 4,
                 child: TextButton(
                   style: TextButton.styleFrom(
-                    backgroundColor: AppColors.warmWhite,
+                    backgroundColor: context.khota.surface,
                     minimumSize: const Size(0, 26),
                     padding: const EdgeInsets.symmetric(horizontal: 6),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,

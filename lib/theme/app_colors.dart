@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Khota brand colors - Light Mode.
+/// Khota brand colours. The named colours below are the light palette; dark
+/// mode values are at the end. Widgets should read `context.khota`
+/// (see khota_colors.dart) so they follow the current theme.
 ///
 /// The brand palette is green (#40BA87) and light grey (#E8EBEE). The app is
 /// light: white / light-grey surfaces, green accents, and the brand gradient
@@ -45,4 +47,11 @@ class AppColors {
   // Alerts
   static const Color error = Color(0xFFC0392B);
   static const Color amber = Color(0xFFB56A12);
+
+  // Dark mode (brand book). Screens read colours through KhotaColors
+  // (`context.khota`); these constants only feed the dark palette.
+  static const Color darkBackground = Color(0xFF011E26); // page
+  static const Color darkSurface = Color(0xFF0A2C37); // cards
+  static const Color darkNavBar = Color(0xFF062530); // bottom navigation
+  static const Color darkText = mist; // #E8EBEE
 }

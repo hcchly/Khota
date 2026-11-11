@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../services/report_service.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/khota_colors.dart';
 import '../../widgets/info_card.dart';
 import '../../widgets/brand_surface.dart';
 import '../../widgets/private_report_image.dart';
@@ -251,25 +252,25 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Widget _emptyState(List<CitizenReport> reports) {
     return InfoCard(
-        child: Column(
-          children: [
-            const Icon(Icons.inbox_outlined, size: 48, color: AppColors.teal),
+      child: Column(
+        children: [
+          Icon(Icons.inbox_outlined, size: 48, color: context.khota.primary),
 
+          const SizedBox(height: 12),
+
+          Text(
+            reports.isEmpty
+                ? 'لا توجد بلاغات بعد'
+                : 'لا توجد بلاغات بهذه الحالة',
+          ),
+
+          if (reports.isEmpty && !previewMode) ...[
             const SizedBox(height: 12),
-
-            Text(
-              reports.isEmpty
-                  ? 'لا توجد بلاغات بعد'
-                  : 'لا توجد بلاغات بهذه الحالة',
-            ),
-
-            if (reports.isEmpty && !previewMode) ...[
-              const SizedBox(height: 12),
-              if (kDebugMode) previewButton(),
-            ],
+            if (kDebugMode) previewButton(),
           ],
-        ),
-      );
+        ],
+      ),
+    );
   }
 
   Widget _reportCards(List<CitizenReport> filtered) {
@@ -286,10 +287,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 children: [
                   Row(
                     children: [
-                      const IconTile(
-                        icon: Icons.assignment_outlined,
-                        size: 38,
-                      ),
+                      const IconTile(icon: Icons.assignment_outlined, size: 38),
                       const SizedBox(width: 10),
 
                       Expanded(
@@ -301,9 +299,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         ),
                       ),
 
-                      const Icon(
+                      Icon(
                         Icons.chevron_left_rounded,
-                        color: AppColors.ocean,
+                        color: context.khota.primary,
                       ),
                     ],
                   ),
@@ -312,9 +310,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
                   Text(
                     report.description,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.ink.withValues(alpha: 0.76),
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium
+                        ?.copyWith(color: context.khota.muted(0.76)),
                   ),
 
                   const SizedBox(height: 16),

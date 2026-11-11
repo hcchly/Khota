@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import '../../models/submitted_report.dart';
 import '../../services/report_service.dart';
 import '../../utils/date_format.dart';
-import '../../theme/app_colors.dart';
+import '../../theme/khota_colors.dart';
 import '../../widgets/info_card.dart';
 import '../../widgets/brand_surface.dart';
 import '../../widgets/report_card.dart';
@@ -27,7 +27,7 @@ class ReportSubmittedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final muted = AppColors.indigo.withValues(alpha: 0.65);
+    final muted = context.khota.muted(0.65);
     final number = ReportService.displayNumber(report.id);
 
     return Scaffold(
@@ -49,19 +49,21 @@ class ReportSubmittedScreen extends StatelessWidget {
                           width: 104,
                           height: 104,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: context.khota.headerBadge,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.teal.withValues(alpha: 0.35),
+                                color: context.khota.primary.withValues(
+                                  alpha: 0.35,
+                                ),
                                 blurRadius: 24,
                                 offset: const Offset(0, 8),
                               ),
                             ],
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.check_rounded,
-                            color: AppColors.greenDeep,
+                            color: context.khota.onHeaderBadge,
                             size: 60,
                           ),
                         ),
@@ -139,9 +141,9 @@ class ReportSubmittedScreen extends StatelessWidget {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.location_on_outlined,
-                            color: AppColors.teal,
+                            color: context.khota.primary,
                             size: 20,
                           ),
                           const SizedBox(width: 6),
@@ -254,7 +256,7 @@ class _SummaryRow extends StatelessWidget {
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall
-              ?.copyWith(color: AppColors.indigo.withValues(alpha: 0.65)),
+              ?.copyWith(color: context.khota.muted(0.65)),
         ),
         const SizedBox(height: 6),
         child,
@@ -292,14 +294,16 @@ class _NextStep extends StatelessWidget {
               width: 26,
               height: 26,
               alignment: Alignment.center,
-              decoration: const BoxDecoration(
-                color: AppColors.indigo,
+              decoration: BoxDecoration(
+                color: context.khota.isDark
+                    ? context.khota.primary
+                    : context.khota.text,
                 shape: BoxShape.circle,
               ),
               child: Text(
                 '$number',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: context.khota.onPrimary,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
@@ -320,7 +324,7 @@ class _NextStep extends StatelessWidget {
                   Text(
                     body,
                     style: text.bodySmall?.copyWith(
-                      color: AppColors.indigo.withValues(alpha: 0.7),
+                      color: context.khota.muted(0.7),
                       height: 1.6,
                     ),
                   ),

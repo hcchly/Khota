@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/app_user.dart';
 import '../../services/profile_service.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/khota_colors.dart';
 import '../../utils/validators.dart';
 import '../../widgets/gradient_app_bar.dart';
 import '../../widgets/brand_surface.dart';
@@ -93,7 +94,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               'البريد الإلكتروني (غير قابل للتعديل)',
               style: text.titleSmall?.copyWith(
                 fontWeight: FontWeight.w700,
-                color: AppColors.indigo.withValues(alpha: 0.6),
+                color: context.khota.muted(0.6),
               ),
             ),
             const SizedBox(height: 8),
@@ -107,12 +108,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ElevatedButton(
               onPressed: _saving ? null : _save,
               child: _saving
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 22,
                       height: 22,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5,
-                        color: Colors.white,
+                        color: context.khota.onPrimary,
                       ),
                     )
                   : const Text('حفظ التغييرات'),

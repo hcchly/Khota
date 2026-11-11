@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../services/auth_service.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/khota_colors.dart';
 import '../../utils/input_formatters.dart';
 import '../../utils/validators.dart';
 import '../../widgets/gradient_header.dart';
@@ -120,7 +121,6 @@ class _LoginScreenState extends State<LoginScreen> {
         children: [
           // Header with the logo only.
           GradientHeader(
-            pattern: 4,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 42, 24, 88),
               child: Center(
@@ -155,11 +155,16 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppColors.warmWhite,
+                  color: context.khota.surface,
                   borderRadius: BorderRadius.circular(32),
+                  border: context.khota.isDark
+                      ? Border.all(color: context.khota.cardBorder)
+                      : null,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.indigo.withValues(alpha: 0.055),
+                      color: context.khota.isDark
+                          ? Colors.transparent
+                          : AppColors.ink.withValues(alpha: 0.055),
                       blurRadius: 20,
                       offset: const Offset(0, 8),
                     ),
@@ -184,7 +189,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Text(
                           'سجّل دخولك لإرسال بلاغاتك ومتابعتها.',
                           style: text.bodyMedium?.copyWith(
-                            color: AppColors.ink.withValues(alpha: 0.68),
+                            color: context.khota.muted(0.68),
                             height: 1.5,
                           ),
                         ),
@@ -227,7 +232,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: Text(
                               'نسيت كلمة المرور؟',
                               style: text.bodyMedium?.copyWith(
-                                color: AppColors.teal,
+                                color: context.khota.primary,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -248,7 +253,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             Text(
                               'ليس لديك حساب؟',
                               style: text.bodyLarge?.copyWith(
-                                color: AppColors.indigo.withValues(alpha: 0.7),
+                                color: context.khota.muted(0.7),
                               ),
                             ),
                             TextButton(
@@ -256,7 +261,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: Text(
                                 'إنشاء حساب',
                                 style: text.bodyLarge?.copyWith(
-                                  color: AppColors.teal,
+                                  color: context.khota.primary,
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),

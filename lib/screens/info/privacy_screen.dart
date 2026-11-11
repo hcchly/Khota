@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/app_colors.dart';
+import '../../theme/khota_colors.dart';
 import '../../widgets/gradient_app_bar.dart';
 import '../../widgets/info_card.dart';
 import '../../widgets/brand_surface.dart';
@@ -81,7 +81,7 @@ class _PrivacyItem extends StatelessWidget {
                   Text(
                     body,
                     style: text.bodyMedium?.copyWith(
-                      color: AppColors.indigo.withValues(alpha: 0.7),
+                      color: context.khota.muted(0.7),
                       height: 1.6,
                     ),
                   ),
