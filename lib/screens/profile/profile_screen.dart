@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../models/app_user.dart';
 import '../../services/auth_service.dart';
@@ -91,78 +92,82 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: FutureBuilder<AppUser>(
-        future: _profile,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError || !snapshot.hasData) {
-            return _ErrorView(onRetry: _reload);
-          }
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      // Plain page background under the status bar.
+      value: context.khota.pageOverlayStyle,
+      child: Scaffold(
+        body: FutureBuilder<AppUser>(
+          future: _profile,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError || !snapshot.hasData) {
+              return _ErrorView(onRetry: _reload);
+            }
 
-          final user = snapshot.data!;
-          return ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              _ProfileHeader(user: user),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 96),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'الحساب',
-                      style: Theme.of(context).textTheme.titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w800),
-                    ),
-                    const SizedBox(height: 10),
-                    _MenuTile(
-                      icon: Icons.manage_accounts_outlined,
-                      label: 'تعديل البيانات',
-                      onTap: () => _openEditProfile(user),
-                    ),
-                    _MenuTile(
-                      icon: Icons.settings_outlined,
-                      label: 'الإعدادات',
-                      onTap: () => _open(const SettingsScreen()),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'المساعدة والمعلومات',
-                      style: Theme.of(context).textTheme.titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w800),
-                    ),
-                    const SizedBox(height: 10),
-                    _MenuTile(
-                      icon: Icons.photo_camera_outlined,
-                      label: 'دليل التصوير',
-                      onTap: () => _open(const PhotoGuideScreen()),
-                    ),
-                    _MenuTile(
-                      icon: Icons.privacy_tip_outlined,
-                      label: 'الخصوصية',
-                      onTap: () => _open(const PrivacyScreen()),
-                    ),
-                    _MenuTile(
-                      icon: Icons.info_outline,
-                      label: 'عن التطبيق',
-                      onTap: () => _open(const AboutScreen()),
-                    ),
-                    const SizedBox(height: 8),
-                    _MenuTile(
-                      icon: Icons.logout,
-                      label: 'تسجيل الخروج',
-                      color: AppColors.error,
-                      onTap: _confirmLogout,
-                    ),
-                  ],
+            final user = snapshot.data!;
+            return ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                _ProfileHeader(user: user),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 96),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'الحساب',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                      const SizedBox(height: 10),
+                      _MenuTile(
+                        icon: Icons.manage_accounts_outlined,
+                        label: 'تعديل البيانات',
+                        onTap: () => _openEditProfile(user),
+                      ),
+                      _MenuTile(
+                        icon: Icons.settings_outlined,
+                        label: 'الإعدادات',
+                        onTap: () => _open(const SettingsScreen()),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'المساعدة والمعلومات',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                      const SizedBox(height: 10),
+                      _MenuTile(
+                        icon: Icons.photo_camera_outlined,
+                        label: 'دليل التصوير',
+                        onTap: () => _open(const PhotoGuideScreen()),
+                      ),
+                      _MenuTile(
+                        icon: Icons.privacy_tip_outlined,
+                        label: 'الخصوصية',
+                        onTap: () => _open(const PrivacyScreen()),
+                      ),
+                      _MenuTile(
+                        icon: Icons.info_outline,
+                        label: 'عن التطبيق',
+                        onTap: () => _open(const AboutScreen()),
+                      ),
+                      const SizedBox(height: 8),
+                      _MenuTile(
+                        icon: Icons.logout,
+                        label: 'تسجيل الخروج',
+                        color: AppColors.error,
+                        onTap: _confirmLogout,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

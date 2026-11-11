@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'app_colors.dart';
 
@@ -93,6 +94,11 @@ class KhotaColors extends ThemeExtension<KhotaColors> {
 
   /// Text and icons on [headerBadge].
   Color get onHeaderBadge => isDark ? onPrimary : AppColors.greenDeep;
+
+  /// Status bar over the plain page background: dark icons in light mode,
+  /// light icons in dark mode. Patterned headers always use light icons.
+  SystemUiOverlayStyle get pageOverlayStyle =>
+      isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark;
 
   /// Secondary text. Light mode keeps the opacity each place already used;
   /// dark mode always uses the brand's 66% text.
