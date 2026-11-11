@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khota_app/models/app_user.dart';
+import 'package:khota_app/models/report_location.dart';
+import 'package:khota_app/models/submitted_report.dart';
 import 'package:khota_app/screens/home/home_screen.dart';
+import 'package:khota_app/screens/reports/report_submitted_screen.dart';
 import 'package:khota_app/screens/settings/settings_screen.dart';
 import 'package:khota_app/services/profile_service.dart';
 import 'package:khota_app/settings/app_settings.dart';
@@ -11,6 +15,7 @@ import 'package:khota_app/theme/app_colors.dart';
 import 'package:khota_app/theme/app_theme.dart';
 import 'package:khota_app/theme/khota_colors.dart';
 import 'package:khota_app/widgets/brand_surface.dart';
+import 'package:khota_app/widgets/gradient_header.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeProfile implements ProfileService {
@@ -199,5 +204,66 @@ void main() {
 
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getString('theme_mode'), 'system');
+  });
+
+  group('status bar', () {
+    Brightness? iconsOf(WidgetTester tester, Finder region) => tester
+        .widget<AnnotatedRegion<SystemUiOverlayStyle>>(region)
+        .value
+        .statusBarIconBrightness;
+
+    for (final (mode, icons) in [
+      (ThemeMode.light, Brightness.dark),
+      (ThemeMode.dark, Brightness.light),
+    ]) {
+      testWidgets('plain page uses ${icons.name} icons in ${mode.name} mode', (
+        tester,
+      ) async {
+        await AppSettings.instance.setThemeMode(mode);
+        await tester.pumpWidget(
+          host(
+            const ReportSubmittedScreen(
+              report: SubmittedReport(
+                id: 'abCD12efGH34ijKL56mn',
+                location: ReportLocation(
+                  latitude: 24.7,
+                  longitude: 46.6,
+                  source: ReportLocation.sourceGps,
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final region = find
+            .descendant(
+              of: find.byType(ReportSubmittedScreen),
+              matching: find.byType(AnnotatedRegion<SystemUiOverlayStyle>),
+            )
+            .first;
+        expect(iconsOf(tester, region), icons);
+      });
+
+      testWidgets('patterned header keeps light icons in ${mode.name} mode', (
+        tester,
+      ) async {
+        await AppSettings.instance.setThemeMode(mode);
+        await tester.pumpWidget(
+          host(
+            Scaffold(
+              body: HomeScreen(onOpenTab: (_) {}, service: _FakeProfile()),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final header = find
+            .descendant(
+              of: find.byType(GradientHeader),
+              matching: find.byType(AnnotatedRegion<SystemUiOverlayStyle>),
+            )
+            .first;
+        expect(iconsOf(tester, header), Brightness.light);
+      });
+    }
   });
 }

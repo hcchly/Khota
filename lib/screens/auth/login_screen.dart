@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../services/auth_service.dart';
 import '../../theme/app_colors.dart';
@@ -115,167 +116,171 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    return Scaffold(
-      body: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          // Header with the logo only.
-          GradientHeader(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 42, 24, 88),
-              child: Center(
-                child: Column(
-                  children: [
-                    Image.asset(
-                      'assets/images/khota_logo_mist.png',
-                      width: 198,
-                      filterQuality: FilterQuality.high,
-                      semanticLabel: 'شعار خُطى',
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      'أرصفة أفضل تبدأ بخطوة',
-                      textAlign: TextAlign.center,
-                      style: text.titleMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      // Plain page background under the status bar.
+      value: context.khota.pageOverlayStyle,
+      child: Scaffold(
+        body: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            // Header with the logo only.
+            GradientHeader(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 42, 24, 88),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Image.asset(
+                        'assets/images/khota_logo_mist.png',
+                        width: 198,
+                        filterQuality: FilterQuality.high,
+                        semanticLabel: 'شعار خُطى',
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 20),
+                      Text(
+                        'أرصفة أفضل تبدأ بخطوة',
+                        textAlign: TextAlign.center,
+                        style: text.titleMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
 
-          // Card overlapping the header.
-          Transform.translate(
-            offset: const Offset(0, -48),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: context.khota.surface,
-                  borderRadius: BorderRadius.circular(32),
-                  border: context.khota.isDark
-                      ? Border.all(color: context.khota.cardBorder)
-                      : null,
-                  boxShadow: [
-                    BoxShadow(
-                      color: context.khota.isDark
-                          ? Colors.transparent
-                          : AppColors.ink.withValues(alpha: 0.055),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Form(
-                  key: _formKey,
-                  autovalidateMode: _submitted
-                      ? AutovalidateMode.onUserInteraction
-                      : AutovalidateMode.disabled,
-                  child: AutofillGroup(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          'أهلًا برجعتك',
-                          style: text.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'سجّل دخولك لإرسال بلاغاتك ومتابعتها.',
-                          style: text.bodyMedium?.copyWith(
-                            color: context.khota.muted(0.68),
-                            height: 1.5,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        LabeledField(
-                          label: 'البريد الإلكتروني',
-                          child: TextFormField(
-                            key: _emailFieldKey,
-                            controller: _emailController,
-                            validator: Validators.email,
-                            enabled: !_loading,
-                            keyboardType: TextInputType.emailAddress,
-                            autocorrect: false,
-                            enableSuggestions: false,
-                            inputFormatters: const [LatinInputFormatter()],
-                            textInputAction: TextInputAction.next,
-                            autofillHints: const [AutofillHints.email],
-                            textDirection: TextDirection.ltr,
-                            textAlign: TextAlign.right,
-                            decoration: const InputDecoration(
-                              hintText: 'name@example.com',
+            // Card overlapping the header.
+            Transform.translate(
+              offset: const Offset(0, -48),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: context.khota.surface,
+                    borderRadius: BorderRadius.circular(32),
+                    border: context.khota.isDark
+                        ? Border.all(color: context.khota.cardBorder)
+                        : null,
+                    boxShadow: [
+                      BoxShadow(
+                        color: context.khota.isDark
+                            ? Colors.transparent
+                            : AppColors.ink.withValues(alpha: 0.055),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    autovalidateMode: _submitted
+                        ? AutovalidateMode.onUserInteraction
+                        : AutovalidateMode.disabled,
+                    child: AutofillGroup(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            'أهلًا برجعتك',
+                            style: text.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
-                        ),
-                        LabeledField(
-                          label: 'كلمة المرور',
-                          child: PasswordField(
-                            controller: _passwordController,
-                            validator: Validators.password,
-                            enabled: !_loading,
-                            textInputAction: TextInputAction.done,
-                            onFieldSubmitted: (_) => _signIn(),
-                            autofillHints: const [AutofillHints.password],
+                          const SizedBox(height: 6),
+                          Text(
+                            'سجّل دخولك لإرسال بلاغاتك ومتابعتها.',
+                            style: text.bodyMedium?.copyWith(
+                              color: context.khota.muted(0.68),
+                              height: 1.5,
+                            ),
                           ),
-                        ),
-                        Align(
-                          alignment: AlignmentDirectional.centerEnd,
-                          child: TextButton(
-                            onPressed: _loading ? null : _forgotPassword,
-                            child: Text(
-                              'نسيت كلمة المرور؟',
-                              style: text.bodyMedium?.copyWith(
-                                color: context.khota.primary,
-                                fontWeight: FontWeight.w700,
+                          const SizedBox(height: 24),
+                          LabeledField(
+                            label: 'البريد الإلكتروني',
+                            child: TextFormField(
+                              key: _emailFieldKey,
+                              controller: _emailController,
+                              validator: Validators.email,
+                              enabled: !_loading,
+                              keyboardType: TextInputType.emailAddress,
+                              autocorrect: false,
+                              enableSuggestions: false,
+                              inputFormatters: const [LatinInputFormatter()],
+                              textInputAction: TextInputAction.next,
+                              autofillHints: const [AutofillHints.email],
+                              textDirection: TextDirection.ltr,
+                              textAlign: TextAlign.right,
+                              decoration: const InputDecoration(
+                                hintText: 'name@example.com',
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        if (_error != null) ErrorBox(_error!),
-                        LoadingButton(
-                          label: 'تسجيل الدخول',
-                          loading: _loading,
-                          onPressed: _signIn,
-                        ),
-                        const SizedBox(height: 20),
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            Text(
-                              'ليس لديك حساب؟',
-                              style: text.bodyLarge?.copyWith(
-                                color: context.khota.muted(0.7),
-                              ),
+                          LabeledField(
+                            label: 'كلمة المرور',
+                            child: PasswordField(
+                              controller: _passwordController,
+                              validator: Validators.password,
+                              enabled: !_loading,
+                              textInputAction: TextInputAction.done,
+                              onFieldSubmitted: (_) => _signIn(),
+                              autofillHints: const [AutofillHints.password],
                             ),
-                            TextButton(
-                              onPressed: _loading ? null : _openRegister,
+                          ),
+                          Align(
+                            alignment: AlignmentDirectional.centerEnd,
+                            child: TextButton(
+                              onPressed: _loading ? null : _forgotPassword,
                               child: Text(
-                                'إنشاء حساب',
-                                style: text.bodyLarge?.copyWith(
+                                'نسيت كلمة المرور؟',
+                                style: text.bodyMedium?.copyWith(
                                   color: context.khota.primary,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                      ],
+                          ),
+                          const SizedBox(height: 8),
+                          if (_error != null) ErrorBox(_error!),
+                          LoadingButton(
+                            label: 'تسجيل الدخول',
+                            loading: _loading,
+                            onPressed: _signIn,
+                          ),
+                          const SizedBox(height: 20),
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              Text(
+                                'ليس لديك حساب؟',
+                                style: text.bodyLarge?.copyWith(
+                                  color: context.khota.muted(0.7),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: _loading ? null : _openRegister,
+                                child: Text(
+                                  'إنشاء حساب',
+                                  style: text.bodyLarge?.copyWith(
+                                    color: context.khota.primary,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

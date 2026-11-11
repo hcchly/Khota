@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/khota_colors.dart';
@@ -23,6 +24,8 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
           ? context.khota.background
           : AppColors.gradientTop,
       surfaceTintColor: Colors.transparent,
+      // Patterned header: always light status bar icons.
+      systemOverlayStyle: SystemUiOverlayStyle.light,
       elevation: 0,
       scrolledUnderElevation: 0,
       titleTextStyle: Theme.of(context).textTheme.titleLarge

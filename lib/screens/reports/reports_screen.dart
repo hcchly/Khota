@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -387,48 +388,52 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 24, 16, 96),
-        children: [
-          const BrandIntro(
-            eyebrow: 'بلاغاتي',
-            title: 'كل خطوة موثّقة',
-            description: 'تابع بلاغاتك، من إرسال الصورة إلى آخر تحديث.',
-            icon: Icons.assignment_outlined,
-          ),
-          const SizedBox(height: 20),
-
-          if (previewMode) ...[
-            InfoCard(
-              color: AppColors.tealLight.withValues(alpha: 0.18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'وضع المعاينة: هذه أمثلة تجريبية وليست بلاغات حقيقية.',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        previewMode = false;
-                        selectedFilter = 'الكل';
-                      });
-                    },
-                    child: const Text('العودة إلى بلاغاتي الحقيقية'),
-                  ),
-                ],
-              ),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      // Plain page background under the status bar.
+      value: context.khota.pageOverlayStyle,
+      child: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 96),
+          children: [
+            const BrandIntro(
+              eyebrow: 'بلاغاتي',
+              title: 'كل خطوة موثّقة',
+              description: 'تابع بلاغاتك، من إرسال الصورة إلى آخر تحديث.',
+              icon: Icons.assignment_outlined,
             ),
+            const SizedBox(height: 20),
 
-            const SizedBox(height: 16),
+            if (previewMode) ...[
+              InfoCard(
+                color: AppColors.tealLight.withValues(alpha: 0.18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text(
+                      'وضع المعاينة: هذه أمثلة تجريبية وليست بلاغات حقيقية.',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
 
-            buildReportList(sampleReports),
-          ] else
-            buildLiveReports(),
-        ],
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          previewMode = false;
+                          selectedFilter = 'الكل';
+                        });
+                      },
+                      child: const Text('العودة إلى بلاغاتي الحقيقية'),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              buildReportList(sampleReports),
+            ] else
+              buildLiveReports(),
+          ],
+        ),
       ),
     );
   }

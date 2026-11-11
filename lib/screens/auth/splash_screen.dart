@@ -310,10 +310,10 @@ class _PaverMark extends StatelessWidget {
                 rect: area.deflate(1),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.22 * highlight),
+                    color: Colors.white.withValues(alpha: 0.11 * highlight),
                     borderRadius: BorderRadius.circular(3),
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.85 * highlight),
+                      color: Colors.white.withValues(alpha: 0.425 * highlight),
                     ),
                   ),
                 ),
