@@ -9,26 +9,24 @@ class BrandSurface extends StatelessWidget {
     required this.child,
     this.radius = 28,
     this.padding = const EdgeInsets.all(22),
+    this.showPattern = true,
   });
 
   final Widget child;
   final double radius;
   final EdgeInsetsGeometry padding;
 
+  /// Draws the faint chevrons; off where the logo is already shown.
+  final bool showPattern;
+
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(radius),
       child: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.ink, AppColors.ocean],
-          ),
-        ),
+        decoration: const BoxDecoration(gradient: AppColors.brandGradient),
         child: CustomPaint(
-          painter: const _PavingPattern(),
+          painter: showPattern ? const _PavingPattern() : null,
           child: Padding(padding: padding, child: child),
         ),
       ),
@@ -48,7 +46,7 @@ class _PavingPattern extends CustomPainter {
       ..strokeWidth = 19;
 
     for (var i = 0; i < 3; i++) {
-      paint.color = AppColors.mint.withValues(alpha: 0.13 - i * 0.025);
+      paint.color = Colors.white.withValues(alpha: 0.10 - i * 0.02);
       final x = size.width * 0.10 + i * 19;
       final y = size.height * 0.25 + i * 43;
       final path = Path()
@@ -61,8 +59,8 @@ class _PavingPattern extends CustomPainter {
       ..shader =
           RadialGradient(
             colors: [
-              AppColors.mint.withValues(alpha: 0.28),
-              AppColors.mint.withValues(alpha: 0),
+              Colors.white.withValues(alpha: 0.10),
+              Colors.white.withValues(alpha: 0),
             ],
           ).createShader(
             Rect.fromCircle(
@@ -106,7 +104,7 @@ class BrandIntro extends StatelessWidget {
                   Text(
                     eyebrow!,
                     style: text.labelMedium?.copyWith(
-                      color: AppColors.mint,
+                      color: Colors.white,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -135,10 +133,10 @@ class BrandIntro extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.mint,
+              color: Colors.white.withValues(alpha: 0.22),
               borderRadius: BorderRadius.circular(18),
             ),
-            child: Icon(icon, color: AppColors.ink, size: 26),
+            child: Icon(icon, color: Colors.white, size: 26),
           ),
         ],
       ),

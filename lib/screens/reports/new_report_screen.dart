@@ -77,6 +77,7 @@ class _NewReportScreenState extends State<NewReportScreen>
   // Step 2: location.
   ReportLocation? _location;
   String? _address;
+  bool _addressLoading = false;
   bool _locating = false;
   int _locationRequest = 0;
   String? _locationError;
@@ -256,10 +257,14 @@ class _NewReportScreenState extends State<NewReportScreen>
       setState(() {
         _location = location;
         _address = null;
+        _addressLoading = true;
       });
       final address = await _locator.addressFor(location);
       if (mounted && request == _locationRequest) {
-        setState(() => _address = address);
+        setState(() {
+          _address = address;
+          _addressLoading = false;
+        });
       }
     } catch (error) {
       debugPrint(
@@ -275,6 +280,13 @@ class _NewReportScreenState extends State<NewReportScreen>
         setState(() => _locating = false);
       }
     }
+  }
+
+  /// Place name for the chosen point; never raw coordinates.
+  String get _placeText {
+    if (_address != null && _address!.trim().isNotEmpty) return _address!;
+    if (_addressLoading) return 'جارٍ تحديد اسم الموقع…';
+    return 'الموقع المحدد على الخريطة';
   }
 
   Future<void> _pickManually() async {
@@ -293,12 +305,16 @@ class _NewReportScreenState extends State<NewReportScreen>
     setState(() {
       _location = picked;
       _address = null;
+      _addressLoading = true;
       _locationError = null;
       _locating = false;
     });
     final address = await _locator.addressFor(picked);
     if (mounted && request == _locationRequest) {
-      setState(() => _address = address);
+      setState(() {
+        _address = address;
+        _addressLoading = false;
+      });
     }
   }
 
@@ -334,7 +350,7 @@ class _NewReportScreenState extends State<NewReportScreen>
           description: _description.text.trim(),
           imageUrl: _imageUrl,
         ),
-        _location!,
+        _location!.withAddress(_address),
       ).timeout(NewReportScreen.saveTimeout);
 
       stopwatch.stop();
@@ -593,7 +609,7 @@ class _NewReportScreenState extends State<NewReportScreen>
                 : Stack(
                     fit: StackFit.expand,
                     children: [
-                      const ColoredBox(color: Color(0xFF0E1C2C)),
+                      const ColoredBox(color: Color(0xFF111413)),
                       Image.memory(
                         _image!,
                         fit: BoxFit.contain,
@@ -796,10 +812,7 @@ class _NewReportScreenState extends State<NewReportScreen>
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  _address ?? _location!.coordinatesText,
-                  textDirection: _address == null
-                      ? TextDirection.ltr
-                      : TextDirection.rtl,
+                  _placeText,
                   style: text.bodyMedium?.copyWith(color: muted),
                 ),
                 const SizedBox(height: 12),
@@ -828,7 +841,7 @@ class _NewReportScreenState extends State<NewReportScreen>
             child: Stack(
               fit: StackFit.expand,
               children: [
-                const ColoredBox(color: Color(0xFF0E1C2C)),
+                const ColoredBox(color: Color(0xFF111413)),
                 if (_image != null)
                   Image.memory(
                     _image!,
@@ -868,7 +881,7 @@ class _NewReportScreenState extends State<NewReportScreen>
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    _address ?? _location?.coordinatesText ?? '',
+                    _placeText,
                     style: text.bodyMedium?.copyWith(color: muted),
                   ),
                   if (_location != null) ...[
@@ -1070,7 +1083,7 @@ class _Viewfinder extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFF16324F), Color(0xFF0E1C2C)],
+              colors: [Color(0xFF1E2522), Color(0xFF111413)],
             ),
           ),
         ),

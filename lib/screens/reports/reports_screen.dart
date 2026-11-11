@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -209,14 +210,47 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   // Build reports according to selected filter.
   Widget buildReportList(List<CitizenReport> reports) {
-    final filtered = selectedFilter == 'الكل'
+    final filtered = selectedFilter == ReportStatusLabels.all
         ? reports
         : reports
               .where((report) => report.reportStatus == selectedFilter)
               .toList();
 
+    final counts = {
+      for (final filter in ReportStatusLabels.filters)
+        filter: filter == ReportStatusLabels.all
+            ? reports.length
+            : reports.where((r) => r.reportStatus == filter).length,
+    };
+
+    // Four filters in one sliding row: All, Pending, In Progress, Resolved.
+    final filters = reports.isEmpty
+        ? const SizedBox.shrink()
+        : Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: ReportStatusFilters(
+              selectedFilter: selectedFilter,
+              counts: counts,
+              onFilterChanged: (value) =>
+                  setState(() => selectedFilter = value),
+            ),
+          );
+
     if (filtered.isEmpty) {
-      return InfoCard(
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [filters, _emptyState(reports)],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [filters, _reportCards(filtered)],
+    );
+  }
+
+  Widget _emptyState(List<CitizenReport> reports) {
+    return InfoCard(
         child: Column(
           children: [
             const Icon(Icons.inbox_outlined, size: 48, color: AppColors.teal),
@@ -231,13 +265,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
             if (reports.isEmpty && !previewMode) ...[
               const SizedBox(height: 12),
-              previewButton(),
+              if (kDebugMode) previewButton(),
             ],
           ],
         ),
       );
-    }
+  }
 
+  Widget _reportCards(List<CitizenReport> filtered) {
     return Column(
       children: [
         for (final report in filtered) ...[
@@ -252,7 +287,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   Row(
                     children: [
                       const IconTile(
-                        icon: Icons.receipt_long_outlined,
+                        icon: Icons.assignment_outlined,
                         size: 38,
                       ),
                       const SizedBox(width: 10),
@@ -311,7 +346,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
             const SizedBox(height: 12),
 
-            previewButton(),
+            if (kDebugMode) previewButton(),
           ],
         ),
       );
@@ -334,7 +369,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
                 const SizedBox(height: 12),
 
-                previewButton(),
+                if (kDebugMode) previewButton(),
               ],
             ),
           );
@@ -363,28 +398,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
             eyebrow: 'بلاغاتي',
             title: 'كل خطوة موثّقة',
             description: 'تابع بلاغاتك، من إرسال الصورة إلى آخر تحديث.',
-            icon: Icons.receipt_long_outlined,
+            icon: Icons.assignment_outlined,
           ),
-          const SizedBox(height: 20),
-
-          const Text(
-            'تصفية حسب حالة البلاغ',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-
-          const SizedBox(height: 12),
-
-          // Four filters:
-          // All, Pending, In Progress, Resolved.
-          ReportStatusFilters(
-            selectedFilter: selectedFilter,
-            onFilterChanged: (value) {
-              setState(() {
-                selectedFilter = value;
-              });
-            },
-          ),
-
           const SizedBox(height: 20),
 
           if (previewMode) ...[

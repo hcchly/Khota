@@ -105,7 +105,10 @@ class SettingsScreen extends StatelessWidget {
                   horizontal: 16,
                   vertical: 8,
                 ),
-                child: SwitchListTile(
+                // Own Material so the tile's ink is not hidden by the card.
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Text(
                     'نص عريض',
@@ -118,6 +121,7 @@ class SettingsScreen extends StatelessWidget {
                   ),
                   value: settings.boldText,
                   onChanged: settings.setBoldText,
+                ),
                 ),
               ),
               const SizedBox(height: 16),

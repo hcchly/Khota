@@ -54,6 +54,10 @@ class ReportService {
       'location': GeoPoint(location.latitude, location.longitude),
       'locationSource': location.source,
       'locationAccuracyMeters': location.accuracyMeters,
+      // Readable district / street, saved once so lists show a place name
+      // instead of coordinates. Only written when the lookup found one.
+      if ((location.address ?? '').trim().isNotEmpty)
+        'address': location.address!.trim(),
       'reportStatus': statusPending,
       'analysisStatus': analysisProcessing,
       'issueClass': null,

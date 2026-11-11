@@ -18,7 +18,7 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Text(title),
       centerTitle: true,
       foregroundColor: Colors.white,
-      backgroundColor: AppColors.ink,
+      backgroundColor: AppColors.gradientTop,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
