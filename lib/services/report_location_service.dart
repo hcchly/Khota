@@ -195,8 +195,8 @@ class GpsReportLocationProvider implements ReportLocationProvider {
     }
   }
 
-  /// "حي <district>، <street>" from Nominatim address parts; null if neither
-  /// part is available.
+  /// `حي district، street` from Nominatim address parts, or the city when
+  /// neither is available; null if nothing is known.
   static String? formatAddress(Map<dynamic, dynamic> address) {
     String? part(List<String> keys) {
       for (final k in keys) {
@@ -211,7 +211,7 @@ class GpsReportLocationProvider implements ReportLocationProvider {
       district = 'حي $district';
     }
     final street = part(['road', 'pedestrian', 'footway']);
-    final parts = [if (district != null) district, if (street != null) street];
+    final parts = [?district, ?street];
     if (parts.isEmpty) return part(['city', 'town', 'village']);
     return parts.join('، ');
   }
