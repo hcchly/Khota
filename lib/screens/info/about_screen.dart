@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
+import '../../theme/khota_colors.dart';
 import '../../widgets/gradient_app_bar.dart';
 import '../../widgets/brand_surface.dart';
 import '../../widgets/info_card.dart';
@@ -12,7 +13,7 @@ class AboutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final bodyStyle = text.bodyLarge?.copyWith(
-      color: AppColors.ink.withValues(alpha: 0.76),
+      color: context.khota.muted(0.76),
       height: 1.65,
     );
 
@@ -42,7 +43,7 @@ class AboutScreen extends StatelessWidget {
                 Text(
                   'خُطى',
                   style: text.displaySmall?.copyWith(
-                    color: AppColors.warmWhite,
+                    color: Colors.white,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -114,9 +115,7 @@ class AboutScreen extends StatelessWidget {
           Text(
             'الإصدار ١٫٠٫٠',
             textAlign: TextAlign.center,
-            style: text.bodySmall?.copyWith(
-              color: AppColors.ink.withValues(alpha: 0.62),
-            ),
+            style: text.bodySmall?.copyWith(color: context.khota.muted(0.62)),
           ),
         ],
       ),

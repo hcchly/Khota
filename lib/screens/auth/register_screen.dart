@@ -7,6 +7,7 @@ import '../../widgets/gradient_app_bar.dart';
 import '../../widgets/labeled_field.dart';
 import '../../widgets/brand_surface.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/khota_colors.dart';
 import '../info/privacy_screen.dart';
 import '../shell/main_shell.dart';
 
@@ -181,9 +182,8 @@ class _ConsentField extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     return FormField<bool>(
       initialValue: value,
-      validator: (_) => value
-          ? null
-          : 'يجب الموافقة على سياسة الخصوصية لإنشاء الحساب',
+      validator: (_) =>
+          value ? null : 'يجب الموافقة على سياسة الخصوصية لإنشاء الحساب',
       builder: (field) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -192,9 +192,13 @@ class _ConsentField extends StatelessWidget {
             children: [
               Checkbox(
                 value: value,
-                activeColor: AppColors.greenDeep,
+                activeColor: context.khota.primary,
                 side: BorderSide(
-                  color: field.hasError ? AppColors.error : AppColors.slate,
+                  color: field.hasError
+                      ? AppColors.error
+                      : context.khota.isDark
+                      ? context.khota.mutedText
+                      : context.khota.outline,
                   width: 1.5,
                 ),
                 onChanged: enabled
@@ -218,10 +222,10 @@ class _ConsentField extends StatelessWidget {
                       child: Text(
                         'سياسة الخصوصية وشروط الاستخدام',
                         style: text.bodyMedium?.copyWith(
-                          color: AppColors.greenDeep,
+                          color: context.khota.primary,
                           fontWeight: FontWeight.w700,
                           decoration: TextDecoration.underline,
-                          decorationColor: AppColors.greenDeep,
+                          decorationColor: context.khota.primary,
                         ),
                       ),
                     ),

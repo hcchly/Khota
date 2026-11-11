@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../reports/reports_screen.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/khota_colors.dart';
 import '../reports/new_report_screen.dart';
 import '../reports/report_submitted_screen.dart';
 import '../../models/submitted_report.dart';
@@ -54,14 +55,15 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.khota;
     return Scaffold(
       body: _buildTab(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: _NewReportButton(onPressed: _openNewReport),
       bottomNavigationBar: BottomAppBar(
-        color: AppColors.mist,
+        color: colors.navBar,
         surfaceTintColor: Colors.transparent,
-        shadowColor: Colors.black.withValues(alpha: 0.25),
+        shadowColor: Colors.black.withValues(alpha: colors.isDark ? 0.5 : 0.25),
         elevation: 12,
         padding: EdgeInsets.zero,
         height: 80,
@@ -85,7 +87,7 @@ class _MainShellState extends State<MainShell> {
               onTap: () => _openTab(1),
             ),
             // Space for the centre button, with its label under it.
-            const SizedBox(
+            SizedBox(
               width: 88,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -93,12 +95,12 @@ class _MainShellState extends State<MainShell> {
                   Text(
                     'بلاغ جديد',
                     style: TextStyle(
-                      color: AppColors.greenDeep,
+                      color: colors.primary,
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  SizedBox(height: 14),
+                  const SizedBox(height: 14),
                 ],
               ),
             ),
@@ -140,9 +142,8 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected
-        ? AppColors.greenDeep
-        : AppColors.charcoal.withValues(alpha: 0.55);
+    final colors = context.khota;
+    final color = selected ? colors.primary : colors.muted(0.55);
     return Expanded(
       child: Semantics(
         selected: selected,
@@ -156,7 +157,10 @@ class _NavItem extends StatelessWidget {
             children: [
               AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 3),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 3,
+                ),
                 decoration: BoxDecoration(
                   color: selected
                       ? AppColors.mint.withValues(alpha: 0.18)
@@ -195,6 +199,7 @@ class _NewReportButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.khota;
     return Semantics(
       button: true,
       label: 'بلاغ جديد',
@@ -204,10 +209,12 @@ class _NewReportButton extends StatelessWidget {
         height: 68,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: AppColors.mist, width: 4),
+          border: Border.all(color: colors.navBar, width: 4),
           boxShadow: [
             BoxShadow(
-              color: AppColors.mint.withValues(alpha: 0.45),
+              color: AppColors.mint.withValues(
+                alpha: colors.isDark ? 0.25 : 0.45,
+              ),
               blurRadius: 16,
               offset: const Offset(0, 6),
             ),
@@ -217,19 +224,22 @@ class _NewReportButton extends StatelessWidget {
           shape: const CircleBorder(),
           clipBehavior: Clip.antiAlias,
           child: Ink(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
+              // Dark mode: the brand's solid primary green.
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [AppColors.mint, AppColors.greenDeep],
+                colors: colors.isDark
+                    ? const [AppColors.mint, AppColors.mint]
+                    : const [AppColors.mint, AppColors.greenDeep],
               ),
             ),
             child: InkWell(
               onTap: onPressed,
-              child: const Center(
+              child: Center(
                 child: Icon(
                   Icons.photo_camera_rounded,
-                  color: Colors.white,
+                  color: colors.onPrimary,
                   size: 30,
                 ),
               ),

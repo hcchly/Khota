@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/khota_colors.dart';
 import 'report_status_widgets.dart';
 import 'place_name.dart';
 import 'private_report_image.dart';
 
 /// Colour family of a [StatusChip].
-enum StatusTone { neutral, progress, success, info, warning }
+enum StatusTone { neutral, pending, progress, success, info, warning }
 
 /// Small rounded label, e.g. "قيد الانتظار".
 class StatusChip extends StatelessWidget {
@@ -37,12 +38,23 @@ class StatusChip extends StatelessWidget {
         return StatusChip(
           key: key,
           label: ReportStatusLabels.pending,
-          tone: StatusTone.neutral,
+          tone: StatusTone.pending,
         );
     }
   }
 
-  (Color, Color) get _colors {
+  (Color, Color) _colors(KhotaColors colors) {
+    if (colors.isDark) {
+      // Brand dark chips: amber for pending, green for the rest; errors stay red.
+      return switch (tone) {
+        StatusTone.warning => (
+          AppColors.error.withValues(alpha: 0.18),
+          AppColors.error,
+        ),
+        StatusTone.pending => colors.chip(pending: true),
+        _ => colors.chip(),
+      };
+    }
     switch (tone) {
       case StatusTone.progress:
         return (const Color(0xFFFBEFD5), const Color(0xFF8A5A00));
@@ -53,13 +65,14 @@ class StatusChip extends StatelessWidget {
       case StatusTone.warning:
         return (AppColors.error.withValues(alpha: 0.10), AppColors.error);
       case StatusTone.neutral:
+      case StatusTone.pending:
         return (AppColors.slate.withValues(alpha: 0.45), AppColors.indigo);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final (background, foreground) = _colors;
+    final (background, foreground) = _colors(context.khota);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -90,13 +103,14 @@ class AnalysisStatusLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.khota;
     final (IconData icon, String label, Color color) = switch (status
         .trim()
         .toLowerCase()) {
       'completed' || 'done' => (
         Icons.check_circle_outline,
         'اكتمل تحليل الصورة',
-        AppColors.teal,
+        colors.primary,
       ),
       'not_assessable' ||
       'notassessable' ||
@@ -104,7 +118,7 @@ class AnalysisStatusLine extends StatelessWidget {
       _ => (
         Icons.hourglass_top_rounded,
         ReportStatusLabels.analyzing,
-        AppColors.indigo.withValues(alpha: 0.7),
+        colors.muted(0.7),
       ),
     };
 
@@ -163,14 +177,15 @@ class ReportSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
 
-    final muted = AppColors.indigo.withValues(alpha: 0.6);
+    final colors = context.khota;
+    final muted = colors.muted(0.6);
 
     final radius = BorderRadius.circular(24);
     return Material(
-      color: AppColors.warmWhite,
+      color: colors.surface,
       shape: RoundedRectangleBorder(
         borderRadius: radius,
-        side: BorderSide(color: AppColors.ocean.withValues(alpha: 0.07)),
+        side: BorderSide(color: colors.cardBorder),
       ),
       child: InkWell(
         borderRadius: radius,
@@ -206,7 +221,7 @@ class ReportSummaryCard extends StatelessWidget {
                             reportNumber!,
                             textDirection: TextDirection.ltr,
                             style: text.labelSmall?.copyWith(
-                              color: AppColors.ocean,
+                              color: colors.primary,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -259,11 +274,14 @@ class _ThumbPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.khota;
     return ColoredBox(
-      color: AppColors.sand,
+      color: colors.surfaceSunken,
       child: Icon(
         Icons.photo_camera_outlined,
-        color: AppColors.slate.withValues(alpha: 0.9),
+        color: colors.isDark
+            ? colors.mutedText
+            : AppColors.slate.withValues(alpha: 0.9),
       ),
     );
   }

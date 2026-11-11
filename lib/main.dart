@@ -1,5 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
+
 import 'firebase_options.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -9,9 +11,7 @@ import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await AppSettings.instance.load();
   runApp(const KhotaApp());
 }
@@ -29,6 +29,8 @@ class KhotaApp extends StatelessWidget {
           title: 'خُطى',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: settings.themeMode,
 
           // Arabic only, right-to-left for the whole app.
           locale: const Locale('ar'),
@@ -44,8 +46,9 @@ class KhotaApp extends StatelessWidget {
           builder: (context, child) {
             final media = MediaQuery.of(context);
             final systemScale = media.textScaler.scale(1);
-            final scale =
-                (systemScale * settings.textScale).clamp(0.8, 2.0).toDouble();
+            final scale = (systemScale * settings.textScale)
+                .clamp(0.8, 2.0)
+                .toDouble();
             return MediaQuery(
               data: media.copyWith(
                 textScaler: TextScaler.linear(scale),

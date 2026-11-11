@@ -7,6 +7,7 @@ import '../../models/report_draft.dart';
 import '../../services/report_camera_service.dart';
 import '../../services/storage_service.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/khota_colors.dart';
 import '../../widgets/gradient_header.dart';
 import '../../widgets/info_card.dart';
 import '../../widgets/brand_surface.dart';
@@ -128,14 +129,13 @@ class _ReportPhotoScreenState extends State<ReportPhotoScreen> {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final muted = AppColors.indigo.withValues(alpha: 0.65);
+    final muted = context.khota.muted(0.65);
     return PopScope(
       canPop: !_uploading,
       child: Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight + 12),
           child: GradientHeader(
-            pattern: 4,
             child: Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: AppBar(
@@ -192,11 +192,11 @@ class _ReportPhotoScreenState extends State<ReportPhotoScreen> {
                               ),
                             ),
                             if (_accepted)
-                              const Tooltip(
+                              Tooltip(
                                 message: 'تم اختيار الصورة',
                                 child: Icon(
                                   Icons.check_circle_rounded,
-                                  color: AppColors.teal,
+                                  color: context.khota.primary,
                                 ),
                               ),
                           ],
@@ -205,7 +205,7 @@ class _ReportPhotoScreenState extends State<ReportPhotoScreen> {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(16),
                           child: ColoredBox(
-                            color: AppColors.sand,
+                            color: context.khota.background,
                             child: _image != null
                                 ? AspectRatio(
                                     aspectRatio: 4 / 3,
@@ -225,15 +225,14 @@ class _ReportPhotoScreenState extends State<ReportPhotoScreen> {
                                         Container(
                                           padding: const EdgeInsets.all(20),
                                           decoration: BoxDecoration(
-                                            color: AppColors.teal.withValues(
-                                              alpha: 0.1,
-                                            ),
+                                            color: context.khota.primary
+                                                .withValues(alpha: 0.1),
                                             shape: BoxShape.circle,
                                           ),
-                                          child: const Icon(
+                                          child: Icon(
                                             Icons.add_a_photo_outlined,
                                             size: 36,
-                                            color: AppColors.teal,
+                                            color: context.khota.primary,
                                           ),
                                         ),
                                         const SizedBox(height: 20),
@@ -258,8 +257,8 @@ class _ReportPhotoScreenState extends State<ReportPhotoScreen> {
                         ),
                         if (_busy) ...[
                           const SizedBox(height: 16),
-                          const LinearProgressIndicator(
-                            color: AppColors.teal,
+                          LinearProgressIndicator(
+                            color: context.khota.primary,
                             semanticsLabel: 'جارٍ تجهيز الصورة',
                           ),
                         ],
@@ -274,9 +273,11 @@ class _ReportPhotoScreenState extends State<ReportPhotoScreen> {
                           OutlinedButton.icon(
                             style: OutlinedButton.styleFrom(
                               minimumSize: const Size.fromHeight(52),
-                              foregroundColor: AppColors.indigo,
+                              foregroundColor: context.khota.text,
                               side: BorderSide(
-                                color: AppColors.slate.withValues(alpha: 0.6),
+                                color: context.khota.outline.withValues(
+                                  alpha: 0.6,
+                                ),
                               ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
@@ -343,7 +344,7 @@ class _ReportPhotoScreenState extends State<ReportPhotoScreen> {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.sand,
+                                  color: context.khota.background,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
@@ -367,11 +368,11 @@ class _ReportPhotoScreenState extends State<ReportPhotoScreen> {
                             minLines: 3,
                             maxLines: 5,
                             maxLength: ReportDraft.maxDescriptionLength,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'تفاصيل إضافية (اختياري)',
                               alignLabelWithHint: true,
                               hintText: 'مثال: بلاط مكسور يعيق مرور المشاة',
-                              fillColor: AppColors.warmWhite,
+                              fillColor: context.khota.surface,
                             ),
                           ),
                         ],
@@ -395,10 +396,10 @@ class _ReportPhotoScreenState extends State<ReportPhotoScreen> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.lightbulb_outline_rounded,
                           size: 20,
-                          color: AppColors.teal,
+                          color: context.khota.primary,
                         ),
                         const SizedBox(width: 8),
                         Expanded(

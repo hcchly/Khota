@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
+import '../theme/khota_colors.dart';
 
 /// Display labels used by the report interface.
 class ReportStatusLabels {
@@ -80,10 +80,11 @@ class _StatusItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = context.khota;
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.sand,
+        color: colors.surfaceSunken,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
@@ -93,7 +94,7 @@ class _StatusItem extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, color: AppColors.ocean, size: 16),
+                Icon(icon, color: colors.primary, size: 16),
                 const SizedBox(width: 6),
                 Expanded(child: Text(title, style: theme.textTheme.bodySmall)),
               ],
@@ -131,6 +132,7 @@ class ReportStatusFilters extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+    final colors = context.khota;
     return SizedBox(
       height: 48,
       child: ListView.separated(
@@ -142,16 +144,16 @@ class ReportStatusFilters extends StatelessWidget {
           final filter = ReportStatusLabels.filters[index];
           final selected = selectedFilter == filter;
           final count = counts[filter];
-          final fg = selected ? Colors.white : AppColors.charcoal;
+          final fg = selected ? colors.onPrimary : colors.text;
           return ChoiceChip(
             showCheckmark: false,
             selected: selected,
             onSelected: (_) => onFilterChanged(filter),
-            backgroundColor: AppColors.warmWhite,
-            selectedColor: AppColors.greenDeep,
+            backgroundColor: colors.surface,
+            selectedColor: colors.primary,
             shape: StadiumBorder(
               side: BorderSide(
-                color: selected ? AppColors.greenDeep : AppColors.slate,
+                color: selected ? colors.primary : colors.outline,
               ),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -174,8 +176,8 @@ class ReportStatusFilters extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: selected
-                          ? Colors.white.withValues(alpha: 0.22)
-                          : AppColors.mist,
+                          ? colors.onPrimary.withValues(alpha: 0.22)
+                          : colors.divider,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(

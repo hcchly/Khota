@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../settings/app_settings.dart';
-import '../../theme/app_colors.dart';
+import '../../theme/khota_colors.dart';
 import '../../widgets/gradient_app_bar.dart';
 import '../../widgets/info_card.dart';
 import '../../widgets/brand_surface.dart';
@@ -26,7 +26,7 @@ class SettingsScreen extends StatelessWidget {
               const BrandIntro(
                 eyebrow: 'تفضيلاتك',
                 title: 'خلّ خُطى على راحتك',
-                description: 'اضبط حجم الخط ووضوحه لتجربة قراءة تناسبك.',
+                description: 'اضبط حجم الخط ووضوحه ومظهر التطبيق بما يناسبك.',
                 icon: Icons.tune_rounded,
               ),
               const SizedBox(height: 20),
@@ -54,7 +54,7 @@ class SettingsScreen extends StatelessWidget {
                           child: Text(
                             AppSettings.textScaleLabels[index],
                             style: text.bodyMedium?.copyWith(
-                              color: AppColors.ocean,
+                              color: context.khota.primary,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -75,16 +75,16 @@ class SettingsScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(
-                        color: AppColors.sand,
+                        color: context.khota.background,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: AppColors.mist),
+                        border: Border.all(color: context.khota.divider),
                       ),
                       child: Column(
                         children: [
                           Text(
                             'معاينة النص',
                             style: text.labelMedium?.copyWith(
-                              color: AppColors.ocean,
+                              color: context.khota.primary,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -100,6 +100,8 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
+              _AppearanceCard(settings: settings),
+              const SizedBox(height: 12),
               InfoCard(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -109,19 +111,19 @@ class SettingsScreen extends StatelessWidget {
                 child: Material(
                   type: MaterialType.transparency,
                   child: SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(
-                    'نص عريض',
-                    style: text.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      'نص عريض',
+                      style: text.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
+                    subtitle: const Text(
+                      'يساعد على إبراز الكلمات أثناء القراءة.',
+                    ),
+                    value: settings.boldText,
+                    onChanged: settings.setBoldText,
                   ),
-                  subtitle: const Text(
-                    'يساعد على إبراز الكلمات أثناء القراءة.',
-                  ),
-                  value: settings.boldText,
-                  onChanged: settings.setBoldText,
-                ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -129,13 +131,72 @@ class SettingsScreen extends StatelessWidget {
                 'يتبع خُطى أيضًا إعدادات إمكانية الوصول في جهازك، '
                 'مثل حجم الخط وقارئ الشاشة.',
                 style: text.bodyMedium?.copyWith(
-                  color: AppColors.ink.withValues(alpha: 0.68),
+                  color: context.khota.muted(0.68),
                   height: 1.6,
                 ),
               ),
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+/// "المظهر": follow the device, or always light / always dark.
+class _AppearanceCard extends StatelessWidget {
+  const _AppearanceCard({required this.settings});
+
+  final AppSettings settings;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    return InfoCard(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              const IconTile(icon: Icons.contrast_rounded, size: 40),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Semantics(
+                  header: true,
+                  child: Text(
+                    'المظهر',
+                    style: text.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          // Own Material so the tiles' ink is not hidden by the card.
+          Material(
+            type: MaterialType.transparency,
+            child: RadioGroup<ThemeMode>(
+              groupValue: settings.themeMode,
+              onChanged: (mode) {
+                if (mode != null) settings.setThemeMode(mode);
+              },
+              child: Column(
+                children: [
+                  for (var i = 0; i < AppSettings.themeModes.length; i++)
+                    RadioListTile<ThemeMode>(
+                      key: ValueKey('theme-${AppSettings.themeModes[i].name}'),
+                      contentPadding: EdgeInsets.zero,
+                      value: AppSettings.themeModes[i],
+                      title: Text(AppSettings.themeModeLabels[i]),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
