@@ -20,6 +20,16 @@ class ReportFlowHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+    // The header stays compact at very large text sizes (up to 1.3x) so the
+    // step content and its buttons keep the screen; the content below still
+    // follows the full text size.
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: 1.3,
+      child: _header(text),
+    );
+  }
+
+  Widget _header(TextTheme text) {
     return GradientHeader(
       bottomRadius: 30,
       child: Padding(
@@ -56,6 +66,8 @@ class ReportFlowHeader extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(
                         title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: text.headlineSmall?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w800,
@@ -133,6 +145,8 @@ class _StepSegment extends StatelessWidget {
           Flexible(
             child: Text(
               label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: current ? AppColors.greenDeep : Colors.white,
                 fontSize: 12,
