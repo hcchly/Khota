@@ -92,14 +92,16 @@ class _SplashScreenState extends State<SplashScreen>
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: AppColors.ink,
+        backgroundColor: AppColors.gradientTop,
         body: BrandSurface(
           radius: 0,
           padding: EdgeInsets.zero,
+          showPattern: false, // the logo itself is the chevron
           child: SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final width = math.min(constraints.maxWidth * 0.78, 340.0);
+                // Compact logo: about half the screen width, at most 220.
+                final width = math.min(constraints.maxWidth * 0.52, 220.0);
                 return Stack(
                   fit: StackFit.expand,
                   children: [
@@ -127,7 +129,7 @@ class _SplashScreenState extends State<SplashScreen>
                               width: 36,
                               height: 3,
                               decoration: BoxDecoration(
-                                color: AppColors.mint,
+                                color: Colors.white,
                                 borderRadius: BorderRadius.circular(2),
                               ),
                             ),
@@ -135,9 +137,10 @@ class _SplashScreenState extends State<SplashScreen>
                             Text(
                               'أرصفة أفضل تبدأ بخطوة',
                               textAlign: TextAlign.center,
-                              style: text.titleMedium?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
+                              style: text.bodyLarge?.copyWith(
+                                color: Colors.white.withValues(alpha: 0.92),
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 0.3,
                                 height: 1.5,
                               ),
                             ),
@@ -184,7 +187,7 @@ class _KhotaLogo extends StatelessWidget {
               height: width * 0.66 * 248 / 338,
               child: _PaverMark(time: time),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 18),
             Opacity(
               opacity: progress,
               child: Transform.translate(
@@ -300,10 +303,10 @@ class _PaverMark extends StatelessWidget {
                 rect: area.deflate(1),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: AppColors.ocean.withValues(alpha: 0.38 * highlight),
+                    color: Colors.white.withValues(alpha: 0.22 * highlight),
                     borderRadius: BorderRadius.circular(3),
                     border: Border.all(
-                      color: AppColors.mint.withValues(alpha: 0.82 * highlight),
+                      color: Colors.white.withValues(alpha: 0.85 * highlight),
                     ),
                   ),
                 ),

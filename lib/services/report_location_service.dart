@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -146,8 +148,73 @@ class GpsReportLocationProvider implements ReportLocationProvider {
     );
   }
 
+  /// Turns the point into a readable place, e.g. "حي العليا، طريق الملك فهد",
+  /// using OpenStreetMap's Nominatim service (the same map data as the app's
+  /// map). One request per report, in Arabic. Returns null on any failure so
+  /// the report can still be sent with its coordinates.
   @override
-  Future<String?> addressFor(ReportLocation location) async => null;
+  Future<String?> addressFor(ReportLocation location) =>
+      lookupAddress(location.latitude, location.longitude);
+
+  static final Map<String, String?> _addressCache = {};
+
+  static Future<String?> lookupAddress(double latitude, double longitude) async {
+    if (kIsWeb) return null;
+    final key =
+        '${latitude.toStringAsFixed(5)},${longitude.toStringAsFixed(5)}';
+    if (_addressCache.containsKey(key)) return _addressCache[key];
+
+    final client = HttpClient()..connectionTimeout = const Duration(seconds: 6);
+    try {
+      final uri = Uri.https('nominatim.openstreetmap.org', '/reverse', {
+        'format': 'jsonv2',
+        'lat': '$latitude',
+        'lon': '$longitude',
+        'zoom': '17',
+        'addressdetails': '1',
+        'accept-language': 'ar',
+      });
+      final request = await client.getUrl(uri);
+      // Nominatim requires an identifying User-Agent.
+      request.headers.set(HttpHeaders.userAgentHeader, 'KhotaApp/1.0 (KSU)');
+      final response = await request.close().timeout(
+        const Duration(seconds: 8),
+      );
+      if (response.statusCode != 200) return null;
+      final body = await response.transform(utf8.decoder).join();
+      final data = jsonDecode(body);
+      final address = data is Map ? data['address'] : null;
+      final text = address is Map ? formatAddress(address) : null;
+      _addressCache[key] = text;
+      return text;
+    } catch (error) {
+      debugPrint('[Khota location] Address lookup failed: $error');
+      return null;
+    } finally {
+      client.close(force: true);
+    }
+  }
+
+  /// "حي <district>، <street>" from Nominatim address parts; null if neither
+  /// part is available.
+  static String? formatAddress(Map<dynamic, dynamic> address) {
+    String? part(List<String> keys) {
+      for (final k in keys) {
+        final v = address[k];
+        if (v is String && v.trim().isNotEmpty) return v.trim();
+      }
+      return null;
+    }
+
+    var district = part(['neighbourhood', 'suburb', 'quarter', 'city_district']);
+    if (district != null && !district.startsWith('حي')) {
+      district = 'حي $district';
+    }
+    final street = part(['road', 'pedestrian', 'footway']);
+    final parts = [if (district != null) district, if (street != null) street];
+    if (parts.isEmpty) return part(['city', 'town', 'village']);
+    return parts.join('، ');
+  }
 }
 
 class _ReportLocationPicker extends StatefulWidget {

@@ -6,6 +6,8 @@ import '../../utils/validators.dart';
 import '../../widgets/gradient_app_bar.dart';
 import '../../widgets/labeled_field.dart';
 import '../../widgets/brand_surface.dart';
+import '../../theme/app_colors.dart';
+import '../info/privacy_screen.dart';
 import '../shell/main_shell.dart';
 
 /// PBI-04: As a citizen, I want to create an account
@@ -27,6 +29,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
   bool _loading = false;
+  bool _accepted = false;
   String? _error;
 
   @override
@@ -140,6 +143,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   onFieldSubmitted: (_) => _register(),
                 ),
               ),
+              _ConsentField(
+                value: _accepted,
+                enabled: !_loading,
+                onChanged: (value) => setState(() => _accepted = value),
+              ),
+              const SizedBox(height: 12),
               if (_error != null) ErrorBox(_error!),
               const SizedBox(height: 4),
               LoadingButton(
@@ -150,6 +159,86 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// "I agree to the privacy policy" — required before an account is created.
+class _ConsentField extends StatelessWidget {
+  const _ConsentField({
+    required this.value,
+    required this.enabled,
+    required this.onChanged,
+  });
+
+  final bool value;
+  final bool enabled;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    return FormField<bool>(
+      initialValue: value,
+      validator: (_) => value
+          ? null
+          : 'يجب الموافقة على سياسة الخصوصية لإنشاء الحساب',
+      builder: (field) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Checkbox(
+                value: value,
+                activeColor: AppColors.greenDeep,
+                side: BorderSide(
+                  color: field.hasError ? AppColors.error : AppColors.slate,
+                  width: 1.5,
+                ),
+                onChanged: enabled
+                    ? (checked) {
+                        onChanged(checked ?? false);
+                        field.didChange(checked);
+                      }
+                    : null,
+              ),
+              Expanded(
+                child: Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text('أوافق على ', style: text.bodyMedium),
+                    InkWell(
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const PrivacyScreen(),
+                        ),
+                      ),
+                      child: Text(
+                        'سياسة الخصوصية وشروط الاستخدام',
+                        style: text.bodyMedium?.copyWith(
+                          color: AppColors.greenDeep,
+                          fontWeight: FontWeight.w700,
+                          decoration: TextDecoration.underline,
+                          decorationColor: AppColors.greenDeep,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (field.hasError)
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 12),
+              child: Text(
+                field.errorText!,
+                style: text.bodySmall?.copyWith(color: AppColors.error),
+              ),
+            ),
+        ],
       ),
     );
   }

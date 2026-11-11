@@ -59,9 +59,12 @@ service cloud.firestore {
           ])
           && data.keys().hasOnly([
             'userId', 'imageUrl', 'description', 'location', 'locationSource',
-            'locationAccuracyMeters', 'reportStatus', 'analysisStatus', 'issueClass', 'severity',
-            'createdAt', 'updatedAt'
+            'locationAccuracyMeters', 'address', 'reportStatus', 'analysisStatus',
+            'issueClass', 'severity', 'createdAt', 'updatedAt'
           ])
+          // Optional readable address (district / street).
+          && (!('address' in data)
+              || (data.address is string && data.address.size() <= 200))
           && data.userId == request.auth.uid
          && data.imageUrl is string
 && data.imageUrl.matches(
