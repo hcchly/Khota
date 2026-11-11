@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
+import '../theme/khota_colors.dart';
 import 'gradient_header.dart';
 
 class ReportFlowHeader extends StatelessWidget {
@@ -121,11 +121,14 @@ class _StepSegment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.khota;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 220),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       decoration: BoxDecoration(
-        color: current ? Colors.white : Colors.white.withValues(alpha: 0.14),
+        color: current
+            ? colors.headerBadge
+            : Colors.white.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -137,7 +140,7 @@ class _StepSegment extends StatelessWidget {
             Text(
               '$number',
               style: TextStyle(
-                color: current ? AppColors.greenDeep : Colors.white,
+                color: current ? colors.onHeaderBadge : Colors.white,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -148,7 +151,7 @@ class _StepSegment extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: current ? AppColors.greenDeep : Colors.white,
+                color: current ? colors.onHeaderBadge : Colors.white,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),

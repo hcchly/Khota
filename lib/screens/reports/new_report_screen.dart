@@ -12,6 +12,7 @@ import '../../services/report_location_service.dart';
 import '../../services/report_service.dart';
 import '../../services/storage_service.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/khota_colors.dart';
 import '../../widgets/info_card.dart';
 import '../../widgets/live_camera.dart';
 import '../../widgets/report_card.dart';
@@ -483,7 +484,7 @@ class _NewReportScreenState extends State<NewReportScreen>
                 ),
                 const SizedBox(height: 10),
                 OutlinedButton.icon(
-                  style: _outlinedStyle,
+                  style: _outlinedStyle(context),
                   onPressed: _picking ? null : () => _pickPhoto(gallery: true),
                   icon: const Icon(Icons.photo_library_outlined),
                   label: const Text('اختيار من المعرض'),
@@ -499,7 +500,7 @@ class _NewReportScreenState extends State<NewReportScreen>
                   children: [
                     Expanded(
                       child: OutlinedButton.icon(
-                        style: _outlinedStyle,
+                        style: _outlinedStyle(context),
                         onPressed: _picking ? null : _retake,
                         icon: const Icon(Icons.refresh_rounded, size: 20),
                         label: const Text('إعادة التصوير'),
@@ -508,7 +509,7 @@ class _NewReportScreenState extends State<NewReportScreen>
                     const SizedBox(width: 10),
                     Expanded(
                       child: OutlinedButton.icon(
-                        style: _outlinedStyle,
+                        style: _outlinedStyle(context),
                         onPressed: _picking
                             ? null
                             : () => _pickPhoto(gallery: true),
@@ -540,7 +541,7 @@ class _NewReportScreenState extends State<NewReportScreen>
           ElevatedButton(
             onPressed: _sending ? null : _submit,
             child: _sending
-                ? const Row(
+                ? Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       SizedBox(
@@ -548,11 +549,11 @@ class _NewReportScreenState extends State<NewReportScreen>
                         height: 18,
                         child: CircularProgressIndicator(
                           strokeWidth: 2.4,
-                          color: Colors.white,
+                          color: context.khota.onPrimary,
                         ),
                       ),
-                      SizedBox(width: 10),
-                      Text('جارٍ إرسال البلاغ…'),
+                      const SizedBox(width: 10),
+                      const Text('جارٍ إرسال البلاغ…'),
                     ],
                   )
                 : Text(_failedOnce ? 'إعادة المحاولة' : 'إرسال البلاغ'),
@@ -561,12 +562,14 @@ class _NewReportScreenState extends State<NewReportScreen>
     }
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.warmWhite,
+        color: context.khota.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
-        border: Border.all(color: AppColors.mist),
+        border: Border.all(color: context.khota.divider),
         boxShadow: [
           BoxShadow(
-            color: AppColors.indigo.withValues(alpha: 0.08),
+            color: context.khota.isDark
+                ? Colors.transparent
+                : AppColors.ink.withValues(alpha: 0.08),
             blurRadius: 12,
             offset: const Offset(0, -2),
           ),
@@ -586,10 +589,10 @@ class _NewReportScreenState extends State<NewReportScreen>
     );
   }
 
-  static final _outlinedStyle = OutlinedButton.styleFrom(
+  ButtonStyle _outlinedStyle(BuildContext context) => OutlinedButton.styleFrom(
     minimumSize: const Size.fromHeight(50),
-    foregroundColor: AppColors.indigo,
-    side: BorderSide(color: AppColors.slate.withValues(alpha: 0.8)),
+    foregroundColor: context.khota.text,
+    side: BorderSide(color: context.khota.outline.withValues(alpha: 0.8)),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
   );
 
@@ -629,8 +632,8 @@ class _NewReportScreenState extends State<NewReportScreen>
         ),
         if (_picking) ...[
           const SizedBox(height: 12),
-          const LinearProgressIndicator(
-            color: AppColors.teal,
+          LinearProgressIndicator(
+            color: context.khota.primary,
             semanticsLabel: 'جارٍ تجهيز الصورة',
           ),
         ],
@@ -643,9 +646,9 @@ class _NewReportScreenState extends State<NewReportScreen>
           padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
           child: Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.lightbulb_outline_rounded,
-                color: AppColors.teal,
+                color: context.khota.primary,
                 size: 22,
               ),
               const SizedBox(width: 10),
@@ -727,7 +730,7 @@ class _NewReportScreenState extends State<NewReportScreen>
 
   Widget _buildLocationStep(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final muted = AppColors.indigo.withValues(alpha: 0.65);
+    final muted = context.khota.muted(0.65);
     final map =
         _locator.buildMap(context, _location) ?? const _MapPlaceholder();
     return ListView(
@@ -760,8 +763,8 @@ class _NewReportScreenState extends State<NewReportScreen>
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const CircularProgressIndicator(
-                            color: AppColors.teal,
+                          CircularProgressIndicator(
+                            color: context.khota.primary,
                           ),
                           const SizedBox(height: 12),
                           Text(
@@ -795,9 +798,9 @@ class _NewReportScreenState extends State<NewReportScreen>
               children: [
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.location_on_outlined,
-                      color: AppColors.teal,
+                      color: context.khota.primary,
                     ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -828,7 +831,7 @@ class _NewReportScreenState extends State<NewReportScreen>
 
   Widget _buildReviewStep(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final muted = AppColors.indigo.withValues(alpha: 0.65);
+    final muted = context.khota.muted(0.65);
     return ListView(
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
@@ -926,11 +929,11 @@ class _NewReportScreenState extends State<NewReportScreen>
                 maxLines: 4,
                 maxLength: ReportDraft.maxDescriptionLength,
                 textInputAction: TextInputAction.done,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'تفاصيل إضافية (اختياري)',
                   alignLabelWithHint: true,
                   hintText: 'مثال: بلاط مكسور يعيق مرور المشاة',
-                  fillColor: Colors.white,
+                  fillColor: context.khota.surface,
                 ),
               ),
             ],
@@ -942,16 +945,18 @@ class _NewReportScreenState extends State<NewReportScreen>
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: AppColors.teal.withValues(alpha: 0.10),
+            color: context.khota.primary.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.teal.withValues(alpha: 0.35)),
+            border: Border.all(
+              color: context.khota.primary.withValues(alpha: 0.35),
+            ),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(
+              Icon(
                 Icons.auto_awesome_outlined,
-                color: AppColors.teal,
+                color: context.khota.primary,
                 size: 22,
               ),
               const SizedBox(width: 10),
@@ -960,7 +965,7 @@ class _NewReportScreenState extends State<NewReportScreen>
                   'بعد الإرسال، يحلّل النظام الصورة تلقائياً لتحديد نوع '
                   'المشكلة ومستوى خطورتها.',
                   style: text.bodySmall?.copyWith(
-                    color: AppColors.teal,
+                    color: context.khota.primary,
                     height: 1.6,
                   ),
                 ),
@@ -1044,11 +1049,7 @@ class LocationAccuracyBadge extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 16,
-              color: AppColors.indigo.withValues(alpha: 0.7),
-            ),
+            Icon(icon, size: 16, color: context.khota.muted(0.7)),
             const SizedBox(width: 6),
             Flexible(
               child: StatusChip(label: label, tone: tone),
@@ -1159,11 +1160,11 @@ class _ShutterButton extends StatelessWidget {
               padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.indigo, width: 4),
+                border: Border.all(color: AppColors.ink, width: 4),
               ),
-              child: const DecoratedBox(
+              child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: AppColors.indigo,
+                  color: AppColors.ink,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -1233,13 +1234,13 @@ class _MapPlaceholder extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         CustomPaint(painter: _MapPainter()),
-        const Center(
+        Center(
           child: Padding(
             padding: EdgeInsets.only(bottom: 28),
             child: Icon(
               Icons.location_on,
               size: 52,
-              color: AppColors.indigo,
+              color: AppColors.ink,
               semanticLabel: 'موقع البلاغ',
             ),
           ),
@@ -1308,12 +1309,14 @@ class _AddressChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: AppColors.warmWhite,
+        color: context.khota.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.slate),
+        border: Border.all(color: context.khota.outline),
         boxShadow: [
           BoxShadow(
-            color: AppColors.indigo.withValues(alpha: 0.10),
+            color: context.khota.isDark
+                ? Colors.transparent
+                : AppColors.ink.withValues(alpha: 0.10),
             blurRadius: 8,
           ),
         ],
@@ -1321,7 +1324,7 @@ class _AddressChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.place_outlined, color: AppColors.teal, size: 20),
+          Icon(Icons.place_outlined, color: context.khota.primary, size: 20),
           const SizedBox(width: 6),
           Flexible(
             child: Text(
@@ -1348,7 +1351,7 @@ class _Pill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.indigo.withValues(alpha: 0.85),
+        color: AppColors.ink.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -1375,7 +1378,7 @@ class _EditButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.indigo.withValues(alpha: 0.85),
+      color: AppColors.ink.withValues(alpha: 0.85),
       borderRadius: BorderRadius.circular(10),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),

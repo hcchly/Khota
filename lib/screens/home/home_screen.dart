@@ -2,11 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../models/app_user.dart';
 import '../../services/profile_service.dart';
 import '../../services/report_service.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/khota_colors.dart';
 import '../../utils/date_format.dart';
 import '../../widgets/coming_soon.dart';
 import '../../widgets/gradient_header.dart';
@@ -104,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _emptyReports(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final muted = AppColors.indigo.withValues(alpha: 0.65);
+    final muted = context.khota.muted(0.65);
     return InfoCard(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
       child: Column(
@@ -134,188 +136,192 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    return ListView(
-      padding: const EdgeInsets.only(bottom: 32),
-      children: [
-        GradientHeader(
-          bottomRadius: 34,
-          child: Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(22, 16, 22, 30),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      // Plain page background under the status bar.
+      value: context.khota.pageOverlayStyle,
+      child: ListView(
+        padding: const EdgeInsets.only(bottom: 32),
+        children: [
+          GradientHeader(
+            bottomRadius: 34,
+            child: Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(22, 16, 22, 30),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FutureBuilder<AppUser>(
+                    future: _profile,
+                    builder: (context, snapshot) {
+                      final user = snapshot.data;
+                      return Row(
+                        children: [
+                          Container(
+                            width: 46,
+                            height: 46,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: context.khota.headerBadge,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              user?.initial ?? '',
+                              style: text.titleLarge?.copyWith(
+                                color: context.khota.onHeaderBadge,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'أهلًا بك في خُطى',
+                                  style: text.bodySmall?.copyWith(
+                                    color: Colors.white.withValues(alpha: 0.85),
+                                  ),
+                                ),
+                                Text(
+                                  user?.fullName ?? '',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: text.titleMedium?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            tooltip: 'الإشعارات',
+                            onPressed: () => showComingSoon(context),
+                            style: IconButton.styleFrom(
+                              backgroundColor: Colors.white.withValues(
+                                alpha: 0.1,
+                              ),
+                              foregroundColor: Colors.white,
+                            ),
+                            icon: const Icon(Icons.notifications_none_rounded),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 26),
+                  Text(
+                    'أرصفة أفضل\nتبدأ بخطوة',
+                    style: text.headlineLarge?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      height: 1.35,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'بلّغ عن المشكلة، وتابع أثر خطوتك.',
+                    style: text.bodyMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      height: 1.6,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Photo guide card.
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: _GuideCard(onTap: () => _open(const PhotoGuideScreen())),
+          ),
+          const SizedBox(height: 28),
+
+          // Services: one row the user slides through.
+          const _SectionTitle('الخدمات'),
+          SizedBox(
+            height: 118,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              physics: const BouncingScrollPhysics(),
               children: [
-                FutureBuilder<AppUser>(
-                  future: _profile,
-                  builder: (context, snapshot) {
-                    final user = snapshot.data;
-                    return Row(
-                      children: [
-                        Container(
-                          width: 46,
-                          height: 46,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Text(
-                            user?.initial ?? '',
-                            style: text.titleLarge?.copyWith(
-                              color: AppColors.greenDeep,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'أهلًا بك في خُطى',
-                                style: text.bodySmall?.copyWith(
-                                  color: Colors.white.withValues(alpha: 0.85),
-                                ),
-                              ),
-                              Text(
-                                user?.fullName ?? '',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: text.titleMedium?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          tooltip: 'الإشعارات',
-                          onPressed: () => showComingSoon(context),
-                          style: IconButton.styleFrom(
-                            backgroundColor: Colors.white.withValues(
-                              alpha: 0.1,
-                            ),
-                            foregroundColor: Colors.white,
-                          ),
-                          icon: const Icon(Icons.notifications_none_rounded),
-                        ),
-                      ],
-                    );
-                  },
+                _ServiceTile(
+                  icon: Icons.assignment_outlined,
+                  label: 'بلاغاتي',
+                  onTap: () => widget.onOpenTab(1),
                 ),
-                const SizedBox(height: 26),
-                Text(
-                  'أرصفة أفضل\nتبدأ بخطوة',
-                  style: text.headlineLarge?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    height: 1.35,
-                  ),
+                _ServiceTile(
+                  icon: Icons.directions_walk_rounded,
+                  label: 'خريطة خُطى',
+                  onTap: () => widget.onOpenTab(2),
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  'بلّغ عن المشكلة، وتابع أثر خطوتك.',
-                  style: text.bodyMedium?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    height: 1.6,
-                  ),
+                _ServiceTile(
+                  icon: Icons.photo_camera_rounded,
+                  label: 'دليل التصوير',
+                  onTap: () => _open(const PhotoGuideScreen()),
+                ),
+                _ServiceTile(
+                  icon: Icons.info_rounded,
+                  label: 'عن خُطى',
+                  onTap: () => _open(const AboutScreen()),
                 ),
               ],
             ),
           ),
-        ),
-        const SizedBox(height: 20),
+          const SizedBox(height: 28),
 
-        // Photo guide card.
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: _GuideCard(onTap: () => _open(const PhotoGuideScreen())),
-        ),
-        const SizedBox(height: 28),
-
-        // Services: one row the user slides through.
-        const _SectionTitle('الخدمات'),
-        SizedBox(
-          height: 118,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
+          _SectionTitle(
+            'آخر البلاغات',
+            action: TextButton(
+              onPressed: () => widget.onOpenTab(1),
+              child: const Text('عرض الكل'),
+            ),
+          ),
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            physics: const BouncingScrollPhysics(),
-            children: [
-              _ServiceTile(
-                icon: Icons.assignment_outlined,
-                label: 'بلاغاتي',
-                onTap: () => widget.onOpenTab(1),
-              ),
-              _ServiceTile(
-                icon: Icons.directions_walk_rounded,
-                label: 'خريطة خُطى',
-                onTap: () => widget.onOpenTab(2),
-              ),
-              _ServiceTile(
-                icon: Icons.photo_camera_rounded,
-                label: 'دليل التصوير',
-                onTap: () => _open(const PhotoGuideScreen()),
-              ),
-              _ServiceTile(
-                icon: Icons.info_rounded,
-                label: 'عن خُطى',
-                onTap: () => _open(const AboutScreen()),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 28),
-
-        _SectionTitle(
-          'آخر البلاغات',
-          action: TextButton(
-            onPressed: () => widget.onOpenTab(1),
-            child: const Text('عرض الكل'),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-            stream: _reports,
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return const InfoCard(
-                  child: Text(
-                    'تعذّر تحميل آخر البلاغات.',
-                    textAlign: TextAlign.center,
-                  ),
-                );
-              }
-
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-
-              final reports = snapshot.data?.docs.toList() ?? [];
-              if (reports.isEmpty) return _emptyReports(context);
-              reports.sort(_newestFirst);
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (final report in reports.take(3))
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: _reportCard(context, report),
+            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              stream: _reports,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return const InfoCard(
+                    child: Text(
+                      'تعذّر تحميل آخر البلاغات.',
+                      textAlign: TextAlign.center,
                     ),
-                ],
-              );
-            },
+                  );
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                final reports = snapshot.data?.docs.toList() ?? [];
+                if (reports.isEmpty) return _emptyReports(context);
+                reports.sort(_newestFirst);
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final report in reports.take(3))
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: _reportCard(context, report),
+                      ),
+                  ],
+                );
+              },
+            ),
           ),
-        ),
-        const SizedBox(height: 48), // space above the centre button
-      ],
+          const SizedBox(height: 48), // space above the centre button
+        ],
+      ),
     );
   }
 }
@@ -364,12 +370,15 @@ class _GuideCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+    final colors = context.khota;
     final radius = BorderRadius.circular(24);
     return Material(
-      color: Color.alphaBlend(
-        AppColors.mint.withValues(alpha: 0.12),
-        Colors.white,
-      ),
+      color: colors.isDark
+          ? colors.surface
+          : Color.alphaBlend(
+              AppColors.mint.withValues(alpha: 0.12),
+              Colors.white,
+            ),
       shape: RoundedRectangleBorder(
         borderRadius: radius,
         side: BorderSide(color: AppColors.mint.withValues(alpha: 0.45)),
@@ -387,10 +396,10 @@ class _GuideCard extends StatelessWidget {
                   color: AppColors.mint,
                   borderRadius: BorderRadius.circular(18),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.photo_camera_rounded,
                   size: 26,
-                  color: Colors.white,
+                  color: colors.isDark ? colors.onPrimary : Colors.white,
                 ),
               ),
               const SizedBox(width: 14),
@@ -401,7 +410,7 @@ class _GuideCard extends StatelessWidget {
                     Text(
                       'صورة أوضح. بلاغ أدق.',
                       style: text.titleMedium?.copyWith(
-                        color: AppColors.charcoal,
+                        color: colors.text,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -409,7 +418,7 @@ class _GuideCard extends StatelessWidget {
                     Text(
                       'افتح دليل التصوير قبل إرسال بلاغك.',
                       style: text.bodySmall?.copyWith(
-                        color: AppColors.charcoal.withValues(alpha: 0.7),
+                        color: colors.muted(0.7),
                         height: 1.5,
                       ),
                     ),
@@ -417,7 +426,7 @@ class _GuideCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-              const Icon(Icons.arrow_back_rounded, color: AppColors.greenDeep),
+              Icon(Icons.arrow_back_rounded, color: colors.primary),
             ],
           ),
         ),
@@ -439,15 +448,16 @@ class _ServiceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.khota;
     final radius = BorderRadius.circular(18);
     return Padding(
       padding: const EdgeInsetsDirectional.only(end: 10, bottom: 6),
       child: Material(
-        color: AppColors.warmWhite,
+        color: colors.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: radius,
-          side: const BorderSide(color: AppColors.mist),
+          side: BorderSide(color: colors.divider),
         ),
         child: InkWell(
           borderRadius: radius,
@@ -461,10 +471,12 @@ class _ServiceTile extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: AppColors.mint.withValues(alpha: 0.14),
+                    color: AppColors.mint.withValues(
+                      alpha: colors.isDark ? 0.18 : 0.14,
+                    ),
                     borderRadius: BorderRadius.circular(15),
                   ),
-                  child: Icon(icon, color: AppColors.greenDeep, size: 25),
+                  child: Icon(icon, color: colors.primary, size: 25),
                 ),
                 const SizedBox(height: 10),
                 Text(
@@ -473,7 +485,7 @@ class _ServiceTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: AppColors.charcoal,
+                    color: colors.text,
                   ),
                 ),
               ],

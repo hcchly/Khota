@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../../services/auth_service.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/khota_colors.dart';
 import '../../widgets/brand_surface.dart';
 import '../shell/main_shell.dart';
 import 'login_screen.dart';
@@ -43,6 +44,9 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // Warm up the header pattern for the current mode so the first screen's
+    // header shows the image straight away, not the fallback colour.
+    precacheImage(AssetImage(context.khota.headerImage), context);
     if (_started) return;
     _started = true;
 
@@ -92,11 +96,14 @@ class _SplashScreenState extends State<SplashScreen>
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: AppColors.gradientTop,
+        backgroundColor: context.khota.isDark
+            ? context.khota.background
+            : AppColors.gradientTop,
         body: BrandSurface(
           radius: 0,
           padding: EdgeInsets.zero,
-          showPattern: false, // the logo itself is the chevron
+          art: BrandArt.splash,
+          alignment: Alignment.center,
           child: SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -303,10 +310,10 @@ class _PaverMark extends StatelessWidget {
                 rect: area.deflate(1),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.22 * highlight),
+                    color: Colors.white.withValues(alpha: 0.11 * highlight),
                     borderRadius: BorderRadius.circular(3),
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.85 * highlight),
+                      color: Colors.white.withValues(alpha: 0.425 * highlight),
                     ),
                   ),
                 ),

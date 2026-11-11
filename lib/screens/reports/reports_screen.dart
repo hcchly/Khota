@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../services/report_service.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/khota_colors.dart';
 import '../../widgets/info_card.dart';
 import '../../widgets/brand_surface.dart';
 import '../../widgets/private_report_image.dart';
@@ -251,25 +253,25 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Widget _emptyState(List<CitizenReport> reports) {
     return InfoCard(
-        child: Column(
-          children: [
-            const Icon(Icons.inbox_outlined, size: 48, color: AppColors.teal),
+      child: Column(
+        children: [
+          Icon(Icons.inbox_outlined, size: 48, color: context.khota.primary),
 
+          const SizedBox(height: 12),
+
+          Text(
+            reports.isEmpty
+                ? 'لا توجد بلاغات بعد'
+                : 'لا توجد بلاغات بهذه الحالة',
+          ),
+
+          if (reports.isEmpty && !previewMode) ...[
             const SizedBox(height: 12),
-
-            Text(
-              reports.isEmpty
-                  ? 'لا توجد بلاغات بعد'
-                  : 'لا توجد بلاغات بهذه الحالة',
-            ),
-
-            if (reports.isEmpty && !previewMode) ...[
-              const SizedBox(height: 12),
-              if (kDebugMode) previewButton(),
-            ],
+            if (kDebugMode) previewButton(),
           ],
-        ),
-      );
+        ],
+      ),
+    );
   }
 
   Widget _reportCards(List<CitizenReport> filtered) {
@@ -286,10 +288,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 children: [
                   Row(
                     children: [
-                      const IconTile(
-                        icon: Icons.assignment_outlined,
-                        size: 38,
-                      ),
+                      const IconTile(icon: Icons.assignment_outlined, size: 38),
                       const SizedBox(width: 10),
 
                       Expanded(
@@ -301,9 +300,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         ),
                       ),
 
-                      const Icon(
+                      Icon(
                         Icons.chevron_left_rounded,
-                        color: AppColors.ocean,
+                        color: context.khota.primary,
                       ),
                     ],
                   ),
@@ -312,9 +311,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
                   Text(
                     report.description,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.ink.withValues(alpha: 0.76),
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium
+                        ?.copyWith(color: context.khota.muted(0.76)),
                   ),
 
                   const SizedBox(height: 16),
@@ -390,48 +388,52 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 24, 16, 96),
-        children: [
-          const BrandIntro(
-            eyebrow: 'بلاغاتي',
-            title: 'كل خطوة موثّقة',
-            description: 'تابع بلاغاتك، من إرسال الصورة إلى آخر تحديث.',
-            icon: Icons.assignment_outlined,
-          ),
-          const SizedBox(height: 20),
-
-          if (previewMode) ...[
-            InfoCard(
-              color: AppColors.tealLight.withValues(alpha: 0.18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'وضع المعاينة: هذه أمثلة تجريبية وليست بلاغات حقيقية.',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        previewMode = false;
-                        selectedFilter = 'الكل';
-                      });
-                    },
-                    child: const Text('العودة إلى بلاغاتي الحقيقية'),
-                  ),
-                ],
-              ),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      // Plain page background under the status bar.
+      value: context.khota.pageOverlayStyle,
+      child: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 96),
+          children: [
+            const BrandIntro(
+              eyebrow: 'بلاغاتي',
+              title: 'كل خطوة موثّقة',
+              description: 'تابع بلاغاتك، من إرسال الصورة إلى آخر تحديث.',
+              icon: Icons.assignment_outlined,
             ),
+            const SizedBox(height: 20),
 
-            const SizedBox(height: 16),
+            if (previewMode) ...[
+              InfoCard(
+                color: AppColors.tealLight.withValues(alpha: 0.18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text(
+                      'وضع المعاينة: هذه أمثلة تجريبية وليست بلاغات حقيقية.',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
 
-            buildReportList(sampleReports),
-          ] else
-            buildLiveReports(),
-        ],
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          previewMode = false;
+                          selectedFilter = 'الكل';
+                        });
+                      },
+                      child: const Text('العودة إلى بلاغاتي الحقيقية'),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              buildReportList(sampleReports),
+            ] else
+              buildLiveReports(),
+          ],
+        ),
       ),
     );
   }
