@@ -7,8 +7,10 @@ import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../theme/khota_colors.dart';
+import '../../utils/report_labels.dart';
 import '../../widgets/gradient_app_bar.dart';
 import '../../widgets/brand_surface.dart';
+import '../../widgets/report_map_marker.dart';
 import '../../widgets/report_status_widgets.dart';
 
 class ReportsMapScreen extends StatefulWidget {
@@ -51,16 +53,8 @@ class _ReportsMapScreenState extends State<ReportsMapScreen> {
   }
 
   void _showReport(Map<String, dynamic> data) {
-    final issueClass = switch (data['issueClass']) {
-      'surface_damage' => 'تضرر سطح الرصيف',
-      'curb_ramp_issue' => 'مشكلة في منحدر الرصيف',
-      _ => 'غير محدد',
-    };
-    final severity = switch (data['severity']) {
-      'high' || 'severe' => 'عالية',
-      'low_medium' || 'non_severe' => 'منخفضة إلى متوسطة',
-      _ => 'غير محددة',
-    };
+    final issueClass = issueClassLabel(data['issueClass']);
+    final severity = severityLabel(data['severity']);
     final status = switch (data['reportStatus']) {
       'pending' => ReportStatusLabels.pending,
       'in_progress' => ReportStatusLabels.inProgress,
@@ -114,20 +108,11 @@ class _ReportsMapScreenState extends State<ReportsMapScreen> {
       point: LatLng(latitude.toDouble(), longitude.toDouble()),
       width: 48,
       height: 48,
-      child: IconButton(
-        tooltip: 'عرض ملخص البلاغ',
+      // Coloured by report status; warning icon and red border when severe.
+      child: ReportMapMarker(
+        reportStatus: data['reportStatus'],
+        severity: data['severity'],
         onPressed: () => _showReport(data),
-        style: IconButton.styleFrom(
-          backgroundColor: context.khota.primary,
-          foregroundColor: context.khota.onPrimary,
-          side: BorderSide(
-            color: context.khota.isDark
-                ? context.khota.background
-                : Colors.white,
-            width: 2,
-          ),
-        ),
-        icon: const Icon(Icons.location_on_rounded, size: 25),
       ),
     );
   }
@@ -162,8 +147,9 @@ class _ReportsMapScreenState extends State<ReportsMapScreen> {
                   maxZoom: 19,
                   onMapReady: () {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted)
+                      if (mounted) {
                         _loadMarkers(_controller.camera.visibleBounds);
+                      }
                     });
                   },
                   onPositionChanged: _queueLoad,
@@ -213,6 +199,11 @@ class _ReportsMapScreenState extends State<ReportsMapScreen> {
                     ),
                   ),
                 ),
+              const Positioned(
+                bottom: 8,
+                left: 8,
+                child: ReportMapLegend(),
+              ),
               Positioned(
                 bottom: 4,
                 right: 4,

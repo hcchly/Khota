@@ -6,7 +6,7 @@
 // tree, read text, and verify that the values of widget properties are correct.
 import 'package:flutter_test/flutter_test.dart';
 
-import '../lib/models/app_user.dart';
+import 'package:khota_app/models/app_user.dart';
 
 void main() {
   test('AppUser.initial returns the first letter of the name', () {
