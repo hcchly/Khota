@@ -25,7 +25,7 @@ Supervisor: Prof. Reham Alabduljabbar
 
 AI-based severity assessment, PIQS scoring, notifications, and the
 administrator dashboard are planned for Release 2. The machine-learning code
-is in a separate repository: https://github.com/hcchly/Khota-ML
+is in a separate repository.
 
 ## Technologies
 
