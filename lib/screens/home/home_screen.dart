@@ -10,6 +10,7 @@ import '../../services/report_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/khota_colors.dart';
 import '../../utils/date_format.dart';
+import '../../utils/report_sort.dart';
 import '../../widgets/coming_soon.dart';
 import '../../widgets/gradient_header.dart';
 import '../../widgets/info_card.dart';
@@ -58,14 +59,12 @@ class _HomeScreenState extends State<HomeScreen> {
   int _newestFirst(
     QueryDocumentSnapshot<Map<String, dynamic>> first,
     QueryDocumentSnapshot<Map<String, dynamic>> second,
-  ) {
-    final firstDate = _createdAt(first);
-    final secondDate = _createdAt(second);
-    if (firstDate == null && secondDate != null) return 1;
-    if (secondDate == null && firstDate != null) return -1;
-    final byDate = firstDate == null ? 0 : secondDate!.compareTo(firstDate);
-    return byDate == 0 ? first.id.compareTo(second.id) : byDate;
-  }
+  ) => compareNewestFirst(
+    _createdAt(first),
+    first.id,
+    _createdAt(second),
+    second.id,
+  );
 
   Widget _reportCard(
     BuildContext context,
@@ -353,7 +352,7 @@ class _SectionTitle extends StatelessWidget {
               ),
             ),
           ),
-          if (action != null) action!,
+          ?action,
         ],
       ),
     );

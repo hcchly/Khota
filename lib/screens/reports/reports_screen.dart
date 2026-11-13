@@ -2,99 +2,28 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../models/citizen_report.dart';
 import '../../services/report_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/khota_colors.dart';
 import '../../widgets/info_card.dart';
 import '../../widgets/brand_surface.dart';
-import '../../widgets/private_report_image.dart';
+import '../../widgets/place_name.dart';
 import '../../widgets/report_status_widgets.dart';
+import 'report_details_screen.dart';
 
-class CitizenReport {
-  const CitizenReport({
-    required this.id,
-    required this.description,
-    required this.reportStatus,
-    required this.analysisStatus,
-    this.imageUrl,
-  });
-
-  final String id;
-  final String description;
-  final String reportStatus;
-  final String analysisStatus;
-
-  // New reports store a private Firebase Storage path.
-  final String? imageUrl;
-
-  static String reportLabel(dynamic value) {
-    final s = (value ?? '').toString().trim().toLowerCase();
-
-    if (s == 'pending' || s == 'قيد الانتظار') {
-      return ReportStatusLabels.pending;
-    }
-
-    if (s == 'inprogress' ||
-        s == 'in_progress' ||
-        s == 'in progress' ||
-        s == 'قيد التنفيذ من الجهة المختصة') {
-      return ReportStatusLabels.inProgress;
-    }
-
-    if (s == 'resolved' || s == 'completed' || s == 'done' || s == 'تم الحل') {
-      return ReportStatusLabels.resolved;
-    }
-
-    return 'حالة البلاغ غير متاحة';
-  }
-
-  static String analysisLabel(dynamic value) {
-    final s = (value ?? '').toString().trim().toLowerCase();
-
-    if (s == 'processing' || s == 'analyzing' || s == 'جارٍ تحليل الصورة') {
-      return ReportStatusLabels.analyzing;
-    }
-
-    if (s == 'completed' || s == 'done') {
-      return 'اكتمل تحليل الصورة';
-    }
-
-    if (s == 'failed' || s == 'not_assessable' || s == 'notassessable') {
-      return 'تعذّر تحليل الصورة';
-    }
-
-    return 'حالة التحليل غير متاحة';
-  }
-
-  factory CitizenReport.fromFirestore(
-    QueryDocumentSnapshot<Map<String, dynamic>> doc,
-  ) {
-    final data = doc.data();
-
-    final description = (data['description'] ?? '').toString().trim();
-
-    final image = data['imageUrl'];
-
-    return CitizenReport(
-      id: doc.id,
-      description: description.isEmpty
-          ? 'بلاغ عن مشكلة في الرصيف'
-          : description,
-      reportStatus: reportLabel(data['reportStatus'] ?? data['status']),
-      analysisStatus: analysisLabel(
-        data['analysisStatus'] ?? data['imageAnalysisStatus'],
-      ),
-      imageUrl: image is String && image.isNotEmpty ? image : null,
-    );
-  }
-}
+export '../../models/citizen_report.dart';
 
 class ReportsScreen extends StatefulWidget {
-  const ReportsScreen({super.key, this.initialPreview = false});
+  const ReportsScreen({super.key, this.initialPreview = false, this.reports});
 
   final bool initialPreview;
+
+  /// Overrides the signed-in citizen's reports from Firestore (tests).
+  final Stream<List<CitizenReport>>? reports;
 
   @override
   State<ReportsScreen> createState() => _ReportsScreenState();
@@ -105,94 +34,53 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   late bool previewMode = widget.initialPreview;
 
+  /// Created once, so changing the filter does not restart the listener.
+  late final Stream<List<CitizenReport>>? _liveReports =
+      widget.reports ?? _watchOwnReports();
+
   // Demo reports are for UI preview only.
   // They are not real citizen reports.
-  static const sampleReports = <CitizenReport>[
+  static final sampleReports = <CitizenReport>[
     CitizenReport(
       id: 'DEMO-01',
       description: 'بلاط رصيف مكسور',
       reportStatus: ReportStatusLabels.pending,
       analysisStatus: ReportStatusLabels.analyzing,
+      createdAt: DateTime(2026, 11, 12),
+      address: 'حي العليا، طريق الملك فهد',
     ),
     CitizenReport(
       id: 'DEMO-02',
       description: 'منحدر رصيف يحتاج إلى صيانة',
       reportStatus: ReportStatusLabels.inProgress,
       analysisStatus: 'اكتمل تحليل الصورة',
+      createdAt: DateTime(2026, 11, 5),
+      address: 'حي النرجس، شارع أنس بن مالك',
+      issueClass: 'curb_ramp_issue',
+      severity: 'non_severe',
     ),
     CitizenReport(
       id: 'DEMO-03',
       description: 'رصيف مائل قرب ممر مشاة',
       reportStatus: ReportStatusLabels.resolved,
       analysisStatus: 'اكتمل تحليل الصورة',
+      createdAt: DateTime(2026, 10, 20),
+      address: 'حي الملقا، طريق الأمير محمد بن سعد',
+      issueClass: 'surface_damage',
+      severity: 'severe',
     ),
   ];
 
   // Display the same report number used after submission.
-  String displayReportNumber(String id) {
-    if (id.startsWith('DEMO-')) {
-      return id;
-    }
+  String displayReportNumber(String id) =>
+      ReportDetailsScreen.displayNumber(id);
 
-    return ReportService.displayNumber(id);
-  }
-
-  // Open report details.
+  // Open report details on a separate page.
   void openDetails(CitizenReport report) {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (context) {
-        return SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'تفاصيل البلاغ',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-
-                const SizedBox(height: 12),
-
-                Text('رقم البلاغ: ${displayReportNumber(report.id)}'),
-
-                const SizedBox(height: 12),
-
-                Text(report.description),
-
-                // Load private image through Firebase Storage.
-                if (report.imageUrl != null) ...[
-                  const SizedBox(height: 16),
-
-                  PrivateReportImage(
-                    imageRef: report.imageUrl!,
-                    height: 160,
-                    fit: BoxFit.cover,
-                  ),
-                ],
-
-                const SizedBox(height: 20),
-
-                // Image analysis and report status
-                // are two separate processes.
-                ReportStatusSummary(
-                  analysisStatus: report.analysisStatus,
-                  reportStatus: report.reportStatus,
-                ),
-
-                if (previewMode) ...[
-                  const SizedBox(height: 16),
-                  const Text('هذا بلاغ تجريبي وليس بلاغًا حقيقيًا.'),
-                ],
-              ],
-            ),
-          ),
-        );
-      },
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ReportDetailsScreen(report: report, demo: previewMode),
+      ),
     );
   }
 
@@ -210,8 +98,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
     );
   }
 
-  // Build reports according to selected filter.
-  Widget buildReportList(List<CitizenReport> reports) {
+  // Build reports according to selected filter, newest first.
+  Widget buildReportList(List<CitizenReport> unsorted) {
+    final reports = [...unsorted]..sort(CitizenReport.newestFirst);
+
     final filtered = selectedFilter == ReportStatusLabels.all
         ? reports
         : reports
@@ -275,10 +165,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   Widget _reportCards(List<CitizenReport> filtered) {
+    final text = Theme.of(context).textTheme;
+    final muted = context.khota.muted(0.6);
+
     return Column(
       children: [
         for (final report in filtered) ...[
           InkWell(
+            key: ValueKey(report.id),
             onTap: () => openDetails(report),
             borderRadius: BorderRadius.circular(20),
             child: InfoCard(
@@ -311,8 +205,46 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
                   Text(
                     report.description,
-                    style: Theme.of(context).textTheme.bodyMedium
-                        ?.copyWith(color: context.khota.muted(0.76)),
+                    style: text.bodyMedium?.copyWith(
+                      color: context.khota.muted(0.76),
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // Place name and date, as on the home cards.
+                  Row(
+                    children: [
+                      Icon(Icons.location_on_outlined, size: 16, color: muted),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: PlaceName(
+                          address: report.address,
+                          latitude: report.latitude,
+                          longitude: report.longitude,
+                          style: text.bodySmall?.copyWith(color: muted),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 6),
+
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today_outlined,
+                        size: 16,
+                        color: muted,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          report.dateText,
+                          style: text.labelSmall?.copyWith(color: muted),
+                        ),
+                      ),
+                    ],
                   ),
 
                   const SizedBox(height: 16),
@@ -332,11 +264,25 @@ class _ReportsScreenState extends State<ReportsScreen> {
     );
   }
 
-  // Read only the signed-in citizen's reports.
-  Widget buildLiveReports() {
+  // Read only the signed-in citizen's reports, live.
+  Stream<List<CitizenReport>>? _watchOwnReports() {
+    if (Firebase.apps.isEmpty) return null;
     final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return null;
 
-    if (userId == null) {
+    return FirebaseFirestore.instance
+        .collection(ReportService.collection)
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs.map(CitizenReport.fromFirestore).toList(),
+        );
+  }
+
+  Widget buildLiveReports() {
+    final reports = _liveReports;
+
+    if (reports == null) {
       return InfoCard(
         child: Column(
           children: [
@@ -350,11 +296,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
       );
     }
 
-    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: FirebaseFirestore.instance
-          .collection('reports')
-          .where('userId', isEqualTo: userId)
-          .snapshots(),
+    return StreamBuilder<List<CitizenReport>>(
+      stream: reports,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return InfoCard(
@@ -377,11 +320,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final reports = snapshot.data!.docs
-            .map(CitizenReport.fromFirestore)
-            .toList();
-
-        return buildReportList(reports);
+        return buildReportList(snapshot.data!);
       },
     );
   }
